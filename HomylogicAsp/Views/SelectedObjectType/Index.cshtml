@@ -1,0 +1,41 @@
+﻿@model HomylogicAsp.Models.SelectedObjectTypeViewModel
+@{
+    ViewData["Title"] = ViewData.Model.ObjectTypeName;
+    ViewData["SubTitle"] = (ViewData.Model.ObjectTypeName switch
+    {
+        "Devices" => "Select new device type",
+        "Triggers" => "Select new trigger type",
+        _ => "Select new object type"
+    });
+}
+
+<h1>@ViewData["Title"]</h1>
+<h4><img id="navigate-back" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
+<hr />
+
+
+@foreach (X.Basic.CodeDom.Ennum.EnnumValues ennumValues in ViewData.Model.SelectableValues)
+{
+    <input type="button" onclick="OnClick(@Convert.ToInt32(ennumValues.Value))" value="@ennumValues.Description" />
+}
+<hr />
+
+<!-- Zrušené
+<div>
+    <a asp-controller="@ViewData["Title"]" asp-action="Index">Back to List</a>
+</div>
+-->
+
+<script>
+
+    function OnClick(objectType)
+    {
+        window.location = "@ViewData["Title"]/Create?objectType=" + objectType
+    }
+
+
+
+</script>
+
+
+

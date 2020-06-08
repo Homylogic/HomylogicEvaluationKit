@@ -1,0 +1,85 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup Label="Globals">
+    <SccProjectName></SccProjectName>
+    <SccProvider></SccProvider>
+    <SccAuxPath></SccAuxPath>
+    <SccLocalPath></SccLocalPath>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>homylogic</AssemblyName>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>bin\Debug\</OutputPath>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="wwwroot\ssl\generate_certs.bat" />
+    <Content Remove="wwwroot\ssl\homylogic.cnf" />
+    <Content Remove="wwwroot\ssl\random.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="datalogs.db" />
+    <None Remove="homylogic.db" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\ssl\generate_certs.bat" />
+    <None Include="wwwroot\ssl\homylogic.cnf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\X.App\X.App.csproj" />
+    <ProjectReference Include="..\Shared\X.Basic\X.Basic.csproj" />
+    <ProjectReference Include="..\Shared\X.Data\X.Data.csproj" />
+    <ProjectReference Include="..\X.Homylogic\X.Homylogic.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="wwwroot\ssl\random.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\images\devices\Device_SerialPort_16.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\devices\Device_TCPSocket_16.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\logs\Log_Error.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\logs\Log_Info.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\logs\Log_Warning.gif">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\triggers\Trigger_Device_Close_16.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\triggers\Trigger_Device_Open_16.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\triggers\Trigger_OutputBuffer_Write_16.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="wwwroot\tools\" />
+  </ItemGroup>
+
+</Project>

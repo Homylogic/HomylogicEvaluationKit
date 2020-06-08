@@ -1,0 +1,141 @@
+﻿@model TriggersViewModel
+
+@using X.Homylogic.Models.Objects;
+
+@{
+    ViewData["Title"] = "Triggers";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+
+<div class="d-flex p-2 bd-highlight">
+    <input class="btn btn-primary flex-margin" type="button" onclick="OnStartClick()" value="Start" />
+    <input class="btn btn-primary flex-margin" type="button" onclick="OnStopClick()" value="Stop" />
+    <div class="align-self-stretch flex-grow-1"></div>
+    <input class="btn btn-primary flex-margin" type="button" onclick="OnAddClick()" value="Add" />
+    <input class="btn btn-primary flex-margin" type="button" onclick="OnEditClick()" value="Edit" />
+    <input class="btn btn-primary flex-margin" type="button" onclick="OnDeleteClick()" value="Delete" />
+</div>
+
+<label id="label-error" class="control-label text-danger" style="display: none"></label>
+
+<table id="device-list" class="table table-bordered table-hover" ondblclick="OnEditClick()">
+    <thead>
+        <tr>
+            <th hidden>ID</th>
+            <th>State</th>
+            <th>Action</th>
+            <th>Description</th>
+            <th>Info</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < ViewData.Model.TriggerList.List.Count; i++)
+        {
+            TriggerX trigger = (TriggerX)ViewData.Model.TriggerList.List[i];
+
+            string className = "clickable-row";
+
+            if (trigger.ID == ViewData.Model.SelectedID)
+                className = $"{className} table-primary";
+
+            string state = "Stop";
+            if (trigger.IsStarted) state = "Started";
+
+            string image = (trigger.ImageNumber switch
+            {
+                101 => "/images/triggers/Trigger_Device_Open_16.png",
+                102 => "/images/triggers/Trigger_Device_Close_16.png",
+                201 => "/images/triggers/Trigger_OutputBuffer_Write_16.png",
+                _ => string.Empty
+            });
+
+            string style = string.Empty;
+            if (trigger.Disabled) style = "color: gray";
+
+            <tr id="table-row-@trigger.ID" class='@className' style='@style'>
+                <td hidden>@trigger.ID</td>
+                <td>@state</td>
+                <td>@trigger.Settings</td>
+                <td><img src="@image" />&nbsp;@trigger.Name</td>
+                <td>@trigger.Notice</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    var SelectedRowID = @ViewData.Model.SelectedID;
+    $(document).ready(function () {
+        $('#device-list tr').click(function () {
+            if (this.className != "clickable-row") return;
+            $(this).addClass('table-primary').siblings().removeClass('table-primary');
+            SelectedRowID = this.cells[0].innerHTML;
+            document.cookie = "SelectedTriggerID=" + SelectedRowID;
+        });
+        setInterval(AutoRefreshState, 3000);
+    });
+    function OnStartClick() {
+        $("#label-error").hide();
+        var rowId = "table-row-" + SelectedRowID;
+        var curCell = document.getElementById(rowId).cells[1];
+        curCell.innerHTML = '...';
+        $.post('/Triggers/Start/' + SelectedRowID, function (data) {
+            if (data != "OK")
+            {
+                curCell.innerHTML = 'Error';
+                $("#label-error").html(data);
+                $("#label-error").show();
+            }
+        });
+    }
+    function OnStopClick() {
+        $("#label-error").hide();
+        var rowId = "table-row-" + SelectedRowID;
+        var curCell = document.getElementById(rowId).cells[1];
+        curCell.innerHTML = '...';
+        $.post('/Triggers/Stop/' + SelectedRowID, function (data) {
+            if (data != "OK")
+            {
+                curCell.innerHTML = 'Error';
+                $("#label-error").html(data);
+                $("#label-error").show();
+            }
+        });
+    }
+    function OnAddClick()
+    {
+        window.location = '@Url.Action("", "SelectedObjectType", new { ObjectTypeName  = "Triggers" })';
+    }
+    function OnEditClick()
+    {
+        window.location = "/Triggers/Edit/" + SelectedRowID;
+    }
+    function OnDeleteClick() {
+        window.location = "/Triggers/Delete/" + SelectedRowID;
+    }
+    function AutoRefreshState() {
+        $.get('/Triggers/GetIsStarted', function (data) {
+            if (data == null) return;
+            var arrData = data.split(";");
+            for (var i = 0; i < arrData.length; i++) {
+                if (arrData[i].trim() == '') continue;
+                arrValues = arrData[i].split(":");
+                var id = arrValues[0];
+                var state = arrValues[1];
+                var rowId = "table-row-" + id;
+                var curCell = document.getElementById(rowId).cells[1];
+                if (curCell == null) continue;
+                if (state == '1')
+                    curCell.innerHTML = "Started";
+                else
+                    curCell.innerHTML = "Stop";
+            }
+        });
+    }
+
+</script>
+

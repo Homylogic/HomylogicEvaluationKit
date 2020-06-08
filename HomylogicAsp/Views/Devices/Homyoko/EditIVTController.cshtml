@@ -1,0 +1,86 @@
+﻿@model HomylogicAsp.Models.Devices.Homyoko.EditIVTControllerViewModel
+@{
+    ViewData["Title"] = "Devices";
+    if (ViewData.Model.ID == 0)
+        ViewData["SubTitle"] = "Add new homyoko IVT controller";
+    else
+        ViewData["SubTitle"] = "Edit homyoko IVT controller";
+}
+
+<h1>@ViewData["Title"]</h1>
+<h4><img id="navigate-back" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="SaveHomyokoIVTController">
+            @Html.HiddenFor(m => m.ID)
+            @Html.HiddenFor(m => m.DeviceType)
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label">Name</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Notice" class="control-label">Notice</label>
+                <textarea asp-for="Notice" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Notice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IPAddress" class="control-label">IP address</label>
+                <input asp-for="IPAddress" class="form-control" />
+                <span asp-validation-for="IPAddress" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PortNumber" class="control-label">Port number</label>
+                <input asp-for="PortNumber" class="form-control" />
+                <span asp-validation-for="PortNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PacketType" class="control-label">Packet type</label>
+                <select asp-for="PacketType" class="browser-default custom-select form-control">
+                    <option value="@X.Homylogic.Models.Objects.Devices.Homyoko.WeatherStation.PacketTypes.Version_1">Version 1.</option>
+                    <option value="@X.Homylogic.Models.Objects.Devices.Homyoko.WeatherStation.PacketTypes.Version_2">Version 2.</option>
+                </select>
+                <span asp-validation-for="PacketType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="custom-control custom-checkbox">
+                    <input asp-for="WriteToBuffer" type="checkbox" class="custom-control-input" id="checkbox-writetobuffer">
+                    <label class="custom-control-label" for="checkbox-writetobuffer">Write to input buffer</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="custom-control custom-checkbox">
+                    <input asp-for="CanAutoDataUpdate" type="checkbox" class="custom-control-input" id="checkbox-autodataupdate">
+                    <label class="custom-control-label" for="checkbox-autodataupdate">Auto open and reading</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="custom-control custom-checkbox">
+                    <input asp-for="ShowOnHome" type="checkbox" class="custom-control-input" id="checkbox-showonhome">
+                    <label class="custom-control-label" for="checkbox-showonhome">Show on home screen</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="custom-control custom-checkbox">
+                    <input asp-for="Disabled" type="checkbox" class="custom-control-input" id="checkbox-disabled">
+                    <label class="custom-control-label" for="checkbox-disabled">Disabled</label>
+                </div>
+            </div>
+            <div class="form-group">
+                @if (ViewData.Model.SaveException != null)
+                {
+                    <label class="control-label text-danger">@ViewData.Model.SaveException.Message</label><br>
+                }
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

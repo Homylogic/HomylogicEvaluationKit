@@ -1,0 +1,169 @@
+﻿@model DevicesViewModel
+
+@using X.Homylogic.Models.Objects;
+
+@{
+    ViewData["Title"] = "Devices";
+
+    bool HasUserAccess = ViewData.Model.HasAccess;
+    if (!HasUserAccess)
+        HasUserAccess = Security.HasUserAccess(ViewContext.HttpContext.Request);
+}
+
+<h1>@ViewData["Title"]</h1>
+
+@if (!HasUserAccess)
+{
+    <form asp-controller="Devices" asp-action="TryAllowAccessSettings">
+        <div class="form-group row">
+            <label asp-for="PasswordAccess" class="col-sm-2 col-form-label">Password</label>
+            <div class="col-sm-3">
+                <input asp-for="PasswordAccess" class="form-control" />
+                @if (ViewData.Model.PasswordException != null)
+                {
+                    <span asp-validation-for="PasswordAccess" class="text-danger">Password is not valid.</span>
+                }
+                else
+                {
+                    <span asp-validation-for="PasswordAccess" class="text-danger"></span>
+                }
+            </div>
+        </div>
+        <input type="submit" value="OK" class="btn btn-primary" />
+    </form>
+    return;
+}
+
+<div class="d-flex p-2 bd-highlight">
+    <input class="btn btn-primary flex-margin" type="button" onclick="OnAddClick()" value="Add" />
+    <input class="btn btn-primary flex-margin" type="button" onclick="OnEditClick()" value="Edit" />
+    <input class="btn btn-primary flex-margin" type="button" onclick="OnDeleteClick()" value="Delete" />
+    <div class="align-self-stretch flex-spacer-small"></div>
+    <input class="btn btn-success flex-margin" type="button" onclick="OnControlsClick()" value="Control" />
+    <input class="btn btn-light flex-margin" type="button" onclick="OnOpenClick()" value="Open" />
+    <input class="btn btn-light flex-margin" type="button" onclick="OnCloseClick()" value="Close" />
+</div>
+
+<label id="label-error" class="control-label text-danger" style="display: none"></label>
+
+<table id="device-list" class="table table-bordered table-hover" ondblclick="OnEditClick()">
+    <thead>
+        <tr>
+            <th hidden>ID</th>
+            <th>State</th>
+            <th>Name</th>
+            <th>Notice</th>
+            <th>Settings</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < ViewData.Model.DeviceList.List.Count; i++)
+        {
+            DeviceX device = (DeviceX)ViewData.Model.DeviceList.List[i];
+
+            string className = "clickable-row";
+
+            if (device.ID == ViewData.Model.SelectedID)
+                className = $"{className} table-primary";
+
+            string state = "Close";
+            if (device.IsOpen) state = "Open";
+
+            string image = (device.DeviceType switch
+            {
+                DeviceX.DeviceTypes.Serial => "/images/devices/Device_SerialPort_16.png",
+                DeviceX.DeviceTypes.TCPSocket => "/images/devices/Device_TCPSocket_16.png",
+                _ => string.Empty
+            });
+
+            string style = string.Empty;
+            if (device.Disabled) style = "color: gray";
+
+            <tr id="table-row-@device.ID" class='@className' style='@style'>
+                <td hidden>@device.ID</td>
+                <td>@state</td>
+                <td><img src="@image" />&nbsp;@device.Name</td>
+                <td>@device.Notice</td>
+                <td>@device.Settings</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    var SelectedRowID = @ViewData.Model.SelectedID;
+    $(document).ready(function () {
+        $('#device-list tr').click(function () {
+            if (this.className != "clickable-row") return;
+            $(this).addClass('table-primary').siblings().removeClass('table-primary');
+            SelectedRowID = this.cells[0].innerHTML;
+            document.cookie = "SelectedDeviceID=" + SelectedRowID;
+        });
+        setInterval(AutoRefreshState, 3000);
+    });
+    function OnOpenClick() {
+        $("#label-error").hide();
+        var rowId = "table-row-" + SelectedRowID;
+        var curCell = document.getElementById(rowId).cells[1];
+        curCell.innerHTML = '...';
+        $.post('/Devices/Open/' + SelectedRowID, function (data) {
+            if (data != "OK")
+            {
+                curCell.innerHTML = 'Error';
+                $("#label-error").html(data);
+                $("#label-error").show();
+            }
+        });
+    }
+    function OnCloseClick() {
+        $("#label-error").hide();
+        var rowId = "table-row-" + SelectedRowID;
+        var curCell = document.getElementById(rowId).cells[1];
+        curCell.innerHTML = '...';
+        $.post('/Devices/Close/' + SelectedRowID, function (data) {
+            if (data != "OK")
+            {
+                curCell.innerHTML = 'Error';
+                $("#label-error").html(data);
+                $("#label-error").show();
+            }
+        });
+    }
+    function OnControlsClick() {
+        window.location = "/Devices/DeviceControls/" + SelectedRowID;
+    }
+    function OnAddClick()
+    {
+        window.location = '@Url.Action("", "SelectedObjectType", new { ObjectTypeName  = "Devices" })';
+    }
+    function OnEditClick()
+    {
+        window.location = "/Devices/Edit/" + SelectedRowID;
+    }
+    function OnDeleteClick() {
+        window.location = "/Devices/Delete/" + SelectedRowID;
+    }
+    function AutoRefreshState() {
+        $.get('/Devices/GetIsOpen', function (data) {
+            if (data == null) return;
+            var arrData = data.split(";");
+            for (var i = 0; i < arrData.length; i++) {
+                if (arrData[i].trim() == '') continue;
+                arrValues = arrData[i].split(":");
+                var id = arrValues[0];
+                var state = arrValues[1];
+                var rowId = "table-row-" + id;
+                var curCell = document.getElementById(rowId).cells[1];
+                if (curCell == null) continue;
+                if (state == '1')
+                    curCell.innerHTML = "Open";
+                else
+                    curCell.innerHTML = "Close";
+            }
+        });
+    }
+
+</script>
+

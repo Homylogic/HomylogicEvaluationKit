@@ -1,0 +1,62 @@
+﻿@model HomylogicAsp.Models.Triggers.EditOutputBufferTriggerViewModel
+@{
+    ViewData["Title"] = "Triggers";
+    if (ViewData.Model.ID == 0)
+        ViewData["SubTitle"] = "Create new output buffer trigger";
+    else
+        ViewData["SubTitle"] = "Edit output buffer trigger";
+}
+
+<h1>@ViewData["Title"]</h1>
+<h4><img id="navigate-back" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="SaveOutputBuffer">
+            @Html.HiddenFor(m => m.ID)
+            @Html.HiddenFor(m => m.TriggerType)
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="DeviceID" class="control-label">Device</label>
+                <select asp-for="DeviceID" class="browser-default custom-select form-control">
+                    @foreach (X.Basic.CodeDom.Ennum.EnnumValues ennum in ViewData.Model.SelectableDevices)
+                    {
+                        <option value="@ennum.Value">@ennum.Description</option>
+                    }
+                </select>
+                <span asp-validation-for="DeviceID" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ActionType" class="control-label">Action</label>
+                <select asp-for="ActionType" class="browser-default custom-select form-control">
+                    <option value="@X.Homylogic.Models.Objects.Triggers.OutputBufferTriggerX.ActionTypes.Write">Write data</option>
+                </select>
+                <span asp-validation-for="ActionType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Data" class="control-label">Data</label>
+                <textarea asp-for="Data" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Data" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="custom-control custom-checkbox">
+                    <input asp-for="Disabled" type="checkbox" class="custom-control-input" id="checkbox-disabled">
+                    <label class="custom-control-label" for="checkbox-disabled">Disabled</label>
+                </div>
+            </div>
+            <div class="form-group">
+                @if (ViewData.Model.SaveException != null)
+                {
+                    <label class="control-label text-danger">@ViewData.Model.SaveException.Message</label><br>
+                }
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

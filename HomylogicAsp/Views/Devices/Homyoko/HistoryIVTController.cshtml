@@ -1,0 +1,107 @@
+﻿@model HomylogicAsp.Models.Devices.Homyoko.EditIVTControllerViewModel
+
+@using X.Homylogic.Models.Objects.Devices.Homyoko;
+
+@{
+    ViewData["Title"] = "IVT controller history";
+
+    IVTController ivtController = (IVTController)X.Homylogic.Body.Runtime.Devices.FindDataRecord(ViewData.Model.ID);
+    if (ivtController == null)
+    {
+        ViewData["SubTitle"] = "IVT controller device not found.";
+    }
+    else {
+        ViewData["SubTitle"] = ivtController.Name;
+    }
+
+    
+
+
+}
+
+<h1>@ViewData["Title"]</h1>
+<h4><img id="navigate-back" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
+
+<canvas id="chart-temperatures"></canvas>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/chartjs/Chart.bundle.js"></script>
+
+<script>
+    var configTemperatures = {
+        type: 'line',
+        data: {
+            datasets: [{
+                label: 'Temperature floor',
+                backgroundColor: 'rgba(255, 0, 0, 0.7)',
+                borderColor: 'rgba(255, 0, 0, 0.5)',
+                fill: false
+            }]
+        },
+        options: {
+            responsive: true,
+            title: {
+                display: true,
+                text: 'Temperatures'
+            },
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+            },
+            hover: {
+                mode: 'nearest',
+                intersect: true
+            },
+            scales: {
+                xAxes: [{
+                    display: true,
+                    type: 'time',
+                    distribution: 'series',
+                    time: {
+                        unit: 'day',
+                        displayFormats: {
+                            day: 'HH:mm - MMM D'
+                        }
+                    },
+                }],
+                yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Temperature °C'
+                    }
+                }]
+            }
+        }
+    };
+
+    $(document).ready(function () {
+        
+        var ctxTemps = document.getElementById('chart-temperatures').getContext('2d');
+        window.chartTemps = new Chart(ctxTemps, configTemperatures);
+
+        // Načítaj históriu údajov.
+        var url = '/Devices/GetHistoryHomyokoIVTController/' + @ivtController.ID;
+        $.get(url, function (data) {
+            if (data == null) return;
+            var arrData = data.split(";");
+            for (var i = 0; i < arrData.length; i++) {
+                if (arrData[i].trim() == '') continue;
+                arrValues = arrData[i].split(",");
+                var time = new Date(arrValues[0]);
+                var temp = arrValues[1];
+                configTemperatures.data.labels.push(time);
+                configTemperatures.data.datasets[0].data.push({ x: time, y: temp });
+            }
+            window.chartTemps.update();
+        });
+
+        // Nastaviť obmedzenie na maximálnu šírku stránky,
+        // nastavuje sa podľa výšky, aby graf vošiel akurát na stránku.
+        $(".body-container").css("max-width", window.outerHeight + "px");
+
+    });
+
+
+</script>
+

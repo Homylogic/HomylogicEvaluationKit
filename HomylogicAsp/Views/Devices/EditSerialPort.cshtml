@@ -1,0 +1,65 @@
+﻿@model HomylogicAsp.Models.Devices.EditSerialPortViewModel
+@{
+    ViewData["Title"] = "Devices";
+    if (ViewData.Model.ID == 0)
+        ViewData["SubTitle"] = "Add new serial port";
+    else
+        ViewData["SubTitle"] = "Edit serial port";
+}
+
+<h1>@ViewData["Title"]</h1>
+<h4><img id="navigate-back" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="SaveSerialPort">
+            @Html.HiddenFor(m => m.ID)
+            @Html.HiddenFor(m => m.DeviceType)
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label">Name</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Notice" class="control-label">Notice</label>
+                <textarea asp-for="Notice" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Notice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PortNumber" class="control-label">Port number</label>
+                <input asp-for="PortNumber" class="form-control" />
+                <span asp-validation-for="PortNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="BaudRate" class="control-label">Baund rate</label>
+                <input asp-for="BaudRate" class="form-control" />
+                <span asp-validation-for="BaudRate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PacketEndChar" class="control-label">Packet end char</label>
+                <input asp-for="PacketEndChar" class="form-control" />
+                <span asp-validation-for="PacketEndChar" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="custom-control custom-checkbox">
+                    <input asp-for="Disabled" type="checkbox" class="custom-control-input" id="checkbox-disabled">
+                    <label class="custom-control-label" for="checkbox-disabled">Disabled</label>
+                </div>
+            </div>
+            <div class="form-group">
+                @if (ViewData.Model.SaveException != null)
+                {
+                    <label class="control-label text-danger">@ViewData.Model.SaveException.Message</label><br>
+                }
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,110 @@
+﻿@model HomylogicAsp.Models.Devices.EditDeviceViewModel
+@using X.Homylogic.Models.Objects
+@{
+    Int64 deviceID = @ViewData.Model.ID;
+
+    bool CanWriteToBuffer = false;
+    DeviceX device = (DeviceX)X.Homylogic.Body.Runtime.Devices.FindDataRecord(deviceID);
+    CanWriteToBuffer = device.WriteToBuffer;
+}
+
+<input class="btn btn-primary" type="button" onclick="location.href = '/Devices/HistoryIVTController/@deviceID'" value="History" />
+<input class="btn btn-primary" type="button" onclick="location.href = '/Schedule/IVTController/@deviceID'" value="Scheduler" />
+<hr />
+
+<div>
+    <p><strong>Heating</strong></p>
+    <input class="btn btn-success" type="button" onclick="OnHeatOn()" value="On" />
+    <input class="btn btn-danger" type="button" onclick="OnHeatOff()" value="Off" />&nbsp;&nbsp;<label id="IVTStatus"></label>
+</div>
+<br />
+<div>
+    <p><strong>Pumps</strong></p>
+    <input class="btn btn-success" type="button" onclick="OnPumpOn()" value="On" />
+    <input class="btn btn-danger" type="button" onclick="OnPumpOff()" value="Off" />&nbsp;&nbsp;<label id="PumpStatus"></label>
+</div>
+<div>
+    <label id="Problem" class="text-danger"></label>
+    <label id="Result" class="text-danger"></label>
+</div>
+<hr />
+<p>Latest received data <img class="btn btn-outline-light" src="~/images/svg/arrow-repeat.svg" style="cursor: pointer" onclick="OnGetInputBufferTable()" /></p>
+@if (!CanWriteToBuffer)
+{
+    <p>Enable write to input buffer for view recent recived data.</p>
+}
+<div id="input-buffer-container"></div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    var deviceID = @ViewData.Model.ID;
+    $(document).ready(function () {
+        if (deviceID > 0)
+            setInterval(AutoRefreshState, 3000);
+        OnGetInputBufferTable();
+    });
+    function OnHeatOn() {
+        $("#IVTStatus").text("IVT is turning on ...");
+        $.get('/Devices/ControlIVTControllerHeatOn/' + deviceID, function (data) {
+            if (data != "OK") {
+                $("#IVTStatus").text("");
+                $("#Result").text(data);
+            }
+        });
+    }
+    function OnHeatOff() {
+        $("#IVTStatus").text("IVT is turning off ...");
+        $.get('/Devices/ControlIVTControllerHeatOff/' + deviceID, function (data) {
+            if (data != "OK")
+            {
+                $("#IVTStatus").text("");
+                $("#Result").text(data);
+            }
+        });
+    }
+    function OnPumpOn() {
+        $("#PumpStatus").text("Pumps is turning on ...");
+        $.get('/Devices/ControlIVTControllerPumpOn/' + deviceID, function (data) {
+            if (data != "OK") {
+                $("#PumpStatus").text("");
+                $("#Result").text(data);
+            }
+        });
+    }
+    function OnPumpOff() {
+        $("#PumpStatus").text("Pumps is turning off ...");
+        $.get('/Devices/ControlIVTControllerPumpOff/' + deviceID, function (data) {
+            if (data != "OK") {
+                $("#PumpStatus").text("");
+                $("#Result").text(data);
+            }
+        });
+    }
+    function AutoRefreshState() {
+        $.get('/Devices/GetControlStatusIVTController/' + deviceID, function (data) {
+            if (data == null) return;
+            var arrData = data.split(":");
+            if (arrData.length < 4) return;
+            var IVTStatus = arrData[0];
+            var PumpStatus = arrData[1];
+            var IsProblemNoWaterFlow = arrData[2];
+            var IsProblemHighTemperature = arrData[2];
+            if (IVTStatus != '')
+                $("#IVTStatus").text(IVTStatus);
+            if (PumpStatus != '')
+                $("#PumpStatus").text(PumpStatus);
+            if (IsProblemNoWaterFlow == '1')
+                $("#Problem").text("No water flow detected");
+            if (IsProblemHighTemperature == '1')
+                $("#Problem").text("High temperature detected");
+        });
+    }
+    function OnGetInputBufferTable()
+    {
+        $.get('/Devices/GetInputBufferTable/' + deviceID, function (data) {
+            if (data == null) return;
+            $("#input-buffer-container").html(data);
+        });
+    }
+</script>

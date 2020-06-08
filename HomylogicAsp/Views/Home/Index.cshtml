@@ -1,0 +1,209 @@
+﻿@model HomeViewModel
+
+@using X.Homylogic.Models.Objects;
+@using X.Homylogic.Models.Objects.Devices.Homyoko;
+@using System.Globalization;
+
+@{
+    ViewData["Title"] = "Home";
+
+    bool homeIsEmpy = true;
+
+    Int64 WeatherStationID = 0;
+    Int64 IVTControllerID = 0;
+
+    CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
+    ci.NumberFormat.NumberDecimalSeparator = ".";
+    ci.NumberFormat.NegativeSign = "-";
+}
+
+
+@if (X.Homylogic.Body.Environment.Settings.Home.BackgroundImage != X.Homylogic.Models.Settings.HomeSettings.BackgroundImageTypes.None)
+{
+    string imageName = (X.Homylogic.Body.Environment.Settings.Home.BackgroundImage switch
+    {
+        X.Homylogic.Models.Settings.HomeSettings.BackgroundImageTypes.Blue => "blue_1.jpg",
+        X.Homylogic.Models.Settings.HomeSettings.BackgroundImageTypes.Orange => "orange_1.jpg",
+        X.Homylogic.Models.Settings.HomeSettings.BackgroundImageTypes.Green => "green_1.jpg",
+        _ => "blue_1.jpg"
+    });
+
+    <style>
+        /* Background image */
+        html {
+            background: url(../images/backgrounds/@imageName) no-repeat center center fixed;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+            margin-top: 0;
+        }
+        body {
+            background-color: transparent;
+        }
+        .footer {
+            background-color: white;
+        }
+    </style>
+}
+
+<div class="text-center">
+
+    <div class="card-deck">
+
+        @foreach (DeviceX device in ViewData.Model.DeviceList.List.ToArray())
+        {
+            if (!device.ShowOnHome) continue;
+
+            // --- WEATHER STATION -----------------------------------------------------------------------------------------------------------------------
+            if (device is WeatherStation)
+            {
+                WeatherStation weatherStation = (WeatherStation)device;
+                if (weatherStation.CanAutoDataUpdate) 
+                    WeatherStationID = device.ID;
+
+                <div class="card card-width card-clickable shadow" onclick="OnClickHistoryWeatherStation(@device.ID)">
+                    <div class="card-header">
+                        <strong>@device.Name</strong>
+                    </div>
+                    <div class="card-body">
+                        <table style="width: 100%">
+                            <tr>
+                                <td>Measure at:</td>
+                                <td id="td-weather-time-@device.ID">@weatherStation.MeasureTime.ToString("HH:mm:ss")</td>
+                            </tr>
+                            <tr>
+                                <td>Temperature 1:</td>
+                                <td id="td-weather-t1-@device.ID">@weatherStation.Temperature1.ToString(ci)</td>
+                                <td>°C</td>
+                            </tr>
+                            <tr>
+                                <td>Temperature 2:</td>
+                                <td id="td-weather-t2-@device.ID">@weatherStation.Temperature2.ToString(ci)</td>
+                                <td>°C</td>
+                            </tr>
+                            <tr>
+                                <td>Windspeed:</td>
+                                <td id="td-weather-windspeed-@device.ID">@weatherStation.Windspeed.ToString(ci)</td>
+                                <td>m/s</td>
+                            </tr>
+                            <tr>
+                                <td>-average 30min:</td>
+                                <td id="td-weather-windspeed-avg-@device.ID">@weatherStation.WindspeedAvg.ToString(ci)</td>
+                                <td>m/s</td>
+                            </tr>
+                            <tr>
+                                <td>Sunshine:</td>
+                                <td id="td-weather-sunshine-@device.ID">@weatherStation.SunshinePercent.ToString(ci)</td>
+                                <td>%</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <!--
+                    <div class="card-footer bg-transparent">
+                    </div>
+                    -->
+                </div>
+
+                homeIsEmpy = false;
+            }
+
+            // --- IVT CONTROLLER -----------------------------------------------------------------------------------------------------------------------
+            if (device is IVTController)
+            {
+                IVTController ivtController = (IVTController)device;
+                if (ivtController.CanAutoDataUpdate)
+                    IVTControllerID = ivtController.ID;
+                string waterFlowUIText = X.Basic.CodeDom.Ennum.GetDescription(typeof(IVTController.WaterFlowTypes), ivtController.WaterFlow);
+
+                <div class="card card-width card-clickable shadow" onclick="OnClickIVTController(@device.ID)">
+                    <div class="card-header">
+                        <strong>@ivtController.Name</strong>
+                    </div>
+                    <div class="card-body">
+                        <table style="width: 100%">
+                            <tr>
+                                <td>Measure at:</td>
+                                <td id="td-ivtctl-time-@ivtController.ID">@ivtController.MeasureTime.ToString("HH:mm:ss")</td>
+                            </tr>
+                            <tr>
+                                <td>Temperature:</td>
+                                <td id="td-ivtctl-temperature-@device.ID">@ivtController.TemperatureFloor.ToString(ci)</td>
+                                <td>°C</td>
+                            </tr>
+                            <tr>
+                                <td>Water flow:</td>
+                                <td id="td-ivtctl-flow-@ivtController.ID">@waterFlowUIText</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <!--
+                <div class="card-footer bg-transparent">
+                </div>
+                -->
+                </div>
+
+                homeIsEmpy = false;
+            }
+
+
+
+        }
+
+    </div> <!-- END of card-deck -->
+
+    @if (homeIsEmpy)
+    { 
+        <h1 class="display-4">Welcome</h1>
+        <p>There are not defined any object to show on home screen.</p>
+    }
+
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    var JSWeatherStationID = @WeatherStationID;
+    var JSIVTControllerID = @IVTControllerID;
+
+    $(document).ready(function () {
+        setInterval(AutoDataUpdate, 6000);
+    });
+    function AutoDataUpdate() {
+        // Aktualizovanie meteo-stanice
+        if (JSWeatherStationID > 0)
+        {
+            $.get('/Devices/GetDataHomyokoWeatherStation/' + JSWeatherStationID, function (data) {
+                if (data == null) return;
+                //console.log(data);
+                var dataJson = JSON.parse(data);
+                $("#td-weather-time-" + JSWeatherStationID).html(dataJson.MTime);
+                $("#td-weather-t1-" + JSWeatherStationID).html(dataJson.T1);
+                $("#td-weather-t2-" + JSWeatherStationID).html(dataJson.T2);
+                $("#td-weather-windspeed-" + JSWeatherStationID).html(dataJson.Wind);
+                $("#td-weather-windspeed-avg-" + JSWeatherStationID).html(dataJson.WindAvg);
+                $("#td-weather-sunshine-" + JSWeatherStationID).html(dataJson.Shine);
+            });
+        }
+
+        if (JSIVTControllerID > 0) {
+            $.get('/Devices/GetDataHomyokoIVTController/' + JSIVTControllerID, function (data) {
+                if (data == null) return;
+                //console.log(data);
+                var dataJson = JSON.parse(data);
+                $("#td-ivtctl-time-" + JSIVTControllerID).html(dataJson.MTime);
+                $("#td-ivtctl-temperature-" + JSIVTControllerID).html(dataJson.T);
+                $("#td-ivtctl-flow-" + JSIVTControllerID).html(dataJson.Flow);
+            });
+        }
+
+    }
+    function OnClickHistoryWeatherStation(id)
+    {
+        window.location = "Devices/HistoryWeatherStation/" + id;
+    }
+    function OnClickIVTController(id) {
+        window.location = "/Devices/DeviceControls/" + id;
+    }
+
+</script>

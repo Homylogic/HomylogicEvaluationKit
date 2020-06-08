@@ -1,0 +1,20 @@
+[CA_default]
+default_days = 10000
+[req]
+distinguished_name = req_distinguished_name
+x509_extensions = v3_req
+prompt = no
+[req_distinguished_name]
+C = SK
+ST = SK
+L = Slovakia
+O = Exalogic
+OU = homylogic
+CN = homylogic.go
+[v3_req]
+keyUsage = keyEncipherment, dataEncipherment
+extendedKeyUsage = serverAuth
+subjectAltName = @alt_names
+[alt_names]
+DNS.1 = homylogic.go
+DNS.2 = localhost

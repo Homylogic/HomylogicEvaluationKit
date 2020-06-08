@@ -1,0 +1,87 @@
+﻿@model LogsViewModel
+
+@using X.App.Logs;
+
+@{
+    ViewData["Title"] = "Logs";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+
+<div class="d-flex p-2 bd-highlight">
+    <!--
+    <input class="btn btn-primary flex-margin" type="button" onclick="OnCloseClick()" value="Close" />
+    <div class="align-self-stretch flex-grow-1"></div>
+    <input class="btn btn-primary flex-margin" type="button" onclick="OnAddClick()" value="Add" />
+    -->
+</div>
+
+<label id="label-error" class="control-label text-danger" style="display: none"></label>
+
+<table id="device-list" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th hidden>ID</th>
+            <th>Time</th>
+            <th>Text</th>
+            <th>Description</th>
+            <th>Source</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < ViewData.Model.LogList.List.Count; i++)
+        {
+            LogRecord log = (LogRecord)ViewData.Model.LogList.List[i];
+
+            string image = (log.LogType switch
+            {
+                LogRecord.LogTypes.Warning => "/images/logs/Log_Warning.gif",
+                LogRecord.LogTypes.Error => "/images/logs/Log_Error.gif",
+                _ => "/images/logs/Log_Info.gif"
+            });
+
+            <tr id="table-row-@log.ID">
+                <td hidden>@log.ID</td>
+                <td><img src="@image" />&nbsp;@log.LogTime.ToString("dd.MM.yy HH:mm:ss")</td>
+                <td>@log.Text</td>
+                <td>@log.Description</td>
+                <td>@log.Source</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        //setInterval(AutoRefreshState, 5000);
+    });
+
+    function AutoRefreshState() {
+        /*
+
+        $.get('/Devices/GetIsOpen', function (data) {
+            if (data == null) return;
+            var arrData = data.split(";");
+            for (var i = 0; i < arrData.length; i++) {
+                if (arrData[i].trim() == '') continue;
+                arrValues = arrData[i].split(":");
+                var id = arrValues[0];
+                var state = arrValues[1];
+                var rowId = "table-row-" + id;
+                var curCell = document.getElementById(rowId).cells[1];
+                if (curCell == null) continue;
+                if (state == '1')
+                    curCell.innerHTML = "Open";
+                else
+                    curCell.innerHTML = "Close";
+            }
+        });
+
+        */
+    }
+
+</script>
+

@@ -1,0 +1,51 @@
+﻿/* SETTINGS VALUE
+ * 
+ * Používa sa pre nastavenie a získanie hodnoty nastavenia v objekte SettingsRecord.
+ * 
+ */
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
+
+namespace X.App.Settings
+{
+    public sealed class SettingsValue
+    {
+        string _value;
+        /// <summary>
+        /// Vráti textovú hodnotu.
+        /// </summary>
+        public string Text => _value;
+        /// <summary>
+        /// Vráti celočíslenú hodnotu.
+        /// </summary>
+        public Int32 Int32 
+        {
+            get 
+            {
+                if (string.IsNullOrEmpty(_value)) return 0;
+                CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
+                ci.NumberFormat.NumberDecimalSeparator = ".";
+                ci.NumberFormat.NegativeSign = "-";
+                ci.NumberFormat.NumberGroupSeparator = "";
+                return Int32.Parse(_value, ci);
+            }    
+        }
+        /// <summary>
+        /// Nastavenie textovej hodnoty.
+        /// </summary>
+        public void SetValue(string text) { _value = text; }
+        /// <summary>
+        /// Nastavenie celočíslenú hodnoty.
+        /// </summary>
+        public void SetValue(Int32 number) 
+        {
+            CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
+            ci.NumberFormat.NumberDecimalSeparator = ".";
+            ci.NumberFormat.NegativeSign = "-";
+            ci.NumberFormat.NumberGroupSeparator = "";
+            _value = number.ToString(ci); 
+        }
+    }
+}

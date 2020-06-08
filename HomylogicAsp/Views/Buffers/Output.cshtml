@@ -1,0 +1,82 @@
+﻿@model BuffersViewModel
+
+@using X.Homylogic.Models.Objects.Buffers;
+
+@{
+    ViewData["Title"] = "Output buffers";
+}
+
+<h1>@ViewData["Title"]</h1>
+
+
+<div class="d-flex p-2 bd-highlight">
+    <!--
+    <input class="btn btn-primary flex-margin" type="button" onclick="OnCloseClick()" value="Close" />
+    <div class="align-self-stretch flex-grow-1"></div>
+    <input class="btn btn-primary flex-margin" type="button" onclick="OnAddClick()" value="Add" />
+    -->
+</div>
+
+<label id="label-error" class="control-label text-danger" style="display: none"></label>
+
+<table id="output-buffer-list" class="table table-bordered table-hover">
+    <thead>
+        <tr>
+            <th hidden>ID</th>
+            <th>Processed</th>
+            <th>Time</th>
+            <th>Destination</th>
+            <th>Data</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < ViewData.Model.OutputBufferList.List.Count; i++)
+        {
+            if (i > 100) break;
+
+            OutputBufferX buffer = (OutputBufferX)ViewData.Model.OutputBufferList.List[i];
+
+            <tr id="table-row-@buffer.ID">
+                <td hidden>@buffer.ID</td>
+                <td>@buffer.IsProcessed</td>
+                <td>@buffer.ProcessTime.ToString("dd.MM.yy HH:mm:ss")</td>
+                <td>@buffer.Name</td>
+                <td>@buffer.Data</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        //setInterval(AutoRefreshState, 5000);
+    });
+
+    function AutoRefreshState() {
+        /*
+
+        $.get('/Devices/GetIsOpen', function (data) {
+            if (data == null) return;
+            var arrData = data.split(";");
+            for (var i = 0; i < arrData.length; i++) {
+                if (arrData[i].trim() == '') continue;
+                arrValues = arrData[i].split(":");
+                var id = arrValues[0];
+                var state = arrValues[1];
+                var rowId = "table-row-" + id;
+                var curCell = document.getElementById(rowId).cells[1];
+                if (curCell == null) continue;
+                if (state == '1')
+                    curCell.innerHTML = "Open";
+                else
+                    curCell.innerHTML = "Close";
+            }
+        });
+
+        */
+    }
+
+</script>
+

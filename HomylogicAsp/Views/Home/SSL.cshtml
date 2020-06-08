@@ -1,0 +1,21 @@
+﻿@model AboutViewModel 
+
+@{
+    ViewData["Title"] = "Secure Sockets Layer";
+    ViewData["SubTitle"] = "Install SSL certificate";
+
+
+}
+<h1>@ViewData["Title"]</h1>
+<h4><img id="navigate-back" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
+
+
+<input class="btn btn-info" type="button" onclick="location.href = '/Home/Download?file=tools/HomylogicInstallSSLWin.exe'" value="Windows" />
+<input class="btn btn-info" type="button" onclick="location.href = '/Home/Download?file=tools/HomylogicInstallSSLLinux.sh'" value="Linux" />
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    
+</script>

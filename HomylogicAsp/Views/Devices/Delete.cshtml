@@ -1,0 +1,26 @@
+﻿@model HomylogicAsp.Models.Devices.EditDeviceViewModel
+@{
+    ViewData["Title"] = "Devices";
+    ViewData["SubTitle"] = string.Format("Delete device - {0}", @ViewData.Model.Name);
+}
+
+<h1>@ViewData["Title"]</h1>
+<h4><img id="navigate-back" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Delete">
+            @Html.HiddenFor(m => m.ID)
+
+            <label class="control-label">@string.Format("Are you sure you want to delete device '{0}'?", @ViewData.Model.Name)</label>
+            <div class="form-group">
+                <input type="submit" value="Yes" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

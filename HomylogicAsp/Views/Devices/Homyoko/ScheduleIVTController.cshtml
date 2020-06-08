@@ -1,0 +1,126 @@
+﻿@model HomylogicAsp.Models.ScheduleViewModel
+
+@using X.Homylogic.Models.Objects.Devices.Homyoko;
+@using X.Homylogic.Models.Schedule;
+
+@{
+    ViewData["Title"] = "Schedule IVT controller";
+
+    IVTController ivtController = (IVTController)X.Homylogic.Body.Runtime.Devices.FindDataRecord(ViewData.Model.OwnerID);
+    if (ivtController == null)
+    {
+        ViewData["SubTitle"] = "IVT controller device not found.";
+    }
+    else
+    {
+        ViewData["SubTitle"] = ivtController.Name;
+    }
+
+    // Načítanie zoznamu pložiek plánovača.
+    ivtController.Scheduler.LoadData();
+
+    bool HasUserAccess = Security.HasUserAccess(ViewContext.HttpContext.Request);
+
+}
+
+<h1>@ViewData["Title"]</h1>
+<h4><img onclick="OnNavigateBack()" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
+
+@if (HasUserAccess) 
+{ 
+    <div class="d-flex p-2 bd-highlight">
+        <input class="btn btn-primary flex-margin" type="button" onclick="OnAddClick()" value="Add" />
+        <input class="btn btn-primary flex-margin" type="button" onclick="OnEditClick()" value="Edit" />
+        <input class="btn btn-primary flex-margin" type="button" data-toggle="modal" data-target="#modalDelete" value="Delete" />
+    </div>
+}
+
+<label id="label-error" class="control-label text-danger" style="display: none"></label>
+
+<table id="schedule-list" class="table table-bordered table-hover" ondblclick="OnEditClick()">
+    <thead>
+        <tr>
+            <th hidden>ID</th>
+            <th>Start</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < ivtController.Scheduler.List.Count; i++)
+        {
+            ScheduleRecord schedule = (ScheduleRecord)ivtController.Scheduler.List[i];
+
+            string className = "clickable-row";
+
+            if (schedule.ID == ViewData.Model.SelectedID)
+                className = $"{className} table-primary";
+
+            System.Text.StringBuilder start = new System.Text.StringBuilder();
+            start.Append(schedule.ScheduleTime.ToString("HH:mm"));
+            if (schedule.DayMonday) start.Append(" Mo");
+            if (schedule.DayTuesday) start.Append(" Tu");
+            if (schedule.DayWednesday) start.Append(" We");
+            if (schedule.DayThursday) start.Append(" Th");
+            if (schedule.DayFriday) start.Append(" Fr");
+            if (schedule.DaySaturday) start.Append(" Sa");
+            if (schedule.DaySunday) start.Append(" Su");
+
+            <tr id="table-row-@schedule.ID" class='@className'>
+                <td hidden>@schedule.ID</td>
+                <td>@start</td>
+                <td>@schedule.ActionSettings</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal Delete -->
+<div class="modal fade" id="modalDelete" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Delete</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete selected scheduler item?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                <button type="button" class="btn btn-primary" onclick="OnDeleteClick()">Yes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    var SelectedRowID = @ViewData.Model.SelectedID;
+    $(document).ready(function () {
+        $('#schedule-list tr').click(function () {
+            if (this.className != "clickable-row") return;
+            $(this).addClass('table-primary').siblings().removeClass('table-primary');
+            SelectedRowID = this.cells[0].innerHTML;
+            document.cookie = "SelectedScheduleID=" + SelectedRowID;
+        });
+    });
+    function OnAddClick()
+    {
+        window.location = "/Schedule/CreateIVTController/" + @ViewData.Model.OwnerID;
+    }
+    function OnEditClick()
+    {
+        window.location = "/Schedule/EditIVTController/" + @ViewData.Model.OwnerID + "?scheduleID=" + SelectedRowID;
+    }
+    function OnDeleteClick()
+    {
+        window.location = "/Schedule/DeleteIVTController/" + @ViewData.Model.OwnerID + "?scheduleID=" + SelectedRowID;
+    }
+    function OnNavigateBack()
+    {
+        window.location = "/Devices/DeviceControls/" + @ViewData.Model.OwnerID;
+    }
+</script>

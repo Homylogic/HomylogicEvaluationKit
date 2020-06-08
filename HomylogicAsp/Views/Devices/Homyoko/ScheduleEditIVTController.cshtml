@@ -1,0 +1,82 @@
+﻿@model HomylogicAsp.Models.Devices.Homyoko.EditScheduleIVTControllerViewModel
+@{
+    ViewData["Title"] = "Scheduler";
+    if (ViewData.Model.ScheduleID == 0)
+        ViewData["SubTitle"] = "Add new item";
+    else
+        ViewData["SubTitle"] = "Edit item";
+
+    List<KeyValuePair<string, string>> Actions = ViewData.Model.GetDeviceActions();
+
+}
+
+<h1>@ViewData["Title"]</h1>
+<h4><img id="navigate-back" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="SaveIVTController">
+            @Html.HiddenFor(m => m.ScheduleID)
+            @Html.HiddenFor(m => m.OwnerID)
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="ScheduleTime" class="control-label">Start at</label>
+                <input type="time" asp-for="ScheduleTime" class="form-control" />
+                <span asp-validation-for="ScheduleTime" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="custom-control custom-checkbox">
+                    <input asp-for="DayMonday" type="checkbox" class="custom-control-input" id="checkbox-monday">
+                    <label class="custom-control-label" for="checkbox-monday">Monday</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                    <input asp-for="DayTuesday" type="checkbox" class="custom-control-input" id="checkbox-tuesday">
+                    <label class="custom-control-label" for="checkbox-tuesday">Tuesday</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                    <input asp-for="DayWednesday" type="checkbox" class="custom-control-input" id="checkbox-wednesday">
+                    <label class="custom-control-label" for="checkbox-wednesday">Wednesday</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                    <input asp-for="DayThursday" type="checkbox" class="custom-control-input" id="checkbox-thursday">
+                    <label class="custom-control-label" for="checkbox-thursday">Thursday</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                    <input asp-for="DayFriday" type="checkbox" class="custom-control-input" id="checkbox-friday">
+                    <label class="custom-control-label" for="checkbox-friday">Friday</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                    <input asp-for="DaySaturday" type="checkbox" class="custom-control-input" id="checkbox-saturday">
+                    <label class="custom-control-label" for="checkbox-saturday">Saturday</label>
+                </div>
+                <div class="custom-control custom-checkbox">
+                    <input asp-for="DaySunday" type="checkbox" class="custom-control-input" id="checkbox-sunday">
+                    <label class="custom-control-label" for="checkbox-sunday">Sunday</label>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="MethodName" class="control-label">Action</label>
+                <select asp-for="MethodName" class="browser-default custom-select form-control">
+                    @foreach (KeyValuePair<string, string> action in Actions)
+                    {
+                        <option value="@action.Key">@action.Value</option>
+                    }
+                </select>
+                <span asp-validation-for="MethodName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                @if (ViewData.Model.SaveException != null)
+                {
+                    <label class="control-label text-danger">@ViewData.Model.SaveException.Message</label><br>
+                }
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

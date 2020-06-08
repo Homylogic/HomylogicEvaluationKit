@@ -1,0 +1,56 @@
+﻿@model AboutViewModel
+
+@{
+    ViewData["Title"] = "About Homylogic";
+
+    string versionDB = X.Homylogic.Models.Database.VERSION.ToString().Insert(1, ".");
+    string serialNumber = X.Homylogic.SystemInfo.DeviceSerialNumber;
+    string freeSpace = X.Basic.IO.Units.FormatSizeWithUnit(X.Homylogic.SystemInfo.FreeSpace());
+
+}
+<h1>@ViewData["Title"]</h1>
+
+
+
+<table style="width: 100%; max-width: 400px">
+    <tbody>
+        <tr>
+            <td>Device serial number:</td>
+            <td>@serialNumber</td>
+        </tr>
+        <tr>
+            <td>Program version:</td>
+            <td>May/2020 Beta</td>
+        </tr>
+        <tr>
+            <td>Database version:</td>
+            <td>@versionDB</td>
+        </tr>
+        <tr>
+            <td>Free space:</td>
+            <td>@freeSpace</td>
+        </tr>
+    </tbody>
+</table>
+<hr />
+<input class="btn btn-info" type="button" onclick="location.href = '/Home/SSL'" value="Install SSL certificate" />
+
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    var canUpdateCpu = true;
+    $(document).ready(function () {
+        // * zatiaľ zrušené, pretože PerformanceCounters nefunguje na raspberry
+        //setInterval(AutoInfoUpdate, 500);
+    });
+    function AutoInfoUpdate() {
+        if (!canUpdateCpu) return; //Update volaj až po úspešnom načítaní, aby nevznikal stack overflow call.
+        canUpdateCpu = false;
+        //$.get('/Home/GetCpuUsage', function (data) {
+        //    console.log(data);
+        //    $("#td-cpu-usage").html(data + ' %');
+        //    canUpdateCpu = true;
+        //});
+    }
+</script>

@@ -1,0 +1,39 @@
+﻿@model HomylogicAsp.Models.Devices.EditDeviceViewModel
+@{
+    ViewData["Title"] = "Device controls";
+    ViewData["SubTitle"] = @ViewData.Model.Name;
+}
+
+<h1>@ViewData["Title"]</h1>
+<h4><img onclick="OnNavigateBack()" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
+<hr />
+
+@switch (ViewData.Model.DeviceType)
+{
+    case X.Homylogic.Models.Objects.DeviceX.DeviceTypes.HomyokoWeatherStation:
+        @await Html.PartialAsync("~/Views/Devices/Homyoko/ControlWeatherStation.cshtml");
+        break;
+
+    case X.Homylogic.Models.Objects.DeviceX.DeviceTypes.HomyokoIVTController:
+        @await Html.PartialAsync("~/Views/Devices/Homyoko/ControlIVTController.cshtml");
+        break;
+
+    default:
+        <p>This device has no cotrols.</p>
+        break;
+
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+
+<script>
+
+    function OnNavigateBack()
+    {
+        window.location = "/Devices/Index";
+    }
+
+</script>

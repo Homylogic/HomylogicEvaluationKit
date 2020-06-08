@@ -1,0 +1,74 @@
+﻿@model HomylogicAsp.Models.Devices.EditTCPSocketViewModel
+@{
+    ViewData["Title"] = "Devices";
+    if (ViewData.Model.ID == 0)
+        ViewData["SubTitle"] = "Add new TCP socket";
+    else
+        ViewData["SubTitle"] = "Edit TCP socket";
+}
+
+<h1>@ViewData["Title"]</h1>
+<h4><img id="navigate-back" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="SaveTCPSocket">
+            @Html.HiddenFor(m => m.ID)
+            @Html.HiddenFor(m => m.DeviceType)
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label">Name</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Notice" class="control-label">Notice</label>
+                <textarea asp-for="Notice" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Notice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SocketType" class="control-label">Socket type</label>
+                <select asp-for="SocketType" class="browser-default custom-select form-control">
+                    <option value="@X.Homylogic.Models.Objects.Devices.TCPDeviceX.SocketTypes.Server">Server</option>
+                    <option value="@X.Homylogic.Models.Objects.Devices.TCPDeviceX.SocketTypes.Client">Client</option>
+                </select>
+                <span asp-validation-for="SocketType" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IPAddress" class="control-label">IP address</label>
+                <input asp-for="IPAddress" class="form-control" />
+                <span asp-validation-for="IPAddress" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PortNumber" class="control-label">Port number</label>
+                <input asp-for="PortNumber" class="form-control" />
+                <span asp-validation-for="PortNumber" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="PacketEndChar" class="control-label">Packet end char</label>
+                <input asp-for="PacketEndChar" class="form-control" />
+                <span asp-validation-for="PacketEndChar" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="custom-control custom-checkbox">
+                    <input asp-for="Disabled" type="checkbox" class="custom-control-input" id="checkbox-disabled">
+                    <label class="custom-control-label" for="checkbox-disabled">Disabled</label>
+                </div>
+            </div>
+            <div class="form-group">
+                @if (ViewData.Model.SaveException != null)
+                {
+                    <label class="control-label text-danger">@ViewData.Model.SaveException.Message</label><br>
+                }
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
