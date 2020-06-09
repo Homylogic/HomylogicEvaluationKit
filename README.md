@@ -7,6 +7,7 @@ https://homylogic.com
 Next plans:
 - Build advanced and universal Meteostation ver.2
 - Add support for louver device
+- Add users and more settings
 
 
 
