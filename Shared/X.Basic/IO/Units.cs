@@ -7,7 +7,7 @@ namespace X.Basic.IO
     public static class Units
     {
         /// <summary>
-        /// Vráti naformátovanú veľkosť súboru alebo disku, vo vhodnej jednotke napr. 10 MB, 124 kB alebo 1,2 GB
+        /// Returns formatted file size (10 MB, 124 kB or 1,2 GB).
         /// </summary>
         public static string FormatSizeWithUnit(long size)
         {
