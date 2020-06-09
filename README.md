@@ -1,6 +1,8 @@
 Homylogic Evaluation Kit
+
 Automation Software
 https://homylogic.com
+
 
 Next plans:
 - Build advanced and universal Meteostation ver.2
