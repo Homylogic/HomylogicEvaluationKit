@@ -19,6 +19,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "X.Homylogic", "X.Homylogic\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HomylogicAsp", "HomylogicAsp\HomylogicAsp.csproj", "{64F272AF-FD7D-4D28-BBB2-8150B3289A2D}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{D4EEB5A2-C02F-4874-B349-C04971E95E09}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomylogicInstallSSLWin", "Tools\HomylogicInstallSSLWin\HomylogicInstallSSLWin.csproj", "{1943BB8E-537F-49A3-AA88-D21A91CC6DC3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +71,14 @@ Global
 		{64F272AF-FD7D-4D28-BBB2-8150B3289A2D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{64F272AF-FD7D-4D28-BBB2-8150B3289A2D}.Release|x86.ActiveCfg = Release|Any CPU
 		{64F272AF-FD7D-4D28-BBB2-8150B3289A2D}.Release|x86.Build.0 = Release|Any CPU
+		{1943BB8E-537F-49A3-AA88-D21A91CC6DC3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1943BB8E-537F-49A3-AA88-D21A91CC6DC3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1943BB8E-537F-49A3-AA88-D21A91CC6DC3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1943BB8E-537F-49A3-AA88-D21A91CC6DC3}.Debug|x86.Build.0 = Debug|Any CPU
+		{1943BB8E-537F-49A3-AA88-D21A91CC6DC3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1943BB8E-537F-49A3-AA88-D21A91CC6DC3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1943BB8E-537F-49A3-AA88-D21A91CC6DC3}.Release|x86.ActiveCfg = Release|Any CPU
+		{1943BB8E-537F-49A3-AA88-D21A91CC6DC3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -75,6 +87,7 @@ Global
 		{23352166-248C-4111-BE50-E8F050317D8A} = {3972810E-DFBF-4DCB-9F9F-9F3C4639B8CC}
 		{F4DE70D8-B60A-4DCE-85F1-2F1D0E098839} = {3972810E-DFBF-4DCB-9F9F-9F3C4639B8CC}
 		{8EFDB322-865C-47F2-B4B7-B10223331048} = {3972810E-DFBF-4DCB-9F9F-9F3C4639B8CC}
+		{1943BB8E-537F-49A3-AA88-D21A91CC6DC3} = {D4EEB5A2-C02F-4874-B349-C04971E95E09}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D1D38EA3-3201-4FD0-A4F2-7DEF2206F7D3}
