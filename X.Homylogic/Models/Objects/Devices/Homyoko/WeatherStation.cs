@@ -149,7 +149,6 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
         public WeatherStation() 
         { 
             base.DeviceType = DeviceTypes.HomyokoWeatherStation;
-            base.WriteToLogs = false; 
             this.PortNumber = 5242;
             this.SocketType = SocketTypes.Client;
             this.PacketEndChar = " ";
@@ -219,9 +218,16 @@ g_again:
             }
             catch (Exception ex)
             {
-                Body.Environment.Logs.Error($"Problem sending initialization packet for Homy weather device '{this.Name}'.", ex, TITLE);
+                Body.Environment.Logs.Error($"Problem sending initialization packet.", ex, $"{TITLE} : {this.Name}");
             }
             _isClosed = true;
+        }
+        /// <summary>
+        /// Logs error when device can't open connection.
+        /// </summary>
+        protected override void OnCantOpenSocket(Exception ex)
+        {
+            Body.Environment.Logs.Error($"Can't open weather station device {this.IPAddress}:{this.PortNumber}.", ex, $"{TITLE} : {this.Name}");
         }
         /// <summary>
         /// Spracovanie prijatých údajov.
@@ -277,7 +283,7 @@ g_again:
                     }
                     catch (Exception ex)
                     {
-                        Body.Environment.Logs.Error($"Problem parsing received meteo station '{this.Name}' data '{data}'.", ex, TITLE);
+                        Body.Environment.Logs.Error($"Problem parsing received data '{data}'.", ex, $"{TITLE} : {this.Name}");
                     }
                     break;
             }

@@ -116,7 +116,7 @@ g_start:    try
                             Body.Environment.Logs.Error("Problem deleting old logs.", ex, this.GetType().Name);
                         }
 
-                        // Vymazanie starej hisórie zariadení.
+                        // Vymazanie starej histórie zariadení.
                         foreach (DeviceX device in this.Devices.List.ToArray()) 
                         {
                             if (device is IHistoryDataLogs historyDataLogs)

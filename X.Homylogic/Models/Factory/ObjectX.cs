@@ -23,11 +23,6 @@ namespace X.Homylogic.Models.Factory
         public bool IsNameChanged => NameOriginal != Name;
         public void NameSet(string name) { this.Name = name; this.NameOriginal = name; }
         /// <summary>
-        /// Umožňuje vypnúť logovanie.
-        /// Používa len pre nastavenie z vyšších objektov v dedení.
-        /// </summary>
-        internal bool WriteToLogs { get; set; } = true;
-        /// <summary>
         /// Plánovač uloh, umožňuje vykonanie akcií podľa zadaného času.
         /// </summary>
         public ScheduleList Scheduler { get; private set; }

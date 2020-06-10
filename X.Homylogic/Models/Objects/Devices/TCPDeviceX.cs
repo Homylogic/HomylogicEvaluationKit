@@ -154,8 +154,7 @@ namespace X.Homylogic.Models.Objects.Devices
             }
             catch (Exception ex)
             {
-                if (this.WriteToLogs)
-                    Body.Environment.Logs.Error($"Can't write data to serial device '{this.Name}' on port COM{this.PortNumber}.", ex, TITLE);
+                Body.Environment.Logs.Error($"Can't write data to TCP device {this.IPAddress}:{this.PortNumber}.", ex, $"{TITLE} : {this.Name}");
             }
         }
         /// <summary>
@@ -210,16 +209,14 @@ g_start:
                     // Ak nenastalo manuálne zatvorenie servera počas čakania na klientov.
                     if (ex.ErrorCode != 10004) 
                     {
-                        if (this.WriteToLogs)
-                            Body.Environment.Logs.Error($"Can't open TCP socket device '{this.Name}' on IP address {this.IPAddress}.", ex, TITLE);
+                        this.OnCantOpenSocket(ex);
                     }
                     goto g_exit;
                 }
                 catch (Exception ex)
                 {
                     // Ukonči komunikáciu, pretože TCP Socket nie je možné otvoriť.
-                    if (this.WriteToLogs)
-                        Body.Environment.Logs.Error($"Can't open TCP socket device '{this.Name}' on IP address {this.IPAddress}.", ex, TITLE);
+                    this.OnCantOpenSocket(ex);
                     goto g_exit;
                 }
 
@@ -245,15 +242,13 @@ g_start:
                                 {
                                     if (this.SocketType == SocketTypes.Server)
                                     {
-                                        if (this.WriteToLogs)
-                                            Body.Environment.Logs.Info($"Remote client '{this.IPAddress}' has beend disconnected.", $"TCP socket device '{this.Name}'", TITLE);
+                                        Body.Environment.Logs.Info($"Remote client has beend disconnected.", source:$"{TITLE} : {this.Name}");
                                         this.CanWrite = false;
                                         goto g_start;
                                     }
                                     else
                                     {
-                                        if (this.WriteToLogs)
-                                            Body.Environment.Logs.Info($"Remote server '{this.IPAddress}' has beend disconnected.", $"TCP socket device '{this.Name}'", TITLE);
+                                        Body.Environment.Logs.Info($"Remote server has beend disconnected.", source:$"{TITLE} : {this.Name}");
                                         goto g_exit;
                                     }
                                 }
@@ -275,8 +270,7 @@ g_start:
                         }
                         catch (Exception ex)
                         {
-                            if (this.WriteToLogs)
-                                Body.Environment.Logs.Error($"Problem processing received TCP socket '{this.Name}' data from IP address {this.IPAddress}.", ex, TITLE);
+                            Body.Environment.Logs.Error($"Problem processing received TCP socket data.", ex, $"{TITLE} : {this.Name}");
                         }
                     }
                     catch (SocketException ex) 
@@ -286,8 +280,7 @@ g_start:
                     catch (Exception ex)
                     {
                         if (_networkStream == null) goto g_exit; // Zariadenie bolo zatvorené.
-                        if (this.WriteToLogs) 
-                            Body.Environment.Logs.Error($"Can't read data from TCP socket device '{this.Name}' on IP address {this.IPAddress}.", ex, TITLE);
+                        Body.Environment.Logs.Error($"Can't read data from TCP socket device.", ex, $"{TITLE} : {this.Name}");
                     }
                 }
                 this.CanWrite = false;
@@ -306,7 +299,13 @@ g_exit:
             _isClosing = false;
             base.Close(); // Nastaviť príznak IsOpen a CanWrite.
         }
-
+        /// <summary>
+        /// Can handle exception when socket can't be openned.
+        /// </summary>
+        protected virtual void OnCantOpenSocket(Exception ex) 
+        {
+            Body.Environment.Logs.Error($"Can't open TCP socket device {this.IPAddress}:{this.PortNumber}.", ex, $"{TITLE} : {this.Name}");
+        }
 
     }
 

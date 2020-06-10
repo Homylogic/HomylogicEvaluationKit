@@ -91,7 +91,7 @@ namespace X.App.Logs
             sql.AppendFormat("dontDelete = {0}, ", q.Innt32(this.DontDelete));
             sql.AppendFormat("text = {0}, ", q.Str(this.Text));
             sql.AppendFormat("description = {0}, ", q.Str(this.Description));
-            sql.AppendFormat("Source = {0})", q.Str(this.Source));
+            sql.AppendFormat("Source = {0}", q.Str(this.Source));
             return sql.ToString();
         }
 

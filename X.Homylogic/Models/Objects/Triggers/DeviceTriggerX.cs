@@ -97,7 +97,7 @@ namespace X.Homylogic.Models.Objects.Triggers
 
             if (device == null)
             {
-                Body.Environment.Logs.Error($"Trigger '{this.Name}' can't found device.", new Exception($"DeviceID:{this.DeviceID}") , TITLE);
+                Body.Environment.Logs.Error($"Trigger can't found device.", new Exception($"DeviceID:{this.DeviceID}") , $"{TITLE} : {this.Name}");
             }
             else {
                 switch (this.ActionType) 
@@ -109,7 +109,7 @@ namespace X.Homylogic.Models.Objects.Triggers
                         }
                         catch (Exception ex)
                         {
-                            Body.Environment.Logs.Error($"Trigger '{this.Name}' can't open device.", ex, TITLE);
+                            Body.Environment.Logs.Error($"Trigger can't open device.", ex, $"{TITLE} : {this.Name}");
                         }
                         break;
 
@@ -120,7 +120,7 @@ namespace X.Homylogic.Models.Objects.Triggers
                         }
                         catch (Exception ex)
                         {
-                            Body.Environment.Logs.Error($"Trigger '{this.Name}' can't close device.", ex, TITLE);
+                            Body.Environment.Logs.Error($"Trigger can't close device.", ex, $"{TITLE} : {this.Name}");
                         }
                         break;
                 }

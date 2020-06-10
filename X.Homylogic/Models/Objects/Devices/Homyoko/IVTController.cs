@@ -195,7 +195,6 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
         public IVTController() 
         { 
             base.DeviceType = DeviceTypes.HomyokoIVTController;
-            base.WriteToLogs = false; 
             this.PortNumber = 5000;
             this.SocketType = SocketTypes.Client;
             this.PacketEndChar = "\r\n";
@@ -244,9 +243,6 @@ g_again:
 
                 if (_isOpen)
                 {
-                    // Zariadenie bolo zatvorené kvoli chybe.
-                    // Loguje sa vždý, aj keď nie je zapnuté logovanie na objekte DeviceRecord.
-                    Body.Environment.Logs.Warning($"IVT Controller '{this.Name}' has been disconnected, trying reconnect again.", source:TITLE);
                     goto g_again;
                 }
                 else {
@@ -254,11 +250,18 @@ g_again:
                     return;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Chybu loguje TCPDevice
+                Body.Environment.Logs.Error($"Can't open connection.", ex, $"{TITLE} : {this.Name}");
                 goto g_again;
             }
+        }
+        /// <summary>
+        /// Logs error when device can't open connection.
+        /// </summary>
+        protected override void OnCantOpenSocket(Exception ex)
+        {
+            Body.Environment.Logs.Error($"Can't open IVT controller device {this.IPAddress}:{this.PortNumber}.", ex, $"{TITLE} : {this.Name}");
         }
         /// <summary>
         /// Spracovanie prijatých údajov.
@@ -292,7 +295,7 @@ g_again:
                             }
                             catch (Exception ex)
                             {
-                                Body.Environment.Logs.Error($"Problem parsing received IVT Controller '{this.Name}' data '{data}'.", ex, TITLE);
+                                Body.Environment.Logs.Error($"Problem parsing received data '{data}'.", ex, $"{TITLE} : {this.Name}");
                             }
                         }
                     }
@@ -340,7 +343,7 @@ g_again:
                             if (data.StartsWith("nie je prietok - cerpadla su zapnute"))
                             { 
                                 this.WaterFlow = WaterFlowTypes.NoFlow_PumpOn;
-                                Body.Environment.Logs.Warning($"IVT Controller '{this.Name}' pump problem, no water flow but pumping.", source:TITLE);
+                                Body.Environment.Logs.Warning($"Pump has problem, no water flow but pumping.", source:$"{TITLE} : {this.Name}");
                             }
                             if (data.StartsWith("prietok ok"))
                             {
@@ -372,7 +375,6 @@ g_again:
                     this.Write("CF");
                     break;
             }
-
         }
 
         #region --- CONTROLS METHODS ---

@@ -111,7 +111,7 @@ namespace X.Homylogic.Models.Objects.Devices
             }
             catch (Exception ex)
             {
-                Body.Environment.Logs.Error($"Can't write data to serial device '{this.Name}' on port COM{this.PortNumber}.", ex, TITLE);
+                Body.Environment.Logs.Error($"Can't write data to serial device COM{this.PortNumber}.", ex, $"{TITLE} : {this.Name}");
             }
         }
         /// <summary>
@@ -142,7 +142,7 @@ g_start:
                 catch (Exception ex)
                 {
                     // Ukonči komunikáciu, pretože port nie je možné otvoriť.
-                    Body.Environment.Logs.Error($"Can't open serial device '{this.Name}' on port COM{this.PortNumber}.", ex, TITLE);
+                    Body.Environment.Logs.Error($"Can't open serial device on port COM{this.PortNumber}.", ex, $"{TITLE} : {this.Name}");
                     goto g_exit;
                 }
 
@@ -196,7 +196,7 @@ g_exit:
             }
             catch (Exception ex)
             {
-                Body.Environment.Logs.Error($"Can't read data from serial device '{this.Name}' on port COM{this.PortNumber}.", ex, TITLE);
+                Body.Environment.Logs.Error($"Can't read data from serial device on port COM{this.PortNumber}.", ex, $"{TITLE} : {this.Name}");
             }
         }
 

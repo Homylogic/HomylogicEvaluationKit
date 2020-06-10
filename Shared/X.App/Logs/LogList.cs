@@ -4,6 +4,8 @@
  * 
  */
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using X.Data;
@@ -16,6 +18,7 @@ namespace X.App.Logs
         readonly DBClient _dbClient;
         object _dbSyncObject;
         int _recordsLimit;
+        Hashtable _latestLogValues = new Hashtable();
 
         #region --- DATA LIST ---
 
@@ -58,25 +61,48 @@ namespace X.App.Logs
         }
 
         /// <summary>
-        /// Zapísanie informácie.
+        /// Writes info log record.
         /// </summary>
-        public void Info(string text, string description, string source = null) 
+        /// <param name="text">Main log text.</param>
+        /// <param name="description">Some info description.</param>
+        /// <param name="source">Can be used as key, for filter fast repetitive key when is unique, etc. Title and VariableName.</param>
+        public void Info(string text, string description = null, string source = null) 
         {
             try
             {
                 lock (_dbSyncObject) 
                 { 
-                    LogRecord log = (LogRecord)this.GetInitializedDataRecord();
-                    log.LogType = LogRecord.LogTypes.Info;
-                    log.LogTime = DateTime.Now;
-                    log.Text = text;
-                    log.Description = description;
-                    log.Source = source;
-                    log.Save();
+                    string keyLatest = $"Info:{source}";
+                    string logValues = $"{text}-{description}";
 
-                    // Vymazať najstarší záznam (nový log je pridaný vždy na začiatok listu).
-                    if (this.List.Count > _recordsLimit)
-                        this.List.RemoveAt(this.List.Count - 1);
+                    if (this.CompareToLatestLog(keyLatest, logValues)) {
+                        // Current log values are same like latest log record values,
+                        // find latest log record and update DateTime.
+                        KeyValuePair<long, string> latestValues = (KeyValuePair<long, string>)_latestLogValues[keyLatest];
+                        LogRecord log = (LogRecord)this.FindDataRecord(latestValues.Key);
+                        log.LogTime = DateTime.Now;
+                        log.Save();
+                    } else { 
+                        // Log values are not same like latest log values, 
+                        // add new log recrod.
+                        LogRecord log = (LogRecord)this.GetInitializedDataRecord();
+                        log.LogType = LogRecord.LogTypes.Info;
+                        log.LogTime = DateTime.Now;
+                        log.Text = text;
+                        log.Description = description;
+                        log.Source = source;
+                        log.Save();
+
+                        // Vymazať najstarší záznam (nový log je pridaný vždy na začiatok listu).
+                        if (this.List.Count > _recordsLimit)
+                            this.List.RemoveAt(this.List.Count - 1);
+
+                        // Write latest info values for current log.
+                        if (_latestLogValues.ContainsKey(keyLatest))
+                            _latestLogValues[keyLatest] = new KeyValuePair<long, string>(log.ID, logValues);
+                        else
+                            _latestLogValues.Add(keyLatest, new KeyValuePair<long, string>(log.ID, logValues));
+                    }
                 }
             }
             catch (Exception)
@@ -84,25 +110,50 @@ namespace X.App.Logs
             }
         }
         /// <summary>
-        /// Zapísanie warovania.
+        /// Writes warning log record.
         /// </summary>
+        /// <param name="text">Main log text.</param>
+        /// <param name="description">Some info description.</param>
+        /// <param name="source">Can be used as key, for filter fast repetitive key when is unique, etc. Title and VariableName.</param>
         public void Warning(string text, string description = null, string source = null)
         {
             try
             {
                 lock (_dbSyncObject) 
-                { 
-                    LogRecord log = (LogRecord)this.GetInitializedDataRecord();
-                    log.LogType = LogRecord.LogTypes.Warning;
-                    log.LogTime = DateTime.Now;
-                    log.Text = text;
-                    log.Description = description;
-                    log.Source = source;
-                    log.Save();
+                {
+                    string keyLatest = $"Warning:{source}";
+                    string logValues = $"{text}-{description}";
 
-                    // Vymazať najstarší záznam (nový log je pridaný vždy na začiatok listu).
-                    if (this.List.Count > _recordsLimit)
-                        this.List.RemoveAt(this.List.Count - 1);
+                    if (this.CompareToLatestLog(keyLatest, logValues)) {
+                        // Current log values are same like latest log record values,
+                        // find latest log record and update DateTime.
+                        KeyValuePair<long, string> latestValues = (KeyValuePair<long, string>)_latestLogValues[keyLatest];
+                        LogRecord log = (LogRecord)this.FindDataRecord(latestValues.Key);
+                        log.LogTime = DateTime.Now;
+                        log.Save();
+                    }
+                    else
+                    {
+                        // Log values are not same like latest log values, 
+                        // add new log recrod.
+                        LogRecord log = (LogRecord)this.GetInitializedDataRecord();
+                        log.LogType = LogRecord.LogTypes.Warning;
+                        log.LogTime = DateTime.Now;
+                        log.Text = text;
+                        log.Description = description;
+                        log.Source = source;
+                        log.Save();
+
+                        // Vymazať najstarší záznam (nový log je pridaný vždy na začiatok listu).
+                        if (this.List.Count > _recordsLimit)
+                            this.List.RemoveAt(this.List.Count - 1);
+
+                        // Write latest info values for current log.
+                        if (_latestLogValues.ContainsKey(keyLatest))
+                            _latestLogValues[keyLatest] = new KeyValuePair<long, string>(log.ID, logValues);
+                        else
+                            _latestLogValues.Add(keyLatest, new KeyValuePair<long, string>(log.ID, logValues));
+                    }
                 }
             }
             catch (Exception)
@@ -110,25 +161,50 @@ namespace X.App.Logs
             }
         }
         /// <summary>
-        /// Zapísanie chyby.
+        /// Writes error log record.
         /// </summary>
+        /// <param name="text">Main log text.</param>
+        /// <param name="description">Some info description.</param>
+        /// <param name="source">Can be used as key, for filter fast repetitive key when is unique, etc. Title and VariableName.</param>
         public void Error(string text, Exception ex, string source = null)
         {
             try
             {
                 lock (_dbSyncObject) 
-                { 
-                    LogRecord log = (LogRecord)this.GetInitializedDataRecord();
-                    log.LogType = LogRecord.LogTypes.Error;
-                    log.LogTime = DateTime.Now;
-                    log.Text = text;
-                    log.Description = ex.Message;
-                    log.Source = source;
-                    log.Save();
+                {
+                    string keyLatest = $"Error:{source}";
+                    string logValues = $"{text}-{ex.Message}";
 
-                    // Vymazať najstarší záznam (nový log je pridaný vždy na začiatok listu).
-                    if (this.List.Count > _recordsLimit)
-                        this.List.RemoveAt(this.List.Count - 1);
+                    if (this.CompareToLatestLog(keyLatest, logValues)) {
+                        // Current log values are same like latest log record values,
+                        // find latest log record and update DateTime.
+                        KeyValuePair<long, string> latestValues = (KeyValuePair<long, string>)_latestLogValues[keyLatest];
+                        LogRecord log = (LogRecord)this.FindDataRecord(latestValues.Key);
+                        log.LogTime = DateTime.Now;
+                        log.Save();
+                    }
+                    else
+                    {
+                        // Log values are not same like latest log values, 
+                        // add new log recrod.
+                        LogRecord log = (LogRecord)this.GetInitializedDataRecord();
+                        log.LogType = LogRecord.LogTypes.Error;
+                        log.LogTime = DateTime.Now;
+                        log.Text = text;
+                        log.Description = ex.Message;
+                        log.Source = source;
+                        log.Save();
+
+                        // Vymazať najstarší záznam (nový log je pridaný vždy na začiatok listu).
+                        if (this.List.Count > _recordsLimit)
+                            this.List.RemoveAt(this.List.Count - 1);
+
+                        // Write latest info values for current log.
+                        if (_latestLogValues.ContainsKey(keyLatest))
+                            _latestLogValues[keyLatest] = new KeyValuePair<long, string>(log.ID, logValues);
+                        else
+                            _latestLogValues.Add(keyLatest, new KeyValuePair<long, string>(log.ID, logValues));
+                    }
                 }
             }
             catch (Exception)
@@ -136,19 +212,38 @@ namespace X.App.Logs
             }
         }
         /// <summary>
-        /// Vymazanie starých log údajov.
+        /// Vymazanie príliš starých log údajov v databáze (neexistujú v kolekcii).
         /// </summary>
         public void DeleteOld()
         {
             lock (_dbSyncObject) 
-            { 
+            {
                 // Vymazanie všetkých záznamov starších ako posledný log záznam v zozname list.
+                if (this.List.Count < _recordsLimit) return;
                 LogRecord log = (LogRecord)this.List[^1];
                 Data.Management.SqlConvert q = new Data.Management.SqlConvert(this.DBClient.ClientType);
                 this.DBClient.Open();
                 this.DBClient.ExecuteNonQuery($"DELETE FROM {LogRecord.TABLE_NAME} WHERE logTime < {q.DTime(log.LogTime)}");
                 this.DBClient.Close();
             }
+        }
+        /// <summary>
+        /// Compare specified (usually current) logs data with latest logs values.
+        /// Returns TRUE if specified values are same like latest log.
+        /// </summary>
+        private bool CompareToLatestLog(string keyLatest, string logValues)
+        {                               
+            if (this.List.Count == 0) return false;
+
+            // Find lates log values from hash table.
+            if (!_latestLogValues.ContainsKey(keyLatest)) return false;
+            KeyValuePair<long, string> latestValues = (KeyValuePair<long, string>)_latestLogValues[keyLatest];
+
+            // Compare latest log values with current specified log values.
+            if (logValues == latestValues.Value)
+                return true;
+            else
+                return false;
         }
     }
 }
