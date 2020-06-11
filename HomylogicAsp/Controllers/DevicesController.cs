@@ -86,9 +86,17 @@ namespace HomylogicAsp.Controllers
         public string GetIsOpen()
         {
             StringBuilder result = new StringBuilder();
-            foreach (DeviceX device in Body.Runtime.Devices.List.ToArray()) 
+            try
             {
-                result.AppendFormat("{0}:{1};", device.ID, Convert.ToInt32(device.IsOpen));
+                for (int i = 0; i < Body.Runtime.Devices.List.Count; i++)
+                {
+                    DeviceX device = (DeviceX)Body.Runtime.Devices.List[i];
+                    result.AppendFormat("{0}:{1};", device.ID, Convert.ToInt32(device.IsOpen));
+                }
+            }
+            catch (Exception ex)
+            {
+                Body.Environment.Logs.Error($"Problem checking for state of devices.", ex, this.GetType().Name);
             }
             return result.ToString();
         }
@@ -543,16 +551,23 @@ namespace HomylogicAsp.Controllers
             result.Append("<table id='input-buffer-list' class='table table-bordered table-hover'>");
             result.Append("<tbody>");
             int readedBufferItemsCount = 0;
-            for (int i = 0; i < X.Homylogic.Body.Runtime.InputBuffers.List.Count; i++)
+            try
             {
-                X.Homylogic.Models.Objects.Buffers.InputBufferX buffer = (X.Homylogic.Models.Objects.Buffers.InputBufferX)X.Homylogic.Body.Runtime.InputBuffers.List[i];
-                if (buffer.DeviceID != id) continue;
-                readedBufferItemsCount++;
-                if (readedBufferItemsCount > 50) break;
-                result.Append("<tr>");
-                result.AppendFormat("<td>{0}</td>", buffer.ProcessTime.ToString("dd.MM.yy HH:mm:ss"));
-                result.AppendFormat("<td>{0}</td>", buffer.Data);
-                result.Append("</tr>");
+                for (int i = 0; i < X.Homylogic.Body.Runtime.InputBuffers.List.Count; i++)
+                {
+                    X.Homylogic.Models.Objects.Buffers.InputBufferX buffer = (X.Homylogic.Models.Objects.Buffers.InputBufferX)X.Homylogic.Body.Runtime.InputBuffers.List[i];
+                    if (buffer.DeviceID != id) continue;
+                    readedBufferItemsCount++;
+                    if (readedBufferItemsCount > 50) break;
+                    result.Append("<tr>");
+                    result.AppendFormat("<td>{0}</td>", buffer.ProcessTime.ToString("dd.MM.yy HH:mm:ss"));
+                    result.AppendFormat("<td>{0}</td>", buffer.Data);
+                    result.Append("</tr>");
+                }
+            }
+            catch (Exception ex)
+            {
+                Body.Environment.Logs.Error($"Problem reading input buffer items.", ex, this.GetType().Name);
             }
             result.Append("</tbody>");
             result.Append("</table>");

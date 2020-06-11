@@ -54,9 +54,17 @@ namespace HomylogicAsp.Controllers
         public string GetIsStarted()
         {
             StringBuilder result = new StringBuilder();
-            foreach (TriggerX trigger in Body.Runtime.Triggers.List.ToArray()) 
+            try
             {
-                result.AppendFormat("{0}:{1};", trigger.ID, Convert.ToInt32(trigger.IsStarted));
+                for (int i = 0; i < Body.Runtime.Triggers.List.Count; i++)
+                {
+                    TriggerX trigger = (TriggerX)Body.Runtime.Triggers.List[i];
+                    result.AppendFormat("{0}:{1};", trigger.ID, Convert.ToInt32(trigger.IsStarted));
+                }
+            }
+            catch (Exception ex)
+            {
+                Body.Environment.Logs.Error($"Problem checking for state of triggers.", ex, this.GetType().Name);
             }
             return result.ToString();
         }

@@ -23,11 +23,7 @@ namespace X.Homylogic.Models.Objects
         public bool IsStarted
         {
             get { return _isStarted; }
-            protected set 
-            {
-                _isStarted = value;
-                this.OnPropertyChanged("IsStarted");
-            }    
+            protected set { _isStarted = value; }    
         }
 
         #region --- DATA PROPERTIES ---

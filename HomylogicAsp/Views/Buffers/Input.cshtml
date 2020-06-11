@@ -29,18 +29,23 @@
         </tr>
     </thead>
     <tbody>
-        @for (int i = 0; i < ViewData.Model.InputBufferList.List.Count; i++)
+        @try
         {
-            if (i > 100) break;
+            @for (int i = 0; i < ViewData.Model.InputBufferList.List.Count; i++)
+            {
+                InputBufferX buffer = (InputBufferX)ViewData.Model.InputBufferList.List[i];
 
-            InputBufferX buffer = (InputBufferX)ViewData.Model.InputBufferList.List[i];
-
-            <tr id="table-row-@buffer.ID">
-                <td hidden>@buffer.ID</td>
-                <td>@buffer.ProcessTime.ToString("dd.MM.yy HH:mm:ss")</td>
-                <td>@buffer.Name</td>
-                <td>@buffer.Data</td>
-            </tr>
+                <tr id="table-row-@buffer.ID">
+                    <td hidden>@buffer.ID</td>
+                    <td>@buffer.ProcessTime.ToString("dd.MM.yy HH:mm:ss")</td>
+                    <td>@buffer.Name</td>
+                    <td>@buffer.Data</td>
+                </tr>
+            }
+        }
+        catch (Exception ex)
+        {
+            X.Homylogic.Body.Environment.Logs.Error($"Problem reading input buffer items.", ex, this.GetType().Name);
         }
     </tbody>
 </table>

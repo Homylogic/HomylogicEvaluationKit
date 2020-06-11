@@ -53,45 +53,54 @@ g_start:    try
                     DayOfWeek day = DateTime.Now.DayOfWeek;
 
                     // Devices.
-                    foreach (DeviceX device in Body.Runtime.Devices.List.ToArray())
+                    try
                     {
-                        if (device.Disabled) continue;
-                        if (device is IVTController) 
+                        for (int i = 0; i < Body.Runtime.Devices.List.Count; i++)
                         {
-                            IVTController ivtController = (IVTController)device;
-                            if (ivtController.Scheduler != null) 
+                            DeviceX device = (DeviceX)Body.Runtime.Devices.List[i];
+                            if (device.Disabled) continue;
+                            if (device is IVTController) 
                             {
-                                if (!ivtController.Scheduler.IsDataLoaded)
-                                    lock (Body.Database.SyncObject)
-                                        ivtController.Scheduler.LoadData();
-
-                                foreach (ScheduleRecord schedule in ivtController.Scheduler.List.ToArray())
+                                IVTController ivtController = (IVTController)device;
+                                if (ivtController.Scheduler != null) 
                                 {
-                                    if (schedule.IsProcessedToday) continue;
-                                    bool isDay = false;
-                                    if (schedule.DayMonday && day == DayOfWeek.Monday) isDay = true;
-                                    if (schedule.DayTuesday && day == DayOfWeek.Tuesday) isDay = true;
-                                    if (schedule.DayWednesday && day == DayOfWeek.Wednesday) isDay = true;
-                                    if (schedule.DayThursday && day == DayOfWeek.Thursday) isDay = true;
-                                    if (schedule.DayFriday && day == DayOfWeek.Friday) isDay = true;
-                                    if (schedule.DaySaturday && day == DayOfWeek.Saturday) isDay = true;
-                                    if (schedule.DaySunday && day == DayOfWeek.Sunday) isDay = true;
-                                    if (!isDay) continue;
+                                    if (!ivtController.Scheduler.IsDataLoaded)
+                                        lock (Body.Database.SyncObject)
+                                            ivtController.Scheduler.LoadData();
 
-                                    // Pridaj položku staršiu ako 2 minúty.
-                                    double secoudsDiff = (DateTime.Now.TimeOfDay - schedule.ScheduleTime.TimeOfDay).TotalSeconds;
-                                    if (secoudsDiff > 0 && secoudsDiff < 120) 
-                                    { 
-                                        lock (_syncObject) 
-                                        {
-                                            KeyValuePair<Int64, Int64> IDs = new KeyValuePair<Int64, Int64>(device.ID, schedule.ID);    
-                                            if (!_deviceIDs.Contains(IDs))
-                                                _deviceIDs.Add(IDs); 
+                                    for (int n = 0; n < ivtController.Scheduler.List.Count; n++)
+                                    {
+                                        ScheduleRecord schedule = (ScheduleRecord)ivtController.Scheduler.List[n];
+                                        if (schedule.IsProcessedToday) continue;
+                                        bool isDay = false;
+                                        if (schedule.DayMonday && day == DayOfWeek.Monday) isDay = true;
+                                        if (schedule.DayTuesday && day == DayOfWeek.Tuesday) isDay = true;
+                                        if (schedule.DayWednesday && day == DayOfWeek.Wednesday) isDay = true;
+                                        if (schedule.DayThursday && day == DayOfWeek.Thursday) isDay = true;
+                                        if (schedule.DayFriday && day == DayOfWeek.Friday) isDay = true;
+                                        if (schedule.DaySaturday && day == DayOfWeek.Saturday) isDay = true;
+                                        if (schedule.DaySunday && day == DayOfWeek.Sunday) isDay = true;
+                                        if (!isDay) continue;
+
+                                        // Pridaj položku staršiu ako 2 minúty.
+                                        double secoudsDiff = (DateTime.Now.TimeOfDay - schedule.ScheduleTime.TimeOfDay).TotalSeconds;
+                                        if (secoudsDiff > 0 && secoudsDiff < 120) 
+                                        { 
+                                            lock (_syncObject) 
+                                            {
+                                                KeyValuePair<Int64, Int64> IDs = new KeyValuePair<Int64, Int64>(device.ID, schedule.ID);    
+                                                if (!_deviceIDs.Contains(IDs))
+                                                    _deviceIDs.Add(IDs); 
+                                            }
                                         }
                                     }
                                 }
                             }
-                        }
+                        } // end of for - devices
+                    }
+                    catch (Exception ex)
+                    {
+                        Body.Environment.Logs.Error($"Problem while scheduler processing items for start.", ex, TITLE);
                     }
 
                     // Time-out vlákna.

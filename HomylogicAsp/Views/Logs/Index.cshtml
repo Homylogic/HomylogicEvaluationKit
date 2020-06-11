@@ -30,24 +30,31 @@
         </tr>
     </thead>
     <tbody>
-        @for (int i = 0; i < ViewData.Model.LogList.List.Count; i++)
+        @try
         {
-            LogRecord log = (LogRecord)ViewData.Model.LogList.List[i];
-
-            string image = (log.LogType switch
+            @for (int i = 0; i < ViewData.Model.LogList.List.Count; i++)
             {
-                LogRecord.LogTypes.Warning => "/images/logs/Log_Warning.gif",
-                LogRecord.LogTypes.Error => "/images/logs/Log_Error.gif",
-                _ => "/images/logs/Log_Info.gif"
-            });
+                LogRecord log = (LogRecord)ViewData.Model.LogList.List[i];
 
-            <tr id="table-row-@log.ID">
-                <td hidden>@log.ID</td>
-                <td><img src="@image" />&nbsp;@log.LogTime.ToString("dd.MM.yy HH:mm:ss")</td>
-                <td>@log.Text</td>
-                <td>@log.Description</td>
-                <td>@log.Source</td>
-            </tr>
+                string image = (log.LogType switch
+                {
+                    LogRecord.LogTypes.Warning => "/images/logs/Log_Warning.gif",
+                    LogRecord.LogTypes.Error => "/images/logs/Log_Error.gif",
+                    _ => "/images/logs/Log_Info.gif"
+                });
+
+                <tr id="table-row-@log.ID">
+                    <td hidden>@log.ID</td>
+                    <td><img src="@image" />&nbsp;@log.LogTime.ToString("dd.MM.yy HH:mm:ss")</td>
+                    <td>@log.Text</td>
+                    <td>@log.Description</td>
+                    <td>@log.Source</td>
+                </tr>
+            }
+        }
+        catch (Exception ex)
+        {
+            X.Homylogic.Body.Environment.Logs.Error($"Problem reading logs.", ex, this.GetType().Name);
         }
     </tbody>
 </table>

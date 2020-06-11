@@ -50,104 +50,112 @@
 <div class="text-center">
 
     <div class="card-deck">
-
-        @foreach (DeviceX device in ViewData.Model.DeviceList.List.ToArray())
+        @try
         {
-            if (!device.ShowOnHome) continue;
-
-            // --- WEATHER STATION -----------------------------------------------------------------------------------------------------------------------
-            if (device is WeatherStation)
+            @for (int i = 0; i < ViewData.Model.DeviceList.List.Count; i++)
             {
-                WeatherStation weatherStation = (WeatherStation)device;
-                if (weatherStation.CanAutoDataUpdate) 
-                    WeatherStationID = device.ID;
+                DeviceX device = (DeviceX)ViewData.Model.DeviceList.List[i];
+                if (!device.ShowOnHome) continue;
 
-                <div class="card card-width card-clickable shadow" onclick="OnClickHistoryWeatherStation(@device.ID)">
-                    <div class="card-header">
-                        <strong>@device.Name</strong>
-                    </div>
-                    <div class="card-body">
-                        <table style="width: 100%">
-                            <tr>
-                                <td>Measure at:</td>
-                                <td id="td-weather-time-@device.ID">@weatherStation.MeasureTime.ToString("HH:mm:ss")</td>
-                            </tr>
-                            <tr>
-                                <td>Temperature 1:</td>
-                                <td id="td-weather-t1-@device.ID">@weatherStation.Temperature1.ToString(ci)</td>
-                                <td>°C</td>
-                            </tr>
-                            <tr>
-                                <td>Temperature 2:</td>
-                                <td id="td-weather-t2-@device.ID">@weatherStation.Temperature2.ToString(ci)</td>
-                                <td>°C</td>
-                            </tr>
-                            <tr>
-                                <td>Windspeed:</td>
-                                <td id="td-weather-windspeed-@device.ID">@weatherStation.Windspeed.ToString(ci)</td>
-                                <td>m/s</td>
-                            </tr>
-                            <tr>
-                                <td>-average 30min:</td>
-                                <td id="td-weather-windspeed-avg-@device.ID">@weatherStation.WindspeedAvg.ToString(ci)</td>
-                                <td>m/s</td>
-                            </tr>
-                            <tr>
-                                <td>Sunshine:</td>
-                                <td id="td-weather-sunshine-@device.ID">@weatherStation.SunshinePercent.ToString(ci)</td>
-                                <td>%</td>
-                            </tr>
-                        </table>
-                    </div>
-                    <!--
+                // --- WEATHER STATION -----------------------------------------------------------------------------------------------------------------------
+                if (device is WeatherStation)
+                {
+                    WeatherStation weatherStation = (WeatherStation)device;
+                    if (weatherStation.CanAutoDataUpdate)
+                        WeatherStationID = device.ID;
+
+                    <div class="card card-width card-clickable shadow" onclick="OnClickHistoryWeatherStation(@device.ID)">
+                        <div class="card-header">
+                            <strong>@device.Name</strong>
+                        </div>
+                        <div class="card-body">
+                            <table style="width: 100%">
+                                <tr>
+                                    <td>Measure at:</td>
+                                    <td id="td-weather-time-@device.ID">@weatherStation.MeasureTime.ToString("HH:mm:ss")</td>
+                                </tr>
+                                <tr>
+                                    <td>Temperature 1:</td>
+                                    <td id="td-weather-t1-@device.ID">@weatherStation.Temperature1.ToString(ci)</td>
+                                    <td>°C</td>
+                                </tr>
+                                <tr>
+                                    <td>Temperature 2:</td>
+                                    <td id="td-weather-t2-@device.ID">@weatherStation.Temperature2.ToString(ci)</td>
+                                    <td>°C</td>
+                                </tr>
+                                <tr>
+                                    <td>Windspeed:</td>
+                                    <td id="td-weather-windspeed-@device.ID">@weatherStation.Windspeed.ToString(ci)</td>
+                                    <td>m/s</td>
+                                </tr>
+                                <tr>
+                                    <td>-average 30min:</td>
+                                    <td id="td-weather-windspeed-avg-@device.ID">@weatherStation.WindspeedAvg.ToString(ci)</td>
+                                    <td>m/s</td>
+                                </tr>
+                                <tr>
+                                    <td>Sunshine:</td>
+                                    <td id="td-weather-sunshine-@device.ID">@weatherStation.SunshinePercent.ToString(ci)</td>
+                                    <td>%</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <!--
                     <div class="card-footer bg-transparent">
                     </div>
                     -->
-                </div>
-
-                homeIsEmpy = false;
-            }
-
-            // --- IVT CONTROLLER -----------------------------------------------------------------------------------------------------------------------
-            if (device is IVTController)
-            {
-                IVTController ivtController = (IVTController)device;
-                if (ivtController.CanAutoDataUpdate)
-                    IVTControllerID = ivtController.ID;
-                string waterFlowUIText = X.Basic.CodeDom.Ennum.GetDescription(typeof(IVTController.WaterFlowTypes), ivtController.WaterFlow);
-
-                <div class="card card-width card-clickable shadow" onclick="OnClickIVTController(@device.ID)">
-                    <div class="card-header">
-                        <strong>@ivtController.Name</strong>
                     </div>
-                    <div class="card-body">
-                        <table style="width: 100%">
-                            <tr>
-                                <td>Measure at:</td>
-                                <td id="td-ivtctl-time-@ivtController.ID">@ivtController.MeasureTime.ToString("HH:mm:ss")</td>
-                            </tr>
-                            <tr>
-                                <td>Temperature:</td>
-                                <td id="td-ivtctl-temperature-@device.ID">@ivtController.TemperatureFloor.ToString(ci)</td>
-                                <td>°C</td>
-                            </tr>
-                            <tr>
-                                <td>Water flow:</td>
-                                <td id="td-ivtctl-flow-@ivtController.ID">@waterFlowUIText</td>
-                            </tr>
-                        </table>
+
+                    homeIsEmpy = false;
+                }
+
+                // --- IVT CONTROLLER -----------------------------------------------------------------------------------------------------------------------
+                if (device is IVTController)
+                {
+                    IVTController ivtController = (IVTController)device;
+                    if (ivtController.CanAutoDataUpdate)
+                        IVTControllerID = ivtController.ID;
+                    string waterFlowUIText = X.Basic.CodeDom.Ennum.GetDescription(typeof(IVTController.WaterFlowTypes), ivtController.WaterFlow);
+
+                    <div class="card card-width card-clickable shadow" onclick="OnClickIVTController(@device.ID)">
+                        <div class="card-header">
+                            <strong>@ivtController.Name</strong>
+                        </div>
+                        <div class="card-body">
+                            <table style="width: 100%">
+                                <tr>
+                                    <td>Measure at:</td>
+                                    <td id="td-ivtctl-time-@ivtController.ID">@ivtController.MeasureTime.ToString("HH:mm:ss")</td>
+                                </tr>
+                                <tr>
+                                    <td>Temperature:</td>
+                                    <td id="td-ivtctl-temperature-@device.ID">@ivtController.TemperatureFloor.ToString(ci)</td>
+                                    <td>°C</td>
+                                </tr>
+                                <tr>
+                                    <td>Water flow:</td>
+                                    <td id="td-ivtctl-flow-@ivtController.ID">@waterFlowUIText</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <!--
+                    <div class="card-footer bg-transparent">
                     </div>
-                    <!--
-                <div class="card-footer bg-transparent">
-                </div>
-                -->
-                </div>
+                    -->
+                    </div>
 
-                homeIsEmpy = false;
-            }
+                    homeIsEmpy = false;
+                }
 
 
 
+            } // end for devices
+
+        }
+        catch (Exception ex)
+        {
+            X.Homylogic.Body.Environment.Logs.Error($"Problem reading devices for home screan.", ex, this.GetType().Name);
         }
 
     </div> <!-- END of card-deck -->

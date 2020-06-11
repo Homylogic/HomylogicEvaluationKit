@@ -38,7 +38,7 @@ namespace X.Homylogic.Models.Objects.Devices
         public SocketTypes SocketType { get; set; } = SocketTypes.Server;
         public string IPAddress { get; set; } = "127.0.0.1";
         public int PortNumber { get; set; } = 50000;
-        public string PacketEndChar { get; set; } = "Asc(13)Asc(10)";
+        public string PacketEndChar { get; set; } = @"\r\n";
         public override string Settings => $"TCP {this.SocketType}: {this.IPAddress}:{this.PortNumber}, {this.PacketEndChar}"; 
 
         #endregion

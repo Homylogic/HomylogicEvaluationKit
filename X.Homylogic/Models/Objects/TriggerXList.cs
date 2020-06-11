@@ -98,14 +98,18 @@ namespace X.Homylogic.Models.Objects
             device.DBClient.Close();
 
             // Aktualizovanie údajov v načítanom zozname List.
-            foreach (TriggerX triggerItem in _list.ToArray())
+            try
             {
-                if (triggerItem.TriggerType == TriggerX.TriggerTypes.Device) 
+                for (int i = 0; i < this.List.Count; i++)
                 {
-                    DeviceTriggerX deviceTrigger = (DeviceTriggerX)triggerItem;
+                    DeviceTriggerX deviceTrigger = (DeviceTriggerX)this.List[i];
                     if (deviceTrigger.DeviceID == device.ID)
                         deviceTrigger.NameSet(target);
                 }
+            }
+            catch (Exception ex)
+            {
+                Body.Environment.Logs.Error($"Problem updating device relation names.", ex, this.GetType().Name);
             }
         }
         /// <summary>
@@ -120,19 +124,21 @@ namespace X.Homylogic.Models.Objects
             dbClient.Close();
 
             // Aktualizovanie údajov v načítanom zozname List.
-            foreach (TriggerX triggerItem in _list.ToArray())
+            try
             {
-                if (triggerItem.TriggerType == TriggerX.TriggerTypes.Device)
+                for (int i = this.List.Count - 1; i >= 0; i--)
                 {
-                    DeviceTriggerX deviceTrigger = (DeviceTriggerX)triggerItem;
-                    if (deviceTrigger.DeviceID == deviceID)
+                    TriggerX triggerItem = (TriggerX)this.List[i];
+                    if (triggerItem.TriggerType == TriggerX.TriggerTypes.Device)
                     {
-                        if (this.SynchronizationContext != null)
-                            this.SynchronizationContext.Send(o => _list.Remove(deviceTrigger), null);
-                        else
-                            _list.Remove(deviceTrigger);
+                        DeviceTriggerX deviceTrigger = (DeviceTriggerX)triggerItem;
+                        _list.Remove(deviceTrigger);
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                Body.Environment.Logs.Error($"Problem removing device relations.", ex, this.GetType().Name);
             }
         }
 

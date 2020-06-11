@@ -30,19 +30,26 @@
         </tr>
     </thead>
     <tbody>
-        @for (int i = 0; i < ViewData.Model.OutputBufferList.List.Count; i++)
+        @try
         {
-            if (i > 100) break;
+            @for (int i = 0; i < ViewData.Model.OutputBufferList.List.Count; i++)
+            {
+                if (i > 100) break;
 
-            OutputBufferX buffer = (OutputBufferX)ViewData.Model.OutputBufferList.List[i];
+                OutputBufferX buffer = (OutputBufferX)ViewData.Model.OutputBufferList.List[i];
 
-            <tr id="table-row-@buffer.ID">
-                <td hidden>@buffer.ID</td>
-                <td>@buffer.IsProcessed</td>
-                <td>@buffer.ProcessTime.ToString("dd.MM.yy HH:mm:ss")</td>
-                <td>@buffer.Name</td>
-                <td>@buffer.Data</td>
-            </tr>
+                <tr id="table-row-@buffer.ID">
+                    <td hidden>@buffer.ID</td>
+                    <td>@buffer.IsProcessed</td>
+                    <td>@buffer.ProcessTime.ToString("dd.MM.yy HH:mm:ss")</td>
+                    <td>@buffer.Name</td>
+                    <td>@buffer.Data</td>
+                </tr>
+            }
+        }
+        catch (Exception ex)
+        {
+            X.Homylogic.Body.Environment.Logs.Error($"Problem reading output buffer items.", ex, this.GetType().Name);
         }
     </tbody>
 </table>

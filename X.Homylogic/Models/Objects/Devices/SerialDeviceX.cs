@@ -26,7 +26,7 @@ namespace X.Homylogic.Models.Objects.Devices
 
         public int PortNumber { get; set; } = 0;
         public int BaudRate { get; set; } = 9600;
-        public string PacketEndChar { get; set; } = "Asc(13)Asc(10)";
+        public string PacketEndChar { get; set; } = @"\r\n";
         /* Zatiaľ sa nepoužíva ...
         public byte DataBits { get; set; } = 8;
         public Parity Parity { get; set; } = Parity.None;

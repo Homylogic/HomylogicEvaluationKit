@@ -117,25 +117,31 @@ g_start:    try
                         }
 
                         // Vymazanie starej histórie zariadení.
-                        foreach (DeviceX device in this.Devices.List.ToArray()) 
+                        try
                         {
-                            if (device is IHistoryDataLogs historyDataLogs)
+                            for (int i = 0; i < this.Devices.List.Count; i++)
                             {
-                                try
+                                DeviceX device = (DeviceX)this.Devices.List[i];
+                                if (device is IHistoryDataLogs historyDataLogs)
                                 {
-                                    lock (Body.Database.SyncObjectLogs)
-                                        historyDataLogs.DeleteHistoryLog();
-                                }
-                                catch (Exception ex)
-                                {
-                                    Body.Environment.Logs.Error($"Problem deleting old history data of device {device.Name}.", ex, this.GetType().Name);
+                                    try
+                                    {
+                                        lock (Body.Database.SyncObjectLogs)
+                                            historyDataLogs.DeleteHistoryLog();
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Body.Environment.Logs.Error($"Problem deleting old history data of device {device.Name}.", ex, this.GetType().Name);
+                                    }
                                 }
                             }
+                            lastDataClear = DateTime.Now.Date;
                         }
-
-                        lastDataClear = DateTime.Now.Date;
+                        catch (Exception ex)
+                        {
+                            Body.Environment.Logs.Error($"Problem deleting old history data of devices.", ex, this.GetType().Name);
+                        }
                     }
-
                 }
             }
             catch (Exception)

@@ -16,6 +16,7 @@ namespace HomylogicAsp.Commands
 {
     public static class Show
     {
+        const string TITLE = "Commands";
         const string INVALID_ARGS = "Invalid show commands parameters. Requesting list name. etc. show logs";
 
         public static void DoLine(string line)
@@ -40,17 +41,23 @@ namespace HomylogicAsp.Commands
         }
         public static void Logs()
         {
-            IEnumerable<DataRecord> logs = Body.Environment.Logs.List.ToArray();
-            Console.WriteLine($"Log list: {logs.Count()}");
-            Console.WriteLine($"Columns: ID, Time, ");
-            foreach (LogRecord log in logs) 
+            try
             {
-                StringBuilder o = new StringBuilder();
-                o.Append(log.ID);
-                o.Append(log.LogTime.ToString("dd.MM.yy HH:ss"));
-                Console.WriteLine(o.ToString());                
+                Console.WriteLine($"Log list: {Body.Environment.Logs.List.Count}");
+                Console.WriteLine($"Columns: ID, Time, ");
+                for (int i = 0; i < Body.Environment.Logs.List.Count; i++)
+                {
+                    LogRecord log = (LogRecord)Body.Environment.Logs.List[i];
+                    StringBuilder o = new StringBuilder();
+                    o.Append(log.ID);
+                    o.Append(log.LogTime.ToString("dd.MM.yy HH:ss"));
+                    Console.WriteLine(o.ToString());                
+                }
+            }
+            catch (Exception ex)
+            {
+                Body.Environment.Logs.Error($"Problem reading logs.", ex, TITLE);
             }
         }
-
     }
 }

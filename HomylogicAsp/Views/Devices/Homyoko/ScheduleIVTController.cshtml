@@ -46,30 +46,37 @@
         </tr>
     </thead>
     <tbody>
-        @for (int i = 0; i < ivtController.Scheduler.List.Count; i++)
+        @try
         {
-            ScheduleRecord schedule = (ScheduleRecord)ivtController.Scheduler.List[i];
+            @for (int i = 0; i < ivtController.Scheduler.List.Count; i++)
+            {
+                ScheduleRecord schedule = (ScheduleRecord)ivtController.Scheduler.List[i];
 
-            string className = "clickable-row";
+                string className = "clickable-row";
 
-            if (schedule.ID == ViewData.Model.SelectedID)
-                className = $"{className} table-primary";
+                if (schedule.ID == ViewData.Model.SelectedID)
+                    className = $"{className} table-primary";
 
-            System.Text.StringBuilder start = new System.Text.StringBuilder();
-            start.Append(schedule.ScheduleTime.ToString("HH:mm"));
-            if (schedule.DayMonday) start.Append(" Mo");
-            if (schedule.DayTuesday) start.Append(" Tu");
-            if (schedule.DayWednesday) start.Append(" We");
-            if (schedule.DayThursday) start.Append(" Th");
-            if (schedule.DayFriday) start.Append(" Fr");
-            if (schedule.DaySaturday) start.Append(" Sa");
-            if (schedule.DaySunday) start.Append(" Su");
+                System.Text.StringBuilder start = new System.Text.StringBuilder();
+                start.Append(schedule.ScheduleTime.ToString("HH:mm"));
+                if (schedule.DayMonday) start.Append(" Mo");
+                if (schedule.DayTuesday) start.Append(" Tu");
+                if (schedule.DayWednesday) start.Append(" We");
+                if (schedule.DayThursday) start.Append(" Th");
+                if (schedule.DayFriday) start.Append(" Fr");
+                if (schedule.DaySaturday) start.Append(" Sa");
+                if (schedule.DaySunday) start.Append(" Su");
 
-            <tr id="table-row-@schedule.ID" class='@className'>
-                <td hidden>@schedule.ID</td>
-                <td>@start</td>
-                <td>@schedule.ActionSettings</td>
-            </tr>
+                <tr id="table-row-@schedule.ID" class='@className'>
+                    <td hidden>@schedule.ID</td>
+                    <td>@start</td>
+                    <td>@schedule.ActionSettings</td>
+                </tr>
+            }
+        }
+        catch (Exception ex)
+        {
+            X.Homylogic.Body.Environment.Logs.Error($"Problem reading scheduler items.", ex, this.GetType().Name);
         }
     </tbody>
 </table>

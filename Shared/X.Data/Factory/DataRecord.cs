@@ -13,8 +13,7 @@ using X.Basic;
 
 namespace X.Data.Factory
 {
-    public abstract class DataRecord :
-        INotifyPropertyChanged
+    public abstract class DataRecord
     {
         public enum RecordStateTypes { New, Edit }
         /// <summary>
@@ -101,24 +100,11 @@ namespace X.Data.Factory
             // Aktualizovanie parent DataList-u.
             if (ParentDataList != null && this.RecordState == RecordStateTypes.New) 
             {
-                if (ParentDataList.SynchronizationContext == null)
-                {
-                    if (AddToListType == AddToListTypes.AddLast)
-                        ParentDataList.List.Add(this);
-                    else
-                        ParentDataList.List.Insert(0, this);
-                }
-                else { 
-                    if (AddToListType == AddToListTypes.AddLast)
-                        ParentDataList.SynchronizationContext.Send(o => ParentDataList.List.Add(this), null);
-                    else
-                        ParentDataList.SynchronizationContext.Send(o => ParentDataList.List.Insert(0, this), null);
-                }
+                if (AddToListType == AddToListTypes.AddLast)
+                    ParentDataList.List.Add(this);
+                else
+                    ParentDataList.List.Insert(0, this);
             }
-
-            // Vyvolať zmenu na všetkých vlastnostiach (pre aktualizovanie UI).
-            if (this.RecordState == RecordStateTypes.Edit)
-                this.OnPropertyChanged(null);
 
             // Zmeň stav na editáciu existujúceho záznamu, pretože bol uložený (napr. ak bol záznam v režime nový).
             RecordState = RecordStateTypes.Edit;
@@ -161,11 +147,9 @@ namespace X.Data.Factory
         {
             if (id < 0) throw new ArgumentNullException("Identifier is zero value.");
 
-            this.DBClient.Open();
-
             string sql = $"DELETE FROM {this.TableName} WHERE id = {id}";
+            this.DBClient.Open();
             this.DBClient.ExecuteNonQuery(sql);
-
             this.DBClient.Close();
         }
         /// <summary>
@@ -177,32 +161,8 @@ namespace X.Data.Factory
 
             this.Delete(_id);
             if (ParentDataList != null) 
-            {
-                if (ParentDataList.SynchronizationContext == null) 
-                    ParentDataList.List.Remove(this);
-                else
-                    ParentDataList.SynchronizationContext.Send(o => ParentDataList.List.Remove(this), null);
-            }
+                ParentDataList.List.Remove(this);
         }
 
-        #region --- EVENTS ---
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        /// <summary>
-        /// Umožňuje vyvolanie udalosti po zmene hodnoty vlastnosti, používa sa pre aktualizovanie UI automaticky cez DataBinding.
-        /// </summary>
-        /// <param name="name">Názov vlastnosti.</param>
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            if (ParentDataList != null)
-            {
-                if (ParentDataList.SynchronizationContext == null)
-                    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-                else
-                    ParentDataList.SynchronizationContext.Send(o => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name)), null);
-            }
-        }
-
-        #endregion
     }
 }

@@ -16,6 +16,7 @@ namespace X.Homylogic.Models.Objects.Buffers
 {
     public sealed class OutputBufferXList : BufferXList
     {
+        const string TITLE = "Output buffers";
         Thread _threadProcessing;
         bool _isStopped;
 
@@ -58,11 +59,19 @@ g_start:
                 while (!_isStopped)
                 {
                     // Nájdi všetky ďalšie položky pre spracovanie.
-                    List<Int64> bufferItemsID = new List<Int64>(); 
-                    foreach (OutputBufferX eBufferItem in _list.ToArray())
+                    List<Int64> bufferItemsID = new List<Int64>();
+                    try
                     {
-                        if (!eBufferItem.IsProcessed && eBufferItem.ProcessTime <= DateTime.Now)
-                            bufferItemsID.Add(eBufferItem.ID);
+                        for (int i = 0; i < this.List.Count; i++)
+                        {
+                            OutputBufferX bufferItem = (OutputBufferX)this.List[i];
+                            if (!bufferItem.IsProcessed && bufferItem.ProcessTime <= DateTime.Now)
+                                bufferItemsID.Add(bufferItem.ID);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Body.Environment.Logs.Error($"Problem reading buffer items for next processing.", ex, TITLE);
                     }
                     if (_isStopped) goto g_exit;
 
@@ -74,18 +83,15 @@ g_start:
                             OutputBufferX bufferItem = (OutputBufferX)Body.Runtime.OutputBuffers.FindDataRecord(bufferItemID);
                             if (bufferItem != null) 
                             {
-                                if (this.SynchronizationContext != null)
-                                    this.SynchronizationContext.Send(o => bufferItem.Process(), null);
-                                else
-                                    lock (Body.Database.SyncObject)
-                                        bufferItem.Process();
+                                lock (Body.Database.SyncObject)
+                                    bufferItem.Process();
                             }
                             // Malá pauza, aby posielanie údajov neprebiahalo príliš rýchlo, aby boli odosielané packety postupne.
                             Thread.Sleep(100);
                         }
                         catch (Exception ex)
                         {
-                            Body.Environment.Logs.Error("Can't process output buffer item.", ex, this.GetType().Name);
+                            Body.Environment.Logs.Error("Can't process output buffer item.", ex, TITLE);
                             throw;
                         }
                     }
@@ -94,21 +100,21 @@ g_start:
                     // Vymazanie spracovaných záznamov ktorých je viac ako určitý počet.
                     if (_list.Count > 100)
                     {
-                        int index = 0;
-                        foreach (OutputBufferX eBufferItem in _list.ToArray())
+                        try
                         {
-                            if (eBufferItem.IsProcessed && index > 100) 
+                            for (int i = 100; i < this.List.Count; i++)
                             {
-                                if (this.SynchronizationContext != null)
-                                    this.SynchronizationContext.Send(o => eBufferItem.Delete(), null);
-                                else
+                                OutputBufferX eBufferItem = (OutputBufferX)this.List[i];
+                                if (eBufferItem.IsProcessed) 
                                     lock (Body.Database.SyncObject)
                                         eBufferItem.Delete();
                             }
-                            index++;
+                        }
+                        catch (Exception ex)
+                        {
+                            Body.Environment.Logs.Error($"Problem deleting old processed output buffer items.", ex, TITLE);
                         }
                     }
-
                     Thread.Sleep(1000);
                 }
             }
@@ -133,10 +139,18 @@ g_exit:;
             device.DBClient.Close();
 
             // Aktualizovanie údajov v načítanom zozname List.
-            foreach (OutputBufferX bufferItem in _list.ToArray())
+            try
             {
-                if (bufferItem.DeviceID == device.ID)
-                    bufferItem.NameSet(destination);
+                for (int i = 0; i < this.List.Count; i++)
+                {
+                    OutputBufferX bufferItem = (OutputBufferX)this.List[i];
+                    if (bufferItem.DeviceID == device.ID)
+                        bufferItem.NameSet(destination);
+                }
+            }
+            catch (Exception ex)
+            {
+                Body.Environment.Logs.Error($"Problem updating device relation names.", ex, this.GetType().Name);
             }
         }
         /// <summary>
@@ -151,15 +165,18 @@ g_exit:;
             dbClient.Close();
 
             // Aktualizovanie údajov v načítanom zozname List.
-            foreach (OutputBufferX bufferItem in _list.ToArray())
+            try
             {
-                if (bufferItem.DeviceID == deviceID)
+                for (int i = this.List.Count - 1; i >= 0; i--)
                 {
-                    if (this.SynchronizationContext != null)
-                        this.SynchronizationContext.Send(o => _list.Remove(bufferItem), null);
-                    else
-                        _list.Remove(bufferItem);
+                    OutputBufferX bufferItem = (OutputBufferX)this.List[i];
+                    if (bufferItem.DeviceID == deviceID)
+                        _list.RemoveAt(i);
                 }
+            }
+            catch (Exception ex)
+            {
+                Body.Environment.Logs.Error($"Problem removing device relations.", ex, this.GetType().Name);
             }
         }
 

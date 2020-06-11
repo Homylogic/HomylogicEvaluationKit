@@ -31,36 +31,43 @@
         </tr>
     </thead>
     <tbody>
-        @for (int i = 0; i < ViewData.Model.TriggerList.List.Count; i++)
+        @try
         {
-            TriggerX trigger = (TriggerX)ViewData.Model.TriggerList.List[i];
-            
-            string className = "clickable-row";
-
-            if (trigger.ID == ViewData.Model.SelectedID)
-                className = $"{className} table-primary";
-
-            string state = "Stop";
-            if (trigger.IsStarted) state = "Started";
-
-            string image = (trigger.ImageNumber switch
+            @for (int i = 0; i < ViewData.Model.TriggerList.List.Count; i++)
             {
-                101 => "/images/triggers/Trigger_Device_Open_16.png",
-                102 => "/images/triggers/Trigger_Device_Close_16.png",
-                201 => "/images/triggers/Trigger_OutputBuffer_Write_16.png",
-                _ => string.Empty
-            });
+                TriggerX trigger = (TriggerX)ViewData.Model.TriggerList.List[i];
+            
+                string className = "clickable-row";
 
-            string style = string.Empty;
-            if (trigger.Disabled) style = "color: gray";
+                if (trigger.ID == ViewData.Model.SelectedID)
+                    className = $"{className} table-primary";
 
-            <tr id="table-row-@trigger.ID" class='@className' style='@style'>
-                <td hidden>@trigger.ID</td>
-                <td>@state</td>
-                <td>@trigger.Settings</td>
-                <td><img src="@image" />&nbsp;@trigger.Name</td>
-                <td>@trigger.Notice</td>
-            </tr>
+                string state = "Stop";
+                if (trigger.IsStarted) state = "Started";
+
+                string image = (trigger.ImageNumber switch
+                {
+                    101 => "/images/triggers/Trigger_Device_Open_16.png",
+                    102 => "/images/triggers/Trigger_Device_Close_16.png",
+                    201 => "/images/triggers/Trigger_OutputBuffer_Write_16.png",
+                    _ => string.Empty
+                });
+
+                string style = string.Empty;
+                if (trigger.Disabled) style = "color: gray";
+
+                <tr id="table-row-@trigger.ID" class='@className' style='@style'>
+                    <td hidden>@trigger.ID</td>
+                    <td>@state</td>
+                    <td>@trigger.Settings</td>
+                    <td><img src="@image" />&nbsp;@trigger.Name</td>
+                    <td>@trigger.Notice</td>
+                </tr>
+            }
+        }
+        catch (Exception ex)
+        {
+            X.Homylogic.Body.Environment.Logs.Error($"Problem reading triggers.", ex, this.GetType().Name);
         }
     </tbody>
 </table>

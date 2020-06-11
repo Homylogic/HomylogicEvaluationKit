@@ -130,13 +130,23 @@ g_start:
                 {
                     // Nájdi všetky zariadniea ktoré umožňujú aktualizovanie údajov a logovanie údajov.
                     List<Int64> autoDataUpdatesID = new List<Int64>();
-                    foreach (DeviceX eDevice in _list.ToArray())
+
+                    try
                     {
-                        if (eDevice.Disabled) continue;
-                        if (!eDevice.CanAutoDataUpdate) continue;
-                        if (eDevice is IAutoDataUpdate)
-                            autoDataUpdatesID.Add(eDevice.ID);
+                        for (int i = 0; i < this.List.Count; i++)
+                        {
+                            DeviceX device = (DeviceX)this.List[i];
+                            if (device.Disabled) continue;
+                            if (!device.CanAutoDataUpdate) continue;
+                            if (device is IAutoDataUpdate)
+                                autoDataUpdatesID.Add(device.ID);
+                        }
                     }
+                    catch (Exception ex)
+                    {
+                        Body.Environment.Logs.Error($"Problem getting devices for auto data update.", ex, this.GetType().Name);
+                    }
+
                     if (_isStopped) goto g_exit;
 
                     // Vykonaj aktualizovanie údajov zariadení.

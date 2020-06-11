@@ -1,7 +1,8 @@
 ﻿<!DOCTYPE html>
 @{ 
-    // * TODO: Dorobiť nastavenie pre pokročilé zobrazenie menu, viac objektov.
-    const bool SHOW_ADVANCED_MENU = true;
+
+
+
 }
 
 <html lang="en">
@@ -31,24 +32,21 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Settings">Settings</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Logs" asp-action="Index">Logs</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="About">About</a>
                         </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Runtime</a>
                             <div class="dropdown-menu">
-                                <a class="dropdown-item" asp-area="" asp-controller="Logs" asp-action="Index">Logs</a>
-                                @if (SHOW_ADVANCED_MENU)
-                                {
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Loops" asp-action="Index">Loops</a>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Loops" asp-action="Index">Variables</a>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Triggers" asp-action="Index">Triggers</a>
-                                    <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Buffers" asp-action="Input">Input buffers</a>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Buffers" asp-action="Output">Output buffers</a>
-                                    <div class="dropdown-divider"></div>
-                                }
+                                <!--<a class="dropdown-item" asp-area="" asp-controller="Loops" asp-action="Index">Loops</a> -->
+                                <a class="dropdown-item" asp-area="" asp-controller="Triggers" asp-action="Index">Triggers</a>
+                                <!--<a class="dropdown-item" asp-area="" asp-controller="Loops" asp-action="Index">Variables</a> -->
+                                <a class="dropdown-item" asp-area="" asp-controller="Buffers" asp-action="Input">Input buffers</a>
+                                <a class="dropdown-item" asp-area="" asp-controller="Buffers" asp-action="Output">Output buffers</a>
                                 <a class="dropdown-item" asp-area="" asp-controller="Devices" asp-action="Index">Devices</a>
+                                <!--<div class="dropdown-divider"></div> -->
                             </div>
                         </li>
                     </ul>

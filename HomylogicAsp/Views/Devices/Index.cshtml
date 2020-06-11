@@ -57,35 +57,42 @@
         </tr>
     </thead>
     <tbody>
-        @for (int i = 0; i < ViewData.Model.DeviceList.List.Count; i++)
+        @try
         {
-            DeviceX device = (DeviceX)ViewData.Model.DeviceList.List[i];
-
-            string className = "clickable-row";
-
-            if (device.ID == ViewData.Model.SelectedID)
-                className = $"{className} table-primary";
-
-            string state = "Close";
-            if (device.IsOpen) state = "Open";
-
-            string image = (device.DeviceType switch
+            @for (int i = 0; i < ViewData.Model.DeviceList.List.Count; i++)
             {
-                DeviceX.DeviceTypes.Serial => "/images/devices/Device_SerialPort_16.png",
-                DeviceX.DeviceTypes.TCPSocket => "/images/devices/Device_TCPSocket_16.png",
-                _ => string.Empty
-            });
+                DeviceX device = (DeviceX)ViewData.Model.DeviceList.List[i];
 
-            string style = string.Empty;
-            if (device.Disabled) style = "color: gray";
+                string className = "clickable-row";
 
-            <tr id="table-row-@device.ID" class='@className' style='@style'>
-                <td hidden>@device.ID</td>
-                <td>@state</td>
-                <td><img src="@image" />&nbsp;@device.Name</td>
-                <td>@device.Notice</td>
-                <td>@device.Settings</td>
-            </tr>
+                if (device.ID == ViewData.Model.SelectedID)
+                    className = $"{className} table-primary";
+
+                string state = "Close";
+                if (device.IsOpen) state = "Open";
+
+                string image = (device.DeviceType switch
+                {
+                    DeviceX.DeviceTypes.Serial => "/images/devices/Device_SerialPort_16.png",
+                    DeviceX.DeviceTypes.TCPSocket => "/images/devices/Device_TCPSocket_16.png",
+                    _ => string.Empty
+                });
+
+                string style = string.Empty;
+                if (device.Disabled) style = "color: gray";
+
+                <tr id="table-row-@device.ID" class='@className' style='@style'>
+                    <td hidden>@device.ID</td>
+                    <td>@state</td>
+                    <td><img src="@image" />&nbsp;@device.Name</td>
+                    <td>@device.Notice</td>
+                    <td>@device.Settings</td>
+                </tr>
+            }
+        }
+        catch (Exception ex)
+        {
+            X.Homylogic.Body.Environment.Logs.Error($"Problem reading devices.", ex, this.GetType().Name);
         }
     </tbody>
 </table>

@@ -36,18 +36,12 @@ namespace X.Homylogic.Models.Objects.Buffers
                 bufferItem.DeviceID = e.Device.ID;
                 bufferItem.ProcessTime = DateTime.Now;
                 bufferItem.Data = e.Data;
-                if (this.SynchronizationContext != null)
-                    this.SynchronizationContext.Send(o => bufferItem.Save(), null);
-                else
-                    bufferItem.Save();
+                bufferItem.Save();
 
                 // Vymazanie záznamov ktorých je viac ako určitý počet.
                 if (_list.Count > 500) 
                 {
-                    if (this.SynchronizationContext != null)
-                        this.SynchronizationContext.Send(o => _list[^1].Delete(), null);
-                    else
-                        _list[^1].Delete();
+                    _list[^1].Delete();
                 }
             }
         }
@@ -64,10 +58,18 @@ namespace X.Homylogic.Models.Objects.Buffers
             device.DBClient.Close();
 
             // Aktualizovanie údajov v načítanom zozname List.
-            foreach (InputBufferX bufferItem in _list.ToArray())
+            try
             {
-                if (bufferItem.DeviceID == device.ID)
-                    bufferItem.NameSet(source);
+                for (int i = 0; i < this.List.Count; i++)
+                {
+                    InputBufferX bufferItem = (InputBufferX)this.List[i];
+                    if (bufferItem.DeviceID == device.ID)
+                        bufferItem.NameSet(source);
+                }
+            }
+            catch (Exception ex)
+            {
+                Body.Environment.Logs.Error($"Problem updating device relation names.", ex, this.GetType().Name);
             }
         }
         /// <summary>
@@ -82,18 +84,19 @@ namespace X.Homylogic.Models.Objects.Buffers
             dbClient.Close();
 
             // Aktualizovanie údajov v načítanom zozname List.
-            foreach (InputBufferX bufferItem in _list.ToArray())
+            try
             {
-                if (bufferItem.DeviceID == deviceID) 
+                for (int i = this.List.Count - 1; i >= 0; i--)
                 {
-                    if (this.SynchronizationContext != null)
-                        this.SynchronizationContext.Send(o => _list.Remove(bufferItem), null);
-                    else
-                        _list.Remove(bufferItem);
+                    InputBufferX bufferItem = (InputBufferX)this.List[i];
+                    if (bufferItem.DeviceID == deviceID)
+                        _list.RemoveAt(i);
                 }
             }
+            catch (Exception ex)
+            {
+                Body.Environment.Logs.Error($"Problem removing device relations.", ex, this.GetType().Name);
+            }
         }
-
-
     }
 }

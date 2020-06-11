@@ -23,16 +23,11 @@ namespace X.Data.Factory
         /// <param name="dbReader">Používa sa pre vytvorenie inštancie rôznych typov objektu dataRecord podľa databázy, ešte pred nastavením údajov vlastností.</param>
         public abstract DataRecord GetInitializedDataRecord(DBReader dbReader = null);
 
-        protected BindingList<DataRecord> _list = new BindingList<DataRecord>();
+        protected List<DataRecord> _list = new List<DataRecord>();
         /// <summary>
         /// Obsahuje načítaný zoznam objektov.
         /// </summary>
-        public BindingList<DataRecord> List => _list; 
-        /// <summary>
-        /// Používa sa pre synchronizáciu objektu List z hlavným vláknom aplikácie, aby bolo možné pridávať objekty DataRecord do BindingListu aj z vlákna.
-        /// Problém vzníká keď je BindingList nabindovaný (napr. na DataGrind) pričom pridávanie záznamov prebieha z vlákna.
-        /// </summary>
-        public SynchronizationContext SynchronizationContext { get; set; }
+        public List<DataRecord> List => _list; 
         /// <summary>
         /// SQL WHERE (bez WHERE, napr. ID = 1) podmienka ktorá sa použije pre načítanie a vymazanie záznamov.
         /// </summary>
@@ -77,10 +72,7 @@ namespace X.Data.Factory
                 dataRecord.ParentDataList = this;
                 List<string> tags = new List<string>(); // Umožňuje upraviť načítanie podľa zadaných príznakov tags v classoch ktoré postupne dedia tento class.
                 dataRecord.SetRecordValues(dbReader, tags);
-                if (this.SynchronizationContext == null)
-                    _list.Add(dataRecord);
-                else
-                    this.SynchronizationContext.Send(o => _list.Add(dataRecord), null);
+                _list.Add(dataRecord);
                 count++;
 
                 // Ukonči načítanie údajov, ak bol načítaný maximálny limit.
@@ -95,8 +87,6 @@ namespace X.Data.Factory
         /// </summary>
         public void DeleteAll() 
         {
-            this.DBClient.Open();
-
             // Vytvor dočasne pomocný objekt DataRecord, napr. pre zistenie názvu DB tabuľky.     
             DataRecord dataRecord = this.GetInitializedDataRecord();
 
@@ -105,15 +95,11 @@ namespace X.Data.Factory
             sql.AppendFormat("DELETE FROM {0}", dataRecord.TableName);
             if (!string.IsNullOrEmpty(this.FilterCondition))
                 sql.AppendFormat(" WHERE {0}", this.FilterCondition);
-
+            this.DBClient.Open();
             this.DBClient.ExecuteNonQuery(sql.ToString());
-
-            if (this.SynchronizationContext == null)
-                _list.Clear();
-            else
-                this.SynchronizationContext.Send(o => _list.Clear(), null);
-
             this.DBClient.Close();
+
+            _list.Clear();
         }
         /// <summary>
         /// Nájde index záznamu (objektu DataRecord) v objekte List, podľa zadaného identifikátora DataRecord.

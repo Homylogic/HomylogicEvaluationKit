@@ -25,11 +25,7 @@ namespace X.Homylogic.Models.Objects
         public bool IsOpen
         {
             get { return _isOpen; }
-            protected set 
-            {
-                _isOpen = value;
-                this.OnPropertyChanged("IsOpen");
-            }    
+            protected set { _isOpen = value; }    
         }
         /// <summary>
         /// Či zariadenie umožňuje zapisovanie, pretože po otvorení nemusí byť zariadenie pripravené posielať údaje.
@@ -57,7 +53,7 @@ namespace X.Homylogic.Models.Objects
         /// <summary>
         /// Či sa budú prijaté údaje zapisovať do vstupného zásobníka.
         /// </summary>
-        public bool WriteToBuffer { get; set; } = false;
+        public bool WriteToBuffer { get; set; } = true;
         /// <summary>
         /// Umožňuje zapnúť automatickú komunikáciu so vzdialeným zariadením a nastaviť tak vlastnosti runtime objektu automaticky.
         /// Používa sa pre zariadenia ktoré implementujú rozhranie 'IAutoDataUpdate'.
