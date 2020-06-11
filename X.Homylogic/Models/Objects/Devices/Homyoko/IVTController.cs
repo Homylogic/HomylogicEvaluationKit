@@ -197,7 +197,7 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
             base.DeviceType = DeviceTypes.HomyokoIVTController;
             this.PortNumber = 5000;
             this.SocketType = SocketTypes.Client;
-            this.PacketEndChar = "\r\n";
+            this.PacketEndChar = @"\r\n";
         }
         /// <summary>
         /// Otvorí komunikáciu a snaží sa udržiavať pripojenie (napr. keď nastane prerušenie).

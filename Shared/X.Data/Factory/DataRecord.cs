@@ -97,13 +97,20 @@ namespace X.Data.Factory
             if (this.RecordState == RecordStateTypes.New)
                 _id = this.DBClient.GetLastInsertedRowID();
 
-            // Aktualizovanie parent DataList-u.
-            if (ParentDataList != null && this.RecordState == RecordStateTypes.New) 
+            // Update parent DataLIst collection after saving new DataRecord.
+            // Remove RecordsLimit overflow items.
+            if (this.ParentDataList != null && this.RecordState == RecordStateTypes.New) 
             {
-                if (AddToListType == AddToListTypes.AddLast)
-                    ParentDataList.List.Add(this);
-                else
-                    ParentDataList.List.Insert(0, this);
+                if (AddToListType == AddToListTypes.AddLast) {
+                    this.ParentDataList.List.Add(this);
+                    if (this.ParentDataList.List.Count > this.ParentDataList.RecordsLimit)
+                        this.ParentDataList.List.RemoveAt(0);
+                }
+                else {
+                    this.ParentDataList.List.Insert(0, this);
+                    if (this.ParentDataList.List.Count > this.ParentDataList.RecordsLimit)
+                        this.ParentDataList.List.RemoveAt(this.ParentDataList.List.Count - 1);
+                }
             }
 
             // Zmeň stav na editáciu existujúceho záznamu, pretože bol uložený (napr. ak bol záznam v režime nový).
@@ -155,8 +162,8 @@ namespace X.Data.Factory
             if (_id < 0) throw new InvalidOperationException("DataRecord identifier is zero value.");
 
             this.Delete(_id);
-            if (ParentDataList != null) 
-                ParentDataList.List.Remove(this);
+            if (this.ParentDataList != null)
+                this.ParentDataList.List.Remove(this);
         }
 
     }

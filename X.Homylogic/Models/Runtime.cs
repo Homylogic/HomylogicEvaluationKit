@@ -58,7 +58,7 @@ namespace X.Homylogic.Models
         public void Load()
         {
             this.Triggers.LoadData();
-            this.InputBuffers.LoadData();
+            this.InputBuffers.LoadData(recordsLimit:500); // Načítaj maximálne N záznamov, viac nemá význam načítavať (posledných N prijatých údajov je dostačujúce).
             this.OutputBuffers.LoadData();
             this.Devices.LoadData();
         }

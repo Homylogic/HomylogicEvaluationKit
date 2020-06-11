@@ -35,12 +35,6 @@ namespace X.Homylogic.Models.Objects.Buffers
             bufferItem.ProcessTime = DateTime.Now;
             bufferItem.Data = e.Data;
             bufferItem.Save();
-
-            // Vymazanie záznamov ktorých je viac ako určitý počet.
-            if (_list.Count > 500) 
-            {
-                _list[^1].Delete();
-            }
         }
         /// <summary>
         /// Aktualizuje relačný názov zdrojového zariadenia, napr. po zmene názvu zariadenia.

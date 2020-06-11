@@ -16,7 +16,6 @@ namespace X.App.Logs
     public sealed class LogList : DataList
     {
         readonly DBClient _dbClient;
-        int _recordsLimit;
         Hashtable _latestLogValues = new Hashtable();
 
         #region --- DATA LIST ---
@@ -45,8 +44,7 @@ namespace X.App.Logs
         }
         public void LoadData(int recordsLimit)
         {
-            _recordsLimit = recordsLimit;
-            base.LoadData("logTime DESC", _recordsLimit);
+            base.LoadData("logTime DESC", recordsLimit);
         }
 
         #endregion
@@ -86,10 +84,6 @@ namespace X.App.Logs
                     log.Description = description;
                     log.Source = source;
                     log.Save();
-
-                    // Vymazať najstarší záznam (nový log je pridaný vždy na začiatok listu).
-                    if (this.List.Count > _recordsLimit)
-                        this.List.RemoveAt(this.List.Count - 1);
 
                     // Write latest info values for current log.
                     if (_latestLogValues.ContainsKey(keyLatest))
@@ -135,10 +129,6 @@ namespace X.App.Logs
                     log.Source = source;
                     log.Save();
 
-                    // Vymazať najstarší záznam (nový log je pridaný vždy na začiatok listu).
-                    if (this.List.Count > _recordsLimit)
-                        this.List.RemoveAt(this.List.Count - 1);
-
                     // Write latest info values for current log.
                     if (_latestLogValues.ContainsKey(keyLatest))
                         _latestLogValues[keyLatest] = new KeyValuePair<long, string>(log.ID, logValues);
@@ -183,10 +173,6 @@ namespace X.App.Logs
                     log.Source = source;
                     log.Save();
 
-                    // Vymazať najstarší záznam (nový log je pridaný vždy na začiatok listu).
-                    if (this.List.Count > _recordsLimit)
-                        this.List.RemoveAt(this.List.Count - 1);
-
                     // Write latest info values for current log.
                     if (_latestLogValues.ContainsKey(keyLatest))
                         _latestLogValues[keyLatest] = new KeyValuePair<long, string>(log.ID, logValues);
@@ -204,7 +190,7 @@ namespace X.App.Logs
         public void DeleteOld()
         {
             // Vymazanie všetkých záznamov starších ako posledný log záznam v zozname list.
-            if (this.List.Count < _recordsLimit) return;
+            if (this.List.Count < this.RecordsLimit) return;
             LogRecord log = (LogRecord)this.List[^1];
             Data.Management.SqlConvert q = new Data.Management.SqlConvert(this.DBClient.ClientType);
             this.DBClient.Open();

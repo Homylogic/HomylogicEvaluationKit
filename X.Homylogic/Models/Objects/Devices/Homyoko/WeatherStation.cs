@@ -151,7 +151,7 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
             base.DeviceType = DeviceTypes.HomyokoWeatherStation;
             this.PortNumber = 5242;
             this.SocketType = SocketTypes.Client;
-            this.PacketEndChar = " ";
+            this.PacketEndChar = @"\r\n";
         }
         /// <summary>
         /// Otvorí komunikáciu na krátku dobu max. 1 sekunda a odošle príkaz pre načítanie údajov z meteostanice. 

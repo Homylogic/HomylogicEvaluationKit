@@ -14,6 +14,11 @@ namespace X.Data.Factory
     public abstract class DataList
     {
         /// <summary>
+        /// Limit for maximum loaded items in collection and database loading limit, sets when call LoadData method.
+        /// Allows automatically remove overflow items, when DataRecord save new item (watch DataRecord save-new).
+        /// </summary>
+        public int RecordsLimit { get; protected set; }
+        /// <summary>
         /// Získanie pripojenia k DB z horného classu (ktorý dedí tento class).
         /// </summary>
         public abstract DBClient DBClient { get; }
@@ -44,6 +49,8 @@ namespace X.Data.Factory
         /// <param name="recordsLimit">Maxinálny počet načítaných záznamov.</param>
         public void LoadData(string sorting = null, int recordsLimit = 0) 
         {
+            this.RecordsLimit = recordsLimit;    
+
             // Vymazanie už načítaných objektov.
             ///
             // ****** TODO: DOROBIŤ ZATVÁRANIE OBJEKTOV ---- 
@@ -76,7 +83,7 @@ namespace X.Data.Factory
                 count++;
 
                 // Ukonči načítanie údajov, ak bol načítaný maximálny limit.
-                if (recordsLimit > 0 && count >= recordsLimit) break;
+                if (this.RecordsLimit > 0 && count >= this.RecordsLimit) break;
             }
 
             this.IsDataLoaded = true;
