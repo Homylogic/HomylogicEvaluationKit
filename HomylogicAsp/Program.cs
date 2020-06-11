@@ -153,6 +153,10 @@ g_exit:
             {
                 Console.WriteLine($"Error: {ex.Message}");
             }
+
+            // Zatvorio pripojenie k databáze.
+            Body.Database.DBClient.Close();
+            Body.Database.DBClientLogs.Close();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

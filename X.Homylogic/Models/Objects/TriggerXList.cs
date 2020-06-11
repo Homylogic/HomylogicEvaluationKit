@@ -95,7 +95,6 @@ namespace X.Homylogic.Models.Objects
             string sql = $"UPDATE {TriggerX.TABLE_NAME} SET name = '{target}' WHERE deviceID = {device.ID}";
             device.DBClient.Open();
             device.DBClient.ExecuteNonQuery(sql);
-            device.DBClient.Close();
 
             // Aktualizovanie údajov v načítanom zozname List.
             try
@@ -121,7 +120,6 @@ namespace X.Homylogic.Models.Objects
             string sql = $"DELETE FROM {TriggerX.TABLE_NAME} WHERE deviceID = {deviceID}";
             dbClient.Open();
             dbClient.ExecuteNonQuery(sql);
-            dbClient.Close();
 
             // Aktualizovanie údajov v načítanom zozname List.
             try

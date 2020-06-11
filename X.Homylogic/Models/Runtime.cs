@@ -108,8 +108,7 @@ g_start:    try
                         // Vymazanie starých logov.
                         try
                         {
-                            lock (Body.Database.SyncObjectLogs)
-                                Body.Environment.Logs.DeleteOld();
+                            Body.Environment.Logs.DeleteOld();
                         }
                         catch (Exception ex)
                         {
@@ -126,8 +125,7 @@ g_start:    try
                                 {
                                     try
                                     {
-                                        lock (Body.Database.SyncObjectLogs)
-                                            historyDataLogs.DeleteHistoryLog();
+                                        historyDataLogs.DeleteHistoryLog();
                                     }
                                     catch (Exception ex)
                                     {

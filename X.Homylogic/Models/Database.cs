@@ -1,5 +1,8 @@
 ﻿/* HOMYLOGIC DATABASE
  * 
+ * DB Client conection always stay open, because of thread concurency (when open/close). Close connection only when application quits.
+ * 
+ * 
  * Umožňuje pracovať s databázou v programe Homylogic.
  * Obsahuje transformáciu databázy a objekt SQL clienta. 
  * 
@@ -54,18 +57,6 @@ namespace X.Homylogic.Models
         /// </summary>
         public DBClient DBClientLogs => _dbClientLogs;
 
-        readonly Object _syncObject = new object();
-        /// <summary>
-        /// Umožňuje zaknúť databázového klienta keď sa používa s vlákna.
-        /// </summary>
-        public Object SyncObject => _syncObject;
-
-        readonly Object _syncObjectLogs = new object();
-        /// <summary>
-        /// Umožňuje zaknúť databázového klienta pre logovanie keď sa používa s vlákna.
-        /// </summary>
-        public Object SyncObjectLogs => _syncObjectLogs;
-
 
         /// <summary>
         /// Inicializácia univerzálneho databázového klienta podľa zadaného typu.
@@ -87,7 +78,6 @@ namespace X.Homylogic.Models
                 default: throw new NotImplementedException();
             }
         }
-
         /// <summary>
         /// Vytvorí novú databázu ak ešte neexistuje, alebo vykoná transformáciu databázy ak je staršej verzie.
         /// </summary>
@@ -115,9 +105,6 @@ namespace X.Homylogic.Models
                 createTables = true;
             }
 
-
-            _dbClient.Close();
-
             // Vytvorenie databázy pre logovanie a historiu údajov.
             // Pridružená databáza pre zber údajov používa testovanie verzie podľa hlavnej databázy.
             _dbClientLogs.Open();
@@ -132,7 +119,6 @@ namespace X.Homylogic.Models
                 }
             }
 
-            _dbClient.Close();
         }
 
 

@@ -168,8 +168,7 @@ g_start:
                                 {
                                     if ((DateTime.Now - lastHistoryLog).TotalSeconds > HISTORY_LOG_TIMEOUT)
                                     {
-                                        lock (Body.Database.SyncObjectLogs)
-                                            historyDataLogs.WriteHistoryLog();
+                                        historyDataLogs.WriteHistoryLog();
                                         ishistoryLogged = true;
                                     }
                                 }

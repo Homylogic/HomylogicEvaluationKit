@@ -334,7 +334,6 @@ namespace HomylogicAsp.Controllers
             catch (Exception)
             {
             }
-            dbClient.Close();
             return result.ToString();
         }
         // GET: GetDataHomyokoWeatherStation/?
@@ -402,7 +401,6 @@ namespace HomylogicAsp.Controllers
             catch (Exception)
             {
             }
-            dbClient.Close();
             return result.ToString();
         }
         // GET: GetControlStatusIVTController/?

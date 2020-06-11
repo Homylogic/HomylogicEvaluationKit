@@ -162,10 +162,14 @@ namespace X.Homylogic.Models.Objects
         public event DataReceivedEventHandler DataReceived;
         protected virtual void OnDataRecived(string data, string packetEndChar) 
         {
+            // Change string chars to real chars etc. \r to return char.
+            string realPacketEndChar = packetEndChar.Replace(@"\r", "\r")
+                                                    .Replace(@"\n", "\n");
+
             // Spracovanie údajov a rozdelenie na pakety.
             if (string.IsNullOrEmpty(data)) return;
             string dataPacket;
-            if (data.Contains(packetEndChar))
+            if (data.Contains(realPacketEndChar))
             {
                 dataPacket = string.Format("{0}{1}",_partialReceivedData.ToString(), data);
                 _partialReceivedData.Clear();

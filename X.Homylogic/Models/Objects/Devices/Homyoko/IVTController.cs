@@ -449,14 +449,12 @@ g_again:
                 sql.Append(")");
                 Body.Database.DBClientLogs.ExecuteNonQuery(sql.ToString());
             }
-            Body.Database.DBClientLogs.Close();
         }
         public void DropHistoryTable(long id) 
         {
             string tableName = $"deviceHistory_{id}";
             Body.Database.DBClientLogs.Open();
             Body.Database.DBClientLogs.ExecuteNonQuery($"DROP TABLE {tableName}");
-            Body.Database.DBClientLogs.Close();
         }
         /// <summary>
         /// Zapíše aktuálne údaje do log tabuľky.
@@ -473,7 +471,6 @@ g_again:
             sql.AppendFormat("{0})", q.Float(this.TemperatureOut));
             Body.Database.DBClientLogs.Open();
             Body.Database.DBClientLogs.ExecuteNonQuery(sql.ToString());
-            Body.Database.DBClientLogs.Close();
         }
         /// <summary>
         /// Vymaže staré záznamy logov.
@@ -488,7 +485,6 @@ g_again:
                 long lastID = (long)Body.Database.DBClientLogs.ExecuteScalar($"SELECT ID FROM deviceHistory_{this.ID} ORDER BY ID DESC LIMIT 30000, 1");
                 Body.Database.DBClientLogs.ExecuteNonQuery($"DELETE FROM deviceHistory_{this.ID} WHERE ID < {lastID}");
             }
-            Body.Database.DBClientLogs.Close();
         }
         /// <summary>
         /// Nastaví hodnoty (vlastnosti) histórie, podľa údajov z databázy.

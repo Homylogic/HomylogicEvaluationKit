@@ -65,8 +65,7 @@ g_start:    try
                                 if (ivtController.Scheduler != null) 
                                 {
                                     if (!ivtController.Scheduler.IsDataLoaded)
-                                        lock (Body.Database.SyncObject)
-                                            ivtController.Scheduler.LoadData();
+                                        ivtController.Scheduler.LoadData();
 
                                     for (int n = 0; n < ivtController.Scheduler.List.Count; n++)
                                     {

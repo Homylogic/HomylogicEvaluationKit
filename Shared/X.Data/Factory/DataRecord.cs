@@ -108,8 +108,6 @@ namespace X.Data.Factory
 
             // Zmeň stav na editáciu existujúceho záznamu, pretože bol uložený (napr. ak bol záznam v režime nový).
             RecordState = RecordStateTypes.Edit;
-
-            this.DBClient.Close();
         }
         /// <summary>
         /// Načíta údaje z databázy a nastaví vlastnosti tohoto objektu, podľa zadaného identifikátora.
@@ -128,8 +126,6 @@ namespace X.Data.Factory
                 this.SetRecordValues(dbReader, tags);
                 break; // Nemalo by nikdy nastať, pretože sa načítava vždy len jeden záznam podľa ID.
             }
-
-            this.DBClient.Close();
         }
         /// <summary>
         /// Aktualizuje už načítané údaje z databázy, podľa ID aktualne načítaného záznamu.
@@ -150,7 +146,6 @@ namespace X.Data.Factory
             string sql = $"DELETE FROM {this.TableName} WHERE id = {id}";
             this.DBClient.Open();
             this.DBClient.ExecuteNonQuery(sql);
-            this.DBClient.Close();
         }
         /// <summary>
         /// Vymaže tento záznam z databázy a aktualizuje parent DataList.

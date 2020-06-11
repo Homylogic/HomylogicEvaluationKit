@@ -27,7 +27,7 @@ namespace X.Homylogic.Models
 
         public Environment(Models.Database database) 
         {
-            this.Logs = new LogList(database.DBClientLogs, database.SyncObjectLogs);
+            this.Logs = new LogList(database.DBClientLogs);
             this.Settings = new Settings(database.DBClient);
         }
 

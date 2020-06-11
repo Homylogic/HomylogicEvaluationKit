@@ -83,8 +83,7 @@ g_start:
                             OutputBufferX bufferItem = (OutputBufferX)Body.Runtime.OutputBuffers.FindDataRecord(bufferItemID);
                             if (bufferItem != null) 
                             {
-                                lock (Body.Database.SyncObject)
-                                    bufferItem.Process();
+                                bufferItem.Process();
                             }
                             // Malá pauza, aby posielanie údajov neprebiahalo príliš rýchlo, aby boli odosielané packety postupne.
                             Thread.Sleep(100);
@@ -106,8 +105,7 @@ g_start:
                             {
                                 OutputBufferX eBufferItem = (OutputBufferX)this.List[i];
                                 if (eBufferItem.IsProcessed) 
-                                    lock (Body.Database.SyncObject)
-                                        eBufferItem.Delete();
+                                    eBufferItem.Delete();
                             }
                         }
                         catch (Exception ex)
@@ -136,7 +134,6 @@ g_exit:;
             string sql = $"UPDATE {OutputBufferX.TABLE_NAME} SET name = '{destination}' WHERE deviceID = {device.ID}";
             device.DBClient.Open();
             device.DBClient.ExecuteNonQuery(sql);
-            device.DBClient.Close();
 
             // Aktualizovanie údajov v načítanom zozname List.
             try
@@ -162,7 +159,6 @@ g_exit:;
             string sql = $"DELETE FROM {InputBufferX.TABLE_NAME} WHERE deviceID = {deviceID}";
             dbClient.Open();
             dbClient.ExecuteNonQuery(sql);
-            dbClient.Close();
 
             // Aktualizovanie údajov v načítanom zozname List.
             try

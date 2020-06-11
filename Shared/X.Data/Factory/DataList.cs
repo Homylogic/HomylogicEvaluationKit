@@ -79,7 +79,6 @@ namespace X.Data.Factory
                 if (recordsLimit > 0 && count >= recordsLimit) break;
             }
 
-            this.DBClient.Close();
             this.IsDataLoaded = true;
         }
         /// <summary>
@@ -97,7 +96,6 @@ namespace X.Data.Factory
                 sql.AppendFormat(" WHERE {0}", this.FilterCondition);
             this.DBClient.Open();
             this.DBClient.ExecuteNonQuery(sql.ToString());
-            this.DBClient.Close();
 
             _list.Clear();
         }

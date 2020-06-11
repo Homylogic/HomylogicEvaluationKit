@@ -30,19 +30,16 @@ namespace X.Homylogic.Models.Objects.Buffers
         /// </summary>
         public void Enqueue(DeviceX.DataReceivedEventArgs e)
         {
-            lock (Body.Database.SyncObject) 
-            { 
-                InputBufferX bufferItem = (InputBufferX)this.GetInitializedDataRecord();
-                bufferItem.DeviceID = e.Device.ID;
-                bufferItem.ProcessTime = DateTime.Now;
-                bufferItem.Data = e.Data;
-                bufferItem.Save();
+            InputBufferX bufferItem = (InputBufferX)this.GetInitializedDataRecord();
+            bufferItem.DeviceID = e.Device.ID;
+            bufferItem.ProcessTime = DateTime.Now;
+            bufferItem.Data = e.Data;
+            bufferItem.Save();
 
-                // Vymazanie záznamov ktorých je viac ako určitý počet.
-                if (_list.Count > 500) 
-                {
-                    _list[^1].Delete();
-                }
+            // Vymazanie záznamov ktorých je viac ako určitý počet.
+            if (_list.Count > 500) 
+            {
+                _list[^1].Delete();
             }
         }
         /// <summary>
@@ -55,7 +52,6 @@ namespace X.Homylogic.Models.Objects.Buffers
             string sql = $"UPDATE {InputBufferX.TABLE_NAME} SET name = '{source}' WHERE deviceID = {device.ID}";
             device.DBClient.Open();
             device.DBClient.ExecuteNonQuery(sql);
-            device.DBClient.Close();
 
             // Aktualizovanie údajov v načítanom zozname List.
             try
@@ -81,7 +77,6 @@ namespace X.Homylogic.Models.Objects.Buffers
             string sql = $"DELETE FROM {InputBufferX.TABLE_NAME} WHERE deviceID = {deviceID}";
             dbClient.Open();
             dbClient.ExecuteNonQuery(sql);
-            dbClient.Close();
 
             // Aktualizovanie údajov v načítanom zozname List.
             try
