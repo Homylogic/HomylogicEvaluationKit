@@ -10,6 +10,7 @@ using System;
 using System.Text;
 using X.Data;
 using X.Data.Factory;
+using X.Data.Management;
 
 namespace X.Homylogic.Models.Schedule
 {
@@ -30,29 +31,39 @@ namespace X.Homylogic.Models.Schedule
         }
         public static void CreateTable(DBClient dbClient)
         {
-            StringBuilder sql = new StringBuilder();
-            sql.AppendFormat("CREATE TABLE {0} (", ScheduleRecord.TABLE_NAME);
-            if (dbClient.ClientType == DBClient.ClientTypes.Sqlite)
-                sql.Append("id INTEGER PRIMARY KEY, ");
-            else
-                sql.Append("id INTEGER PRIMARY KEY AUTO_INCREMENT, ");
-            sql.Append("objectID INTEGER, ");
-            sql.Append("scheduleTime DATETIME, ");
-            sql.Append("dayMonday INTEGER, ");
-            sql.Append("dayTuesday INTEGER, ");
-            sql.Append("dayWednesday INTEGER, ");
-            sql.Append("dayThursday INTEGER, ");
-            sql.Append("dayFriday INTEGER, ");
-            sql.Append("daySaturday INTEGER, ");
-            sql.Append("daySunday INTEGER, ");
-            sql.Append("action INTEGER, ");
-            sql.Append("methodName TEXT, ");
-            sql.Append("actionSettings TEXT ");
+            SqlStringBuilder sql = new SqlStringBuilder(dbClient.ClientType);
+            sql.CreateTable(ScheduleRecord.TABLE_NAME);
+            sql.Append("(");
+            sql.AddPrimaryKey();
+            sql.Int64("objectID");
+            sql.DateTime("scheduleTime");
+            sql.Int01("dayMonday");
+            sql.Int01("dayTuesday");
+            sql.Int01("dayWednesday");
+            sql.Int01("dayThursday");
+            sql.Int01("dayFriday");
+            sql.Int01("daySaturday");
+            sql.Int01("daySunday");
+            sql.Int32("action");
+            sql.Text("methodName");
+            for (int i = 1; i < 12; i++)
+            {
+                sql.Int32($"setInt{string.Format("{0:D2}", i)}");
+            }
+            for (int i = 1; i < 12; i++)
+            {
+                sql.Float($"setDec{string.Format("{0:D2}", i)}");
+            }
+            for (int i = 1; i < 12; i++)
+            {
+                sql.Text($"setStr{string.Format("{0:D2}", i)}");
+            }
+            sql.Text("actionSettings", appendComma:false);
             sql.Append(")");
             dbClient.ExecuteNonQuery(sql.ToString());
-            // Indexy.
             sql.Clear();
-            sql.AppendFormat("CREATE INDEX idxObjectID ON {0} (objectID)", ScheduleRecord.TABLE_NAME);
+            // ! Sqlite require unique index names per database !
+            sql.CreateIndex("objectID_scheduler", "objectID", ScheduleRecord.TABLE_NAME);
             dbClient.ExecuteNonQuery(sql.ToString());
         }
         public void LoadData()

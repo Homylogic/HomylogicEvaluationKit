@@ -7,6 +7,7 @@
 using System;
 using System.Text;
 using X.Data;
+using X.Data.Management;
 
 namespace X.Homylogic.Models.Objects
 {
@@ -22,39 +23,44 @@ namespace X.Homylogic.Models.Objects
         public static void CreateTables(DBClient dbClient)
         {
             // Input buffer.
-            StringBuilder sql = new StringBuilder();
-            sql.AppendFormat("CREATE TABLE {0} (", Buffers.InputBufferX.TABLE_NAME);
-            if (dbClient.ClientType == DBClient.ClientTypes.Sqlite)
-                sql.Append("id INTEGER PRIMARY KEY, ");
-            else
-                sql.Append("id INTEGER PRIMARY KEY AUTO_INCREMENT, ");
-            sql.Append("name TEXT, ");
-            sql.Append("notice TEXT, ");
-            sql.Append("disabled INTEGER, ");
-            sql.Append("showOnHome INTEGER, ");
-            sql.Append("deviceID INTEGER, ");
-            sql.Append("processTime DATETIME, ");
-            sql.Append("tag INTEGER, ");
-            sql.Append("data TEXT");
+            SqlStringBuilder sql = new SqlStringBuilder(dbClient.ClientType);
+            sql.CreateTable(Buffers.InputBufferX.TABLE_NAME);
+            sql.Append("(");
+            sql.AddPrimaryKey();
+            sql.Chars("name");
+            sql.Text("notice");
+            sql.Int01("disabled");
+            sql.Int01("showOnHome");
+            sql.Int64("deviceID");
+            sql.DateTime("processTime");
+            sql.Int32("tag");
+            sql.Text("data", appendComma: false);
             sql.Append(")");
+            sql.EngineMyISAM();
+            dbClient.ExecuteNonQuery(sql.ToString());
+            sql.Clear();
+            // ! Sqlite require unique index names per database !
+            sql.CreateIndex("deviceID_inBuffer", "deviceID", Buffers.InputBufferX.TABLE_NAME);
             dbClient.ExecuteNonQuery(sql.ToString());
 
             // Output buffer.
             sql.Clear();
-            sql.AppendFormat("CREATE TABLE {0} (", Buffers.OutputBufferX.TABLE_NAME);
-            if (dbClient.ClientType == DBClient.ClientTypes.Sqlite)
-                sql.Append("id INTEGER PRIMARY KEY, ");
-            else
-                sql.Append("id INTEGER PRIMARY KEY AUTO_INCREMENT, ");
-            sql.Append("name TEXT, ");
-            sql.Append("notice TEXT, ");
-            sql.Append("disabled INTEGER, ");
-            sql.Append("showOnHome INTEGER, ");
-            sql.Append("deviceID INTEGER, ");
-            sql.Append("processTime DATETIME, ");
-            sql.Append("isProcessed INTEGER, ");
-            sql.Append("data TEXT");
+            sql.CreateTable(Buffers.OutputBufferX.TABLE_NAME);
+            sql.Append("(");
+            sql.AddPrimaryKey();
+            sql.Chars("name");
+            sql.Text("notice");
+            sql.Int01("disabled");
+            sql.Int01("showOnHome");
+            sql.Int64("deviceID");
+            sql.DateTime("processTime");
+            sql.Int01("isProcessed");
+            sql.Text("data", appendComma: false);
             sql.Append(")");
+            sql.EngineMyISAM();
+            dbClient.ExecuteNonQuery(sql.ToString());
+            sql.Clear();
+            sql.CreateIndex("deviceID_outBuffer", "deviceID", Buffers.OutputBufferX.TABLE_NAME);
             dbClient.ExecuteNonQuery(sql.ToString());
         }
         public void LoadData()

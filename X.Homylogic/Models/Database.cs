@@ -23,6 +23,11 @@ namespace X.Homylogic.Models
     public sealed class Database
     {
         /// <summary>
+        /// CryptoKey for store mysql connnection configuration in settings file.
+        /// </summary>
+        public const string CRYPTO_KEY = "#š! _56sdr áťťťťťť123";
+
+        /// <summary>
         /// Aktuaálne verzia databázy.
         /// </summary>
         public const int VERSION = 100;
@@ -37,13 +42,12 @@ namespace X.Homylogic.Models
         const string DB_FILE_NAME_LOGS = "datalogs.db";
 
         // Prihlasovacie údaje na lokálny MySQL server.
-        const string DB_SERVER = "localhost";
-        const string DB_USER = "homylogic";
-        const string DB_PASSWORD = "EvaluationKit1000";
+        string DB_SERVER = "localhost";
+        string DB_USER = "homylogic";
+        string DB_PASSWORD = "EvaluationKit1000";
         const string DB_NAME = "homylogic";
         // Databáza pre históriu a logovanie na MySQl serveri.
         const string DB_NAME_LOGS = "homylogiclogs";
-
 
         readonly DBClient _dbClient;
         /// <summary>
@@ -71,6 +75,27 @@ namespace X.Homylogic.Models
                     break;
 
                 case DBClient.ClientTypes.MySql:
+                    // Read configuration file.
+                    try
+                    {
+                        string crypted = X.App.Settings.ConfigFile.Read("database-mysql");
+                        if (crypted != null) 
+                        { 
+                            string settingsValue = X.Basic.Text.Crypto.Decrypt(crypted, CRYPTO_KEY);
+                            string[] arrValues = settingsValue.Split(";");
+                            foreach (string val in arrValues)
+                            {
+                                if (val.StartsWith("host")) DB_SERVER = val.Substring(val.IndexOf("=") + 1).Trim();
+                                if (val.StartsWith("user")) DB_USER = val.Substring(val.IndexOf("=") + 1).Trim();
+                                if (val.StartsWith("pass")) DB_PASSWORD = val.Substring(val.IndexOf("=") + 1).Trim();
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Problem reading MySql connection configuration.");
+                        Console.WriteLine(ex.Message);
+                    }
                     _dbClient = new DBClient(DB_SERVER, DB_USER, DB_PASSWORD, DB_NAME);
                     _dbClientLogs = new DBClient(DB_SERVER, DB_USER, DB_PASSWORD, DB_NAME_LOGS);
                     break;
@@ -86,7 +111,10 @@ namespace X.Homylogic.Models
             // Vytvorenie novej databázy, ak neexistuje.
             // Sqlite - ak DB neexistuje bude vytvorený nový prázdny súbor pri otvorení pripojenia.
             if (_dbClient.ClientType == DBClient.ClientTypes.MySql)
+            {
                 X.Data.Management.MySql.CreateDatabase(DB_SERVER, DB_USER, DB_PASSWORD, DB_NAME);
+                X.Data.Management.MySql.CreateDatabase(DB_SERVER, DB_USER, DB_PASSWORD, DB_NAME_LOGS);
+            }
 
             // Otvor pripojenie k databáze a zisti verziu databázy.
             bool createTables = false;

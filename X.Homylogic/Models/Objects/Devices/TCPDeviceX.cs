@@ -79,7 +79,7 @@ namespace X.Homylogic.Models.Objects.Devices
                 StringBuilder values = new StringBuilder();
                 values.AppendFormat("setInt01 = {0}, ", (Int32)this.SocketType); ;
                 values.AppendFormat("setInt02 = {0}, ", (Int32)(this.PortNumber));
-                values.AppendFormat("setInt03 = {0}, ", q.Str(this.IPAddress));
+                values.AppendFormat("setStr01 = {0}, ", q.Str(this.IPAddress));
                 values.AppendFormat("setStr02 = {0}", q.Str(this.PacketEndChar));
                 return string.Format(base.SqlUpdate(q, tags), values);
             }

@@ -55,6 +55,7 @@ using System.Globalization;
 using System.Text;
 using System.Threading;
 using X.Data;
+using X.Data.Management;
 
 namespace X.Homylogic.Models.Objects.Devices.Homyoko
 {
@@ -180,12 +181,12 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
             base.Save();
 
             // Vytvoriť tabuľku pre logovanie histórie údajov, ak tabuľka neexistuje.
-            CreateHistoryTable();
+            CreateTableHistory();
         }
         public override void Delete(long id)
         {
             // Vymazať tabuľku pre logovanie histórie údajov.
-            this.DropHistoryTable(id);
+            this.DropTableHistory(id);
 
             base.Delete(id);
         }
@@ -423,34 +424,25 @@ g_again:
         /// <summary>
         /// Vytvorí databázovú tabuľku pre logovanie histórie v databáze pre zber údajov.
         /// </summary>
-        public void CreateHistoryTable()
+        public void CreateTableHistory()
         {
             Body.Database.DBClientLogs.Open();
             string tableName = $"deviceHistory_{this.ID}";
             if (!Body.Database.DBClientLogs.IsTableExist(tableName)) 
-            { 
-                StringBuilder sql = new StringBuilder();
-                sql.AppendFormat("CREATE TABLE {0} (", tableName);
-                if (Body.Database.DBClientLogs.ClientType == DBClient.ClientTypes.Sqlite)
-                    sql.Append("id INTEGER PRIMARY KEY, ");
-                else
-                    sql.Append("id INTEGER PRIMARY KEY AUTO_INCREMENT, ");
-                sql.Append("logTime DATETIME, ");
-                if (Body.Database.DBClientLogs.ClientType == DBClient.ClientTypes.Sqlite)
-                {
-                    sql.Append("TemperatureFloor INTEGER, ");
-                    sql.Append("TemperatureOut INTEGER ");
-                }
-                else
-                {
-                    sql.Append("TemperatureFloor FLOAT, ");
-                    sql.Append("TemperatureOut FLOAT ");
-                }
+            {
+                SqlStringBuilder sql = new SqlStringBuilder(Body.Database.DBClientLogs.ClientType);
+                sql.CreateTable(tableName);
+                sql.Append("(");
+                sql.AddPrimaryKey();
+                sql.DateTime("logTime");
+                sql.Float("temperatureFloor");
+                sql.Float("temperatureOut", appendComma:false);
                 sql.Append(")");
+                sql.EngineMyISAM();
                 Body.Database.DBClientLogs.ExecuteNonQuery(sql.ToString());
             }
         }
-        public void DropHistoryTable(long id) 
+        public void DropTableHistory(long id) 
         {
             string tableName = $"deviceHistory_{id}";
             Body.Database.DBClientLogs.Open();
@@ -459,13 +451,13 @@ g_again:
         /// <summary>
         /// Zapíše aktuálne údaje do log tabuľky.
         /// </summary>
-        public void WriteHistoryLog() 
+        public void WriteLogHistory() 
         {
             if (this.MeasureTime.Year == 1) return; // Ignorovať logovanie, ak údaje ešte neboli aktualizované.
 
             Data.Management.SqlConvert q = new Data.Management.SqlConvert(Body.Database.DBClientLogs.ClientType);
             StringBuilder sql = new StringBuilder();
-            sql.AppendFormat("INSERT INTO {0} (logTime, TemperatureFloor, TemperatureOut) VALUES (", $"deviceHistory_{this.ID}");
+            sql.AppendFormat("INSERT INTO {0} (logTime, temperatureFloor, temperatureOut) VALUES (", $"deviceHistory_{this.ID}");
             sql.AppendFormat("{0}, ", q.DTime(this.MeasureTime));
             sql.AppendFormat("{0}, ", q.Float(this.TemperatureFloor));
             sql.AppendFormat("{0})", q.Float(this.TemperatureOut));
@@ -475,7 +467,7 @@ g_again:
         /// <summary>
         /// Vymaže staré záznamy logov.
         /// </summary>
-        public void DeleteHistoryLog() 
+        public void DeleteLogHistory() 
         {
             // Vymaž posledných 30k záznamov, ak je počet záznamov viac ako 100k (2,2 roka).
             Body.Database.DBClientLogs.Open();
@@ -489,7 +481,7 @@ g_again:
         /// <summary>
         /// Nastaví hodnoty (vlastnosti) histórie, podľa údajov z databázy.
         /// </summary>
-        public void SetHistoryData()
+        public void SetDataHistory()
         {
             // TODO: Dorobiť históriu - napr. max/min teplota ...
             throw new NotImplementedException("Zatiaľ nedokončené ...");

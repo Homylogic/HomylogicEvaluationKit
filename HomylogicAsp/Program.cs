@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using X.Homylogic;
@@ -7,11 +7,9 @@ namespace HomylogicAsp
 {
     public class Program
     {
+
         public static void Main(string[] args)
         {
-
-            Console.WriteLine("Welcome to Homylogic Evaluation Kit Pi");
-
 
             // ***** Testing ******
             //MikrotikAPI mikrotik = new MikrotikAPI("192.168.16.62");
@@ -36,71 +34,132 @@ namespace HomylogicAsp
             //    }
 
 
-            //    // ****** POKRA�OVA� ZALO�EN�M CLASSU   Mikrotic functions alebo to da� rovno do Mikrotik API
+            //    // ****** POKRAČOVAŤ ZALOŽENÍM CLASSU   Mikrotic functions alebo to dať rovno do Mikrotik API
 
             //}
 
 
             //return;
 
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine(@"                                                                           
+ _     _   _____    __   __  _     _  _       _____    _____  _______   ___   
+(_)   (_) (_____)  (__)_(__)(_)   (_)(_)     (_____)  (_____)(_______)_(___)_ 
+(_)___(_)(_)   (_)(_) (_) (_)(_)_(_) (_)    (_)   (_)(_)  ___   (_)  (_)   (_)
+(_______)(_)   (_)(_) (_) (_)  (_)   (_)    (_)   (_)(_) (___)  (_)  (_)    _ 
+(_)   (_)(_)___(_)(_)     (_)  (_)   (_)____(_)___(_)(_)___(_)__(_)__(_)___(_)
+(_)   (_) (_____) (_)     (_)  (_)   (______)(_____)  (_____)(_______) (___)  
+                                                                              
+                                                                              
+                                                                              ");
 
-
-            // Inicializ�cia kni�nice X.Homylogic.Body.
-            Console.WriteLine("Initializing ...");
+            // * * * BODY INITIALIZATION  * * *
+            // X.Homylogic.dll
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("Initializing ...");
             try
             {
-                Body.Main(args, X.Data.DBClient.ClientTypes.Sqlite);
+                // Read database configuration.
+                X.Data.DBClient.ClientTypes dbClientType = X.Data.DBClient.ClientTypes.Sqlite; // Default database client type. 
+                try
+                {
+                    string dbProvider = X.App.Settings.ConfigFile.Read("database-provider");
+                    switch (dbProvider)
+                    {
+                        case "1": case "mysql":
+                            dbClientType = X.Data.DBClient.ClientTypes.MySql;
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Warning: Invalid database provider configuration.");
+                    Console.WriteLine(ex.Message);
+                }
+
+                // Initialize 'X.Homylogic.Body' class which contains all instanced application objects.
+                Body.Main(args, dbClientType);
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error");
+                Console.WriteLine(ex.Message);
+                goto g_skipInit;
             }
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("OK");
 
-            // Vytvorenie novej datab�zy, alebo transform�cia do novej verzie.
-            Console.WriteLine("Checking database ...");
+            // * * * DATABASE CHECK OR TRANSFORM TO NEW VERSION * * *
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("Checking database ...");
             try
             {
                 Body.Database.CreateOrTransform();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error");
+                Console.WriteLine(ex.Message);
+                goto g_skipInit;
             }
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("OK");
 
-            // Na��tanie prostredia napr. logovanie �dajov a nastavenia programu.
-            Console.WriteLine("Loading environment ...");
+            // * * * LOADIN APPLICATION ENVIRONMENT * * *
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("Loading environment ...");
             try
             {
                 Body.Environment.Load();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error");
+                Console.WriteLine(ex.Message);
+                goto g_skipInit;
             }
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("OK");
 
-            // Na��tanie zoznamu v�etk�ch objektov pod�a datab�zy.
-            Console.WriteLine("Loading objects ...");
+            // * * * LOAD RUNTIME OBJECTS FROM DATABASE * * *
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("Loading objects ...");
             try
             {
                 Body.Runtime.Load();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error");
+                Console.WriteLine(ex.Message);
+                goto g_skipInit;
             }
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("OK");
 
-            // Spustenie vl�kien v�etk�ch objektov.
-            Console.WriteLine("Starting objects ...");
+            // * * * START RUNTIME OBJECTS * * *
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("Starting objects ...");
             try
             {
                 Body.Runtime.Start();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}"); ;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error");
+                Console.WriteLine(ex.Message);
+                goto g_skipInit;
             }
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("OK");
 
-            // Spustenie ASP str�nky.
+            // * * * START KESTREL ASP WEB SERVER * * *
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("Starting web server ...");
             try
             {
@@ -108,16 +167,41 @@ namespace HomylogicAsp
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}"); ;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error");
+                Console.WriteLine(ex.Message);
+                goto g_skipInit;
             }
+            /* Not needed 
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("OK"); */
 
-            // Spracov�vanie zadan�ch pr�kazov.
+g_skipInit:
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.WriteLine();
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(@"
+ █     █░▓█████  ██▓     ▄████▄   ▒█████   ███▄ ▄███▓▓█████ 
+▓█░ █ ░█░▓█   ▀ ▓██▒    ▒██▀ ▀█  ▒██▒  ██▒▓██▒▀█▀ ██▒▓█   ▀ 
+▒█░ █ ░█ ▒███   ▒██░    ▒▓█    ▄ ▒██░  ██▒▓██    ▓██░▒███   
+░█░ █ ░█ ▒▓█  ▄ ▒██░    ▒▓▓▄ ▄██▒▒██   ██░▒██    ▒██ ▒▓█  ▄ 
+░░██▒██▓ ░▒████▒░██████▒▒ ▓███▀ ░░ ████▓▒░▒██▒   ░██▒░▒████▒
+░ ▓░▒ ▒  ░░ ▒░ ░░ ▒░▓  ░░ ░▒ ▒  ░░ ▒░▒░▒░ ░ ▒░   ░  ░░░ ▒░ ░
+  ▒ ░ ░   ░ ░  ░░ ░ ▒  ░  ░  ▒     ░ ▒ ▒░ ░  ░      ░ ░ ░  ░
+  ░   ░     ░     ░ ░   ░        ░ ░ ░ ▒  ░      ░      ░   
+    ░       ░  ░    ░  ░░ ░          ░ ░         ░      ░  ░
+                        ░                                   ");
+
+            // Spracovávanie zadaných príkazov.
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("write 'help' for list all available commands:");
 g_readLine:
             try
             {
                 while (true)
                 {
+                    Console.ForegroundColor = ConsoleColor.White;
                     string line = Console.ReadLine();
                     if (string.IsNullOrEmpty(line)) continue;
                     string cmd = line;
@@ -130,31 +214,42 @@ g_readLine:
                     }
                     switch (cmd)
                     {
-                        case "help": WriteAllAvailableCommands(); break;
+                        case "help": case "about": WriteAboutHomylogic(); break;
                         case "exit": case "quit": goto g_exit;
                         case "show": Commands.Show.DoLine(cmdLine); break;
+                        case "db": Commands.DB.DoLine(cmdLine); break;
                         default: Console.WriteLine("Command not found."); break;
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error");
+                Console.WriteLine(ex.Message);
                 goto g_readLine;
             }
 g_exit:
-            // Zastavi� vl�kna objektov.
-            Console.WriteLine("bye ...");
+            // Zastaviť vlákna objektov.
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine(@"
+▄▄▄▄·  ▄· ▄▌▄▄▄ .
+▐█ ▀█▪▐█▪██▌▀▄.▀·
+▐█▀▀█▄▐█▌▐█▪▐▀▀▪▄
+██▄▪▐█ ▐█▀·.▐█▄▄▌
+·▀▀▀▀   ▀ •  ▀▀▀ ");
             try
             {
                 Body.Runtime.Stop();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error");
+                Console.WriteLine(ex.Message);
             }
 
-            // Zatvorio� pripojenie k datab�ze.
+            // Zatvorioť pripojenie k databáze.
             Body.Database.DBClient.Close();
             Body.Database.DBClientLogs.Close();
         }
@@ -168,10 +263,35 @@ g_exit:
 
 
         /// <summary>
-        /// Vyp�e v�etky dostupn� pr�kazy.
+        /// Vypíše všetky dostupné príkazy.
         /// </summary>
-        static void WriteAllAvailableCommands()
+        static void WriteAboutHomylogic()
         {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine(@"
+      ___                         ___           ___                   
+     /\  \         _____         /\  \         /\  \                  
+    /::\  \       /::\  \       /::\  \        \:\  \         ___     
+   /:/\:\  \     /:/\:\  \     /:/\:\  \        \:\  \       /\__\    
+  /:/ /::\  \   /:/ /::\__\   /:/  \:\  \   ___  \:\  \     /:/  /    
+ /:/_/:/\:\__\ /:/_/:/\:|__| /:/__/ \:\__\ /\  \  \:\__\   /:/__/     
+ \:\/:/  \/__/ \:\/:/ /:/  / \:\  \ /:/  / \:\  \ /:/  /  /::\  \     
+  \::/__/       \::/_/:/  /   \:\  /:/  /   \:\  /:/  /  /:/\:\  \    
+   \:\  \        \:\/:/  /     \:\/:/  /     \:\/:/  /   \/__\:\  \   
+    \:\__\        \::/  /       \::/  /       \::/  /         \:\__\  
+     \/__/         \/__/         \/__/         \/__/           \/__/  ");
+
+            Console.WriteLine();
+            Console.WriteLine($"App version: {X.Homylogic.Body.VERSION_NAME}");
+            Console.WriteLine($"DB provider: {Body.Database.DBClient.ClientType}");
+            Console.WriteLine($"DB version:  {X.Homylogic.Models.Database.VERSION.ToString().Insert(1, ".")}");
+            Console.WriteLine();
+            Console.WriteLine("List of all available commands:");
+            Console.WriteLine();
+            Commands.Show.WriteAllAvailableCommands();
+            Console.WriteLine();
+            Commands.DB.WriteAllAvailableCommands();
+            Console.WriteLine();
             Console.WriteLine("exit, quit - Quits running Homylogic application.");
         }
 

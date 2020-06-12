@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using X.Data;
 using X.Data.Factory;
+using X.Data.Management;
 
 namespace X.App.Logs
 {
@@ -27,19 +28,18 @@ namespace X.App.Logs
         }
         public static void CreateTable(DBClient dbClient)
         {
-            StringBuilder sql = new StringBuilder();
-            sql.AppendFormat("CREATE TABLE {0} (", LogRecord.TABLE_NAME);
-            if (dbClient.ClientType == DBClient.ClientTypes.Sqlite)
-                sql.Append("id INTEGER PRIMARY KEY, ");
-            else
-                sql.Append("id INTEGER PRIMARY KEY AUTO_INCREMENT, ");
-            sql.Append("logType INTEGER, ");
-            sql.Append("logTime DATETIME, ");
-            sql.Append("dontDelete INTEGER, ");
-            sql.Append("text TEXT, ");
-            sql.Append("description TEXT, ");
-            sql.Append("source TEXT");
+            SqlStringBuilder sql = new SqlStringBuilder(dbClient.ClientType);
+            sql.CreateTable(LogRecord.TABLE_NAME);
+            sql.Append("(");
+            sql.AddPrimaryKey();
+            sql.Int32("logType");
+            sql.DateTime("logTime");
+            sql.Int01("dontDelete");
+            sql.Text("text");
+            sql.Text("description");
+            sql.Text("source", appendComma: false);
             sql.Append(")");
+            sql.EngineMyISAM();
             dbClient.ExecuteNonQuery(sql.ToString());
         }
         public void LoadData(int recordsLimit)

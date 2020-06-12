@@ -16,7 +16,6 @@ namespace HomylogicAsp.Commands
 {
     public static class Show
     {
-        const string TITLE = "Commands";
         const string INVALID_ARGS = "Invalid show commands parameters. Requesting list name. etc. show logs";
 
         public static void DoLine(string line)
@@ -36,7 +35,7 @@ namespace HomylogicAsp.Commands
             switch (args[0].Trim()) 
             {
                 case "logs": Logs(); break;
-
+                default: Console.WriteLine(INVALID_ARGS); break;
             }            
         }
         public static void Logs()
@@ -44,20 +43,30 @@ namespace HomylogicAsp.Commands
             try
             {
                 Console.WriteLine($"Log list: {Body.Environment.Logs.List.Count}");
-                Console.WriteLine($"Columns: ID, Time, ");
+                Console.WriteLine($"Columns: ID, Time, Text, Description, Source");
                 for (int i = 0; i < Body.Environment.Logs.List.Count; i++)
                 {
                     LogRecord log = (LogRecord)Body.Environment.Logs.List[i];
                     StringBuilder o = new StringBuilder();
                     o.Append(log.ID);
                     o.Append(log.LogTime.ToString("dd.MM.yy HH:ss"));
+                    o.Append(log.Text);
+                    o.Append(log.Description);
+                    o.Append(log.Source);
                     Console.WriteLine(o.ToString());                
                 }
             }
             catch (Exception ex)
             {
-                Body.Environment.Logs.Error($"Problem reading logs.", ex, TITLE);
+                Console.WriteLine("Error:");
+                Console.WriteLine(ex.Message);
             }
         }
+        public static void WriteAllAvailableCommands()
+        {
+            Console.WriteLine("show [list-name] - Shows data from list.");
+            Console.WriteLine("show logs - Shows logs.");
+        }
+
     }
 }

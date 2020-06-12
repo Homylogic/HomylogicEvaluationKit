@@ -3,6 +3,7 @@
 @{
     ViewData["Title"] = "About Homylogic";
 
+    string versionApp = X.Homylogic.Body.VERSION_NAME;
     string versionDB = X.Homylogic.Models.Database.VERSION.ToString().Insert(1, ".");
     string serialNumber = X.Homylogic.SystemInfo.DeviceSerialNumber;
     string freeSpace = X.Basic.IO.Units.FormatSizeWithUnit(X.Homylogic.SystemInfo.FreeSpace());
@@ -20,7 +21,7 @@
         </tr>
         <tr>
             <td>Program version:</td>
-            <td>May/2020 Beta</td>
+            <td>@versionApp</td>
         </tr>
         <tr>
             <td>Database version:</td>

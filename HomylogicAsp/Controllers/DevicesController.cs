@@ -306,7 +306,7 @@ namespace HomylogicAsp.Controllers
             // Načítaj zoznam histórie log údajov a vrát ich v čo najkratšej textovej podobe.
             StringBuilder result = new StringBuilder();
             string tableName = $"deviceHistory_{id}";
-            string sql = $"SELECT logTime, Temperature1, Temperature2, Windspeed, WindspeedAvg, Sunshine FROM {tableName} ORDER BY logTime DESC";
+            string sql = $"SELECT logTime, temperature1, temperature2, windspeed, windspeedAvg, sunshine FROM {tableName} ORDER BY logTime DESC";
             DBClient dbClient = Body.Database.DBClientLogs;
             CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
             ci.NumberFormat.NumberDecimalSeparator = ".";
@@ -320,11 +320,11 @@ namespace HomylogicAsp.Controllers
                 while (dbReader.Read())
                 {
                     string time = dbReader.GetDateTime("logTime").ToString("yyyy-MM-dd HH:mm:ss");
-                    string temp1 = dbReader.GetFloat("Temperature1").ToString(ci);
-                    string temp2 = dbReader.GetFloat("Temperature2").ToString(ci);
-                    string wind = dbReader.GetFloat("Windspeed").ToString(ci);
-                    string windA = dbReader.GetFloat("WindspeedAvg").ToString(ci);
-                    int shineVal = dbReader.GetInt32("Sunshine");
+                    string temp1 = dbReader.GetFloat("temperature1").ToString(ci);
+                    string temp2 = dbReader.GetFloat("temperature2").ToString(ci);
+                    string wind = dbReader.GetFloat("windspeed").ToString(ci);
+                    string windA = dbReader.GetFloat("windspeedAvg").ToString(ci);
+                    int shineVal = dbReader.GetInt32("sunshine");
                     string shine = Math.Round(shineVal * WeatherStation.SUN_SHINE_PERCENT_COEF, 2).ToString(ci);
                     result.AppendFormat("{0},{1},{2},{3},{4},{5};", time, temp1, temp2, wind, windA, shine);
                     count++;
@@ -378,7 +378,7 @@ namespace HomylogicAsp.Controllers
             // Načítaj zoznam histórie log údajov a vrát ich v čo najkratšej textovej podobe.
             StringBuilder result = new StringBuilder();
             string tableName = $"deviceHistory_{id}";
-            string sql = $"SELECT logTime, TemperatureFloor FROM {tableName} ORDER BY logTime DESC";
+            string sql = $"SELECT logTime, temperatureFloor FROM {tableName} ORDER BY logTime DESC";
             DBClient dbClient = Body.Database.DBClientLogs;
             CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
             ci.NumberFormat.NumberDecimalSeparator = ".";
@@ -392,7 +392,7 @@ namespace HomylogicAsp.Controllers
                 while (dbReader.Read())
                 {
                     string time = dbReader.GetDateTime("logTime").ToString("yyyy-MM-dd HH:mm:ss");
-                    string temp = dbReader.GetFloat("TemperatureFloor").ToString(ci);
+                    string temp = dbReader.GetFloat("temperatureFloor").ToString(ci);
                     result.AppendFormat("{0},{1};", time, temp);
                     count++;
                     if (count > 300) break;

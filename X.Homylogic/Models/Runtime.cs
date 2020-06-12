@@ -125,7 +125,7 @@ g_start:    try
                                 {
                                     try
                                     {
-                                        historyDataLogs.DeleteHistoryLog();
+                                        historyDataLogs.DeleteLogHistory();
                                     }
                                     catch (Exception ex)
                                     {

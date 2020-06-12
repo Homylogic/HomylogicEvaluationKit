@@ -76,7 +76,7 @@ namespace X.Homylogic.Models.Objects
         }
         public override string SqlInsert(Data.Management.SqlConvert q, List<string> tags)
         {
-            string fields = "deviceType, autoDataUpdate, writeToBuffer, {0}";
+            string fields = "deviceType, writeToBuffer, autoDataUpdate, {0}";
             StringBuilder values = new StringBuilder();
             values.AppendFormat("{0}, ", (Int32)this.DeviceType);
             values.AppendFormat("{0}, ", q.Innt32(this.WriteToBuffer));
@@ -163,8 +163,10 @@ namespace X.Homylogic.Models.Objects
         protected virtual void OnDataRecived(string data, string packetEndChar) 
         {
             // Change string chars to real chars etc. \r to return char.
-            string realPacketEndChar = packetEndChar.Replace(@"\r", "\r")
-                                                    .Replace(@"\n", "\n");
+            string realPacketEndChar = string.Empty;
+            if (!string.IsNullOrEmpty(packetEndChar))
+                realPacketEndChar = packetEndChar.Replace(@"\r", "\r")
+                                                 .Replace(@"\n", "\n");
 
             // Spracovanie údajov a rozdelenie na pakety.
             if (string.IsNullOrEmpty(data)) return;

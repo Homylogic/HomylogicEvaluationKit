@@ -103,12 +103,12 @@ namespace X.Data.Factory
             {
                 if (AddToListType == AddToListTypes.AddLast) {
                     this.ParentDataList.List.Add(this);
-                    if (this.ParentDataList.List.Count > this.ParentDataList.RecordsLimit)
+                    if (this.ParentDataList.RecordsLimit > 0 && this.ParentDataList.List.Count > this.ParentDataList.RecordsLimit)
                         this.ParentDataList.List.RemoveAt(0);
                 }
                 else {
                     this.ParentDataList.List.Insert(0, this);
-                    if (this.ParentDataList.List.Count > this.ParentDataList.RecordsLimit)
+                    if (this.ParentDataList.RecordsLimit > 0 && this.ParentDataList.List.Count > this.ParentDataList.RecordsLimit)
                         this.ParentDataList.List.RemoveAt(this.ParentDataList.List.Count - 1);
                 }
             }

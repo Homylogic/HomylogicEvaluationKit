@@ -15,7 +15,6 @@ namespace X.Data.Providers
     {
         readonly MySqlConnectionStringBuilder _connectionStringBuilder;
         readonly MySqlConnection _connection;
-        bool _isConnectionOpen = false;
 
         /// <summary>
         /// Inicializuje databázového klienta typu MySQl Server.
@@ -29,14 +28,17 @@ namespace X.Data.Providers
         }
 
         public void Open() {
-            // Connection ktoré sa zabudlo zatvoriť, a ostalo otvorné kvoli chybe, sa nesmie opätovne otvoriť pretože generuje chybu.
-            if (_isConnectionOpen) return;
+            // Check connection state, and open or reopen connection.
+            if (_connection.State == System.Data.ConnectionState.Open || 
+                _connection.State == System.Data.ConnectionState.Connecting ||
+                _connection.State == System.Data.ConnectionState.Executing ||
+                _connection.State == System.Data.ConnectionState.Fetching) return;
+            if (_connection.State == System.Data.ConnectionState.Broken)
+                _connection.Close();
             _connection.Open();
-            _isConnectionOpen = true;
         }
         public void Close() { 
             _connection.Close();
-            _isConnectionOpen = false;
         }
 
         public void ExecuteNonQuery(string sql) {
@@ -80,7 +82,6 @@ namespace X.Data.Providers
 
         public void Dispose() {
             if (_connection != null) _connection.Dispose();
-            _isConnectionOpen = false;
         }
 
     }

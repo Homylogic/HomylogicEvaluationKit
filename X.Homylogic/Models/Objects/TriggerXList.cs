@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using X.Data;
 using X.Data.Factory;
+using X.Data.Management;
 using X.Homylogic.Models.Objects.Triggers;
 
 namespace X.Homylogic.Models.Objects
@@ -20,48 +21,33 @@ namespace X.Homylogic.Models.Objects
 
         public static void CreateTable(DBClient dbClient)
         {
-            StringBuilder sql = new StringBuilder();
-            sql.AppendFormat("CREATE TABLE {0} (", TriggerX.TABLE_NAME);
-            if (dbClient.ClientType == DBClient.ClientTypes.Sqlite)
-                sql.Append("id INTEGER PRIMARY KEY, ");
-            else
-                sql.Append("id INTEGER PRIMARY KEY AUTO_INCREMENT, ");
-            sql.Append("name TEXT, ");
-            sql.Append("notice TEXT, ");
-            sql.Append("disabled INTEGER, ");
-            sql.Append("showOnHome INTEGER, ");
-            sql.Append("triggerType INTEGER, ");
-            sql.Append("deviceID INTEGER, ");
-            sql.Append("setInt01 INTEGER, ");
-            sql.Append("setInt02 INTEGER, ");
-            sql.Append("setInt03 INTEGER, ");
-            sql.Append("setInt04 INTEGER, ");
-            sql.Append("setInt05 INTEGER, ");
-            sql.Append("setInt06 INTEGER, ");
-            if (dbClient.ClientType == DBClient.ClientTypes.Sqlite)
+            SqlStringBuilder sql = new SqlStringBuilder(dbClient.ClientType);
+            sql.CreateTable(TriggerX.TABLE_NAME);
+            sql.Append("(");
+            sql.AddPrimaryKey();
+            sql.Chars("name");
+            sql.Text("notice");
+            sql.Int01("showOnHome");
+            sql.Int32("triggerType");
+            sql.Int64("deviceID");
+            for (int i = 1; i < 12; i++)
             {
-                sql.Append("setDec01 INTEGER, ");
-                sql.Append("setDec02 INTEGER, ");
-                sql.Append("setDec03 INTEGER, ");
-                sql.Append("setDec04 INTEGER, ");
-                sql.Append("setDec05 INTEGER, ");
-                sql.Append("setDec06 INTEGER, ");
+                sql.Int32($"setInt{string.Format("{0:D2}", i)}");
             }
-            else {
-                sql.Append("setDec01 FLOAT, ");
-                sql.Append("setDec02 FLOAT, ");
-                sql.Append("setDec03 FLOAT, ");
-                sql.Append("setDec04 FLOAT, ");
-                sql.Append("setDec05 FLOAT, ");
-                sql.Append("setDec06 FLOAT, ");
+            for (int i = 1; i < 12; i++)
+            {
+                sql.Float($"setDec{string.Format("{0:D2}", i)}");
             }
-            sql.Append("setStr01 TEXT, ");
-            sql.Append("setStr02 TEXT, ");
-            sql.Append("setStr03 TEXT, ");
-            sql.Append("setStr04 TEXT, ");
-            sql.Append("setStr05 TEXT, ");
-            sql.Append("setStr06 TEXT");
+            for (int i = 1; i < 12; i++)
+            {
+                sql.Text($"setStr{string.Format("{0:D2}", i)}");
+            }
+            sql.Int01("disabled", appendComma:false);
             sql.Append(")");
+            dbClient.ExecuteNonQuery(sql.ToString());
+            sql.Clear();
+            // ! Sqlite require unique index names per database !
+            sql.CreateIndex("deviceID_trigger", "deviceID", TriggerX.TABLE_NAME);
             dbClient.ExecuteNonQuery(sql.ToString());
         }
         public override DataRecord GetInitializedDataRecord(DBReader dbReader = null) 

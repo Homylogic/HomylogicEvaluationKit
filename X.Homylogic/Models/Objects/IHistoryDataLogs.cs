@@ -11,10 +11,10 @@ namespace X.Homylogic.Models.Objects.Devices
 {
     interface IHistoryDataLogs
     {
-        void CreateHistoryTable();
-        void DropHistoryTable(long id);
-        void WriteHistoryLog();
-        void DeleteHistoryLog();
-        void SetHistoryData();
+        void CreateTableHistory();
+        void DropTableHistory(long id);
+        void WriteLogHistory();
+        void DeleteLogHistory();
+        void SetDataHistory();
     }
 }
