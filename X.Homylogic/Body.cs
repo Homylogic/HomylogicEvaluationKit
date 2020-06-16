@@ -14,7 +14,7 @@ namespace X.Homylogic
 {
     public static class Body
     {
-        public const string VERSION_NAME = "July/2020";
+        public const string VERSION_NAME = "June/2020 Beta";
 
         public static Models.Database Database { get; private set; }
         public static Models.Environment Environment { get; private set; }
