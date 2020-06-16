@@ -83,6 +83,68 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
         /// Úroveň svetelného jasu v percentách.
         /// </summary>
         public float SunshinePercent => (float)Math.Round(this.Sunshine * SUN_SHINE_PERCENT_COEF, 2);
+        /// <summary>
+        /// Customs settings values for temperatures.
+        /// </summary>
+        public class CustomsTemperatureValues
+        { 
+            /// <summary>
+            /// Caption for temperature, etc. shown on home screen.
+            /// </summary>
+            public string Caption { get; set; }
+            /// <summary>
+            /// Minimum temperature for cold temperature default 0°C.
+            /// </summary>
+            public float Minimum { get; set; }
+            /// <summary>
+            /// Maximum temperature for hot temperature default 40°C.
+            /// </summary>
+            public float Maximum { get; set; }
+        }
+        /// <summary>
+        /// Temperature 1 customs settings.
+        /// </summary>
+        public CustomsTemperatureValues CustomsTemperature1 { get; set; }
+        /// <summary>
+        /// Temperature 2 customs settings.
+        /// </summary>
+        public CustomsTemperatureValues CustomsTemperature2 { get; set; }
+        /// <summary>
+        /// Customs settings values for temperatures.
+        /// </summary>
+        public class CustomsWindspeedValues
+        {
+            /// <summary>
+            /// 1. stage of wind speed.
+            /// </summary>
+            public float LightAir { get; set; }
+            /// <summary>
+            /// 2. stage of wind speed.
+            /// </summary>
+            public float GentleBreeze { get; set; }
+            /// <summary>
+            /// 3. stage of wind speed.
+            /// </summary>
+            public float StrongBreeze { get; set; }
+        }
+        /// <summary>
+        /// Customs settings values for windspeed.
+        /// </summary>
+        public CustomsWindspeedValues CustomsWindspeed { get; set; }
+        /// <summary>
+        /// Customs settings for sunshine.
+        /// </summary>
+        public class CustomsSunshineValues
+        {
+            /// <summary>
+            /// Day is larged value than this defined percent value.
+            /// </summary>
+            public int Day { get; set; }
+        }
+        /// <summary>
+        /// Customs settings values for sunshine.
+        /// </summary>
+        public CustomsSunshineValues CustomsSunshine { get; set; }
 
         #region --- DATA PROPERTIES ---
 
@@ -110,14 +172,34 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
             this.IPAddress = dbReader.GetString("setStr01");
             this.PortNumber = dbReader.GetInt32("setInt01");
             this.PacketType = (PacketTypes)dbReader.GetInt32("setInt02");
+            this.CustomsTemperature1.Caption = dbReader.GetString("setStr05");
+            this.CustomsTemperature1.Minimum = dbReader.GetFloat("setDec01");
+            this.CustomsTemperature1.Maximum = dbReader.GetFloat("setDec02");
+            this.CustomsTemperature2.Caption = dbReader.GetString("setStr06");
+            this.CustomsTemperature2.Minimum = dbReader.GetFloat("setDec03");
+            this.CustomsTemperature2.Maximum = dbReader.GetFloat("setDec04");
+            this.CustomsWindspeed.LightAir = dbReader.GetFloat("setDec05");
+            this.CustomsWindspeed.GentleBreeze = dbReader.GetFloat("setDec06");
+            this.CustomsWindspeed.StrongBreeze = dbReader.GetFloat("setDec07");
+            this.CustomsSunshine.Day = dbReader.GetInt32("setInt05");
         }
         public override string SqlInsert(Data.Management.SqlConvert q, List<string> tags)
         {
-            string fields = "setStr01, setInt01, setInt02";
+            string fields = "setStr01, setInt01, setInt02, setStr05, setStr06, setDec01, setDec02, setDec03, setDec04, setDec05, setDec06, setDec07, setInt05";
             StringBuilder values = new StringBuilder();
             values.AppendFormat("{0}, ", q.Str(this.IPAddress));
             values.AppendFormat("{0}, ", (Int32)(this.PortNumber));
-            values.AppendFormat("{0} ", (Int32)(this.PacketType));
+            values.AppendFormat("{0}, ", (Int32)(this.PacketType));
+            values.AppendFormat("{0}, ", q.Str(this.CustomsTemperature1.Caption));
+            values.AppendFormat("{0}, ", q.Str(this.CustomsTemperature2.Caption));
+            values.AppendFormat("{0}, ", q.Float(this.CustomsTemperature1.Minimum));
+            values.AppendFormat("{0}, ", q.Float(this.CustomsTemperature1.Maximum));
+            values.AppendFormat("{0}, ", q.Float(this.CustomsTemperature2.Minimum));
+            values.AppendFormat("{0}, ", q.Float(this.CustomsTemperature2.Maximum));
+            values.AppendFormat("{0}, ", q.Float(this.CustomsWindspeed.LightAir));
+            values.AppendFormat("{0}, ", q.Float(this.CustomsWindspeed.GentleBreeze));
+            values.AppendFormat("{0}, ", q.Float(this.CustomsWindspeed.StrongBreeze));
+            values.AppendFormat("{0} ", (Int32)(this.CustomsSunshine.Day));
             tags.Add("ignore-tcp-device"); // Pretože tieto nastavenia sa používajú namiesto nastavení base TCPDevice.
             return string.Format(base.SqlInsert(q, tags), fields, values);
         }
@@ -126,7 +208,17 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
             StringBuilder values = new StringBuilder();
             values.AppendFormat("setStr01 = {0}, ", q.Str(this.IPAddress));
             values.AppendFormat("setInt01 = {0}, ", (Int32)(this.PortNumber));
-            values.AppendFormat("setInt02 = {0} ", (Int32)this.PacketType);
+            values.AppendFormat("setInt02 = {0}, ", (Int32)this.PacketType);
+            values.AppendFormat("setStr05 = {0}, ", q.Str(this.CustomsTemperature1.Caption));
+            values.AppendFormat("setStr06 = {0}, ", q.Str(this.CustomsTemperature2.Caption));
+            values.AppendFormat("setDec01 = {0}, ", q.Float(this.CustomsTemperature1.Minimum));
+            values.AppendFormat("setDec02 = {0}, ", q.Float(this.CustomsTemperature1.Maximum));
+            values.AppendFormat("setDec03 = {0}, ", q.Float(this.CustomsTemperature2.Minimum));
+            values.AppendFormat("setDec04 = {0}, ", q.Float(this.CustomsTemperature2.Maximum));
+            values.AppendFormat("setDec05 = {0}, ", q.Float(this.CustomsWindspeed.LightAir));
+            values.AppendFormat("setDec06 = {0}, ", q.Float(this.CustomsWindspeed.GentleBreeze));
+            values.AppendFormat("setDec07 = {0}, ", q.Float(this.CustomsWindspeed.StrongBreeze));
+            values.AppendFormat("setInt05 = {0} ", (Int32)(this.CustomsSunshine.Day));
             tags.Add("ignore-tcp-device"); // Pretože tieto nastavenia sa používajú namiesto nastavení base TCPDevice.
             return string.Format(base.SqlUpdate(q, tags), values);
         }
@@ -153,6 +245,10 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
             this.PortNumber = 5242;
             this.SocketType = SocketTypes.Client;
             this.PacketEndChar = @"\r\n";
+            this.CustomsTemperature1 = new CustomsTemperatureValues() { Maximum = 40F };
+            this.CustomsTemperature2 = new CustomsTemperatureValues() { Maximum = 40F };
+            this.CustomsWindspeed = new CustomsWindspeedValues() { LightAir = 2, GentleBreeze = 7, StrongBreeze = 12 };
+            this.CustomsSunshine = new CustomsSunshineValues() { Day = 30};
         }
         /// <summary>
         /// Otvorí komunikáciu na krátku dobu max. 1 sekunda a odošle príkaz pre načítanie údajov z meteostanice. 

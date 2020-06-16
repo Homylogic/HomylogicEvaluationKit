@@ -12,6 +12,7 @@ namespace HomylogicAsp.Models.Devices.Homyoko
         public IVTController.PacketTypes PacketType { get; set; }
         public bool WriteToBuffer { get; set; }
         public bool CanAutoDataUpdate { get; set; }
+        public IVTController.CustomsTemperatureValues CustomsTemperature { get; set; }
 
         public EditIVTControllerViewModel()
         {
@@ -37,6 +38,7 @@ namespace HomylogicAsp.Models.Devices.Homyoko
             ivtController.PacketType = this.PacketType;
             ivtController.WriteToBuffer = this.WriteToBuffer;
             ivtController.CanAutoDataUpdate = this.CanAutoDataUpdate;
+            ivtController.CustomsTemperature = this.CustomsTemperature;
             return ivtController;
         }
         private void SetViewModel(IVTController ivtController) 
@@ -52,6 +54,7 @@ namespace HomylogicAsp.Models.Devices.Homyoko
             this.PacketType = ivtController.PacketType;
             this.WriteToBuffer = ivtController.WriteToBuffer;
             this.CanAutoDataUpdate = ivtController.CanAutoDataUpdate;
+            this.CustomsTemperature = ivtController.CustomsTemperature;
         }
 
     }

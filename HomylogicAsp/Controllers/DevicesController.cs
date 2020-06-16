@@ -295,6 +295,42 @@ namespace HomylogicAsp.Controllers
                 return null;
             }
         }
+        // GET: GetCustomsHomyokoWeatherStation/?
+        public string GetCustomsHomyokoWeatherStation(int id)
+        {
+            DeviceX device = (DeviceX)Body.Runtime.Devices.FindDataRecord(id);
+            if (device == null)
+            {
+                Body.Environment.Logs.Error("Can't get customs of weather device.", new Exception($"Device (Id: {id}) not found."), this.GetType().Name);
+                return null;
+            }
+            if (device is WeatherStation)
+            {
+                CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
+                ci.NumberFormat.NumberDecimalSeparator = ".";
+                ci.NumberFormat.NegativeSign = "-";
+
+                WeatherStation weatherStation = (WeatherStation)device;
+                var jsonData = new
+                {
+                    T1Caption = weatherStation.CustomsTemperature1.Caption,
+                    T1Minimum = weatherStation.CustomsTemperature1.Minimum.ToString(ci),
+                    T1Maximum = weatherStation.CustomsTemperature1.Maximum.ToString(ci),
+                    T2Minimum = weatherStation.CustomsTemperature2.Minimum.ToString(ci),
+                    T2Maximum = weatherStation.CustomsTemperature2.Maximum.ToString(ci),
+                    WDLightAir = weatherStation.CustomsWindspeed.LightAir.ToString(ci),
+                    WDGentleBreeze = weatherStation.CustomsWindspeed.GentleBreeze.ToString(ci),
+                    WDStrongBreeze = weatherStation.CustomsWindspeed.StrongBreeze.ToString(ci),
+                    SunDay = weatherStation.CustomsSunshine.Day.ToString(ci),
+                };
+                return JsonConvert.SerializeObject(jsonData);
+            }
+            else
+            {
+                Body.Environment.Logs.Error("Can't get customs of weather device.", new Exception($"Device (ID: {id}) is not weather station."), this.GetType().Name);
+                return null;
+            }
+        }
         // GET: HistoryWeatherStation/?
         public ActionResult HistoryWeatherStation(int id) 
         {
@@ -367,6 +403,37 @@ namespace HomylogicAsp.Controllers
                 return null;
             }
         }
+        // GET: GetCustomsHomyokoIVTController/?
+        public string GetCustomsHomyokoIVTController(int id)
+        {
+            DeviceX device = (DeviceX)Body.Runtime.Devices.FindDataRecord(id);
+            if (device == null)
+            {
+                Body.Environment.Logs.Error("Can't get customs of IVT controller device.", new Exception($"Device (Id: {id}) not found."), this.GetType().Name);
+                return null;
+            }
+            if (device is IVTController)
+            {
+                CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
+                ci.NumberFormat.NumberDecimalSeparator = ".";
+                ci.NumberFormat.NegativeSign = "-";
+
+                IVTController ivtController = (IVTController)device;
+                var jsonData = new
+                {
+                    Caption = ivtController.CustomsTemperature.Caption,
+                    Minimum = ivtController.CustomsTemperature.Minimum.ToString(ci),
+                    Maximum = ivtController.CustomsTemperature.Maximum.ToString(ci)
+                };
+                return JsonConvert.SerializeObject(jsonData);
+            }
+            else
+            {
+                Body.Environment.Logs.Error("Can't get customs of IVT controller device.", new Exception($"Device (ID: {id}) is not IVT controller."), this.GetType().Name);
+                return null;
+            }
+        }
+
         // GET: HistoryIVTController/?
         public ActionResult HistoryIVTController(int id)
         {

@@ -127,6 +127,28 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
         /// Nastavuje as automaticky pri prijatí chybného stavu IVT zariadenia.
         /// </summary>
         public bool IsProblemHighTemperature { get; private set; } = false;
+        /// <summary>
+        /// Customs settings values for temperatures.
+        /// </summary>
+        public class CustomsTemperatureValues
+        {
+            /// <summary>
+            /// Caption for temperature, etc. shown on home screen.
+            /// </summary>
+            public string Caption { get; set; }
+            /// <summary>
+            /// Minimum temperature for cold temperature default 0°C.
+            /// </summary>
+            public float Minimum { get; set; }
+            /// <summary>
+            /// Maximum temperature for hot temperature default 40°C.
+            /// </summary>
+            public float Maximum { get; set; }
+        }
+        /// <summary>
+        /// Temperature 1 customs settings.
+        /// </summary>
+        public CustomsTemperatureValues CustomsTemperature { get; set; }
 
         #region --- DATA PROPERTIES ---
 
@@ -156,14 +178,20 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
             this.IPAddress = dbReader.GetString("setStr01");
             this.PortNumber = dbReader.GetInt32("setInt01");
             this.PacketType = (PacketTypes)dbReader.GetInt32("setInt02");
+            this.CustomsTemperature.Caption = dbReader.GetString("setStr02");
+            this.CustomsTemperature.Minimum = dbReader.GetFloat("setDec01");
+            this.CustomsTemperature.Maximum = dbReader.GetFloat("setDec02");
         }
         public override string SqlInsert(Data.Management.SqlConvert q, List<string> tags)
         {
-            string fields = "setStr01, setInt01, setInt02";
+            string fields = "setStr01, setInt01, setInt02, setStr02, setDec01, setDec02";
             StringBuilder values = new StringBuilder();
             values.AppendFormat("{0}, ", q.Str(this.IPAddress));
             values.AppendFormat("{0}, ", (Int32)(this.PortNumber));
-            values.AppendFormat("{0} ", (Int32)(this.PacketType));
+            values.AppendFormat("{0}, ", (Int32)(this.PacketType));
+            values.AppendFormat("{0}, ", q.Str(this.CustomsTemperature.Caption));
+            values.AppendFormat("{0}, ", q.Float(this.CustomsTemperature.Minimum));
+            values.AppendFormat("{0} ", q.Float(this.CustomsTemperature.Maximum));
             tags.Add("ignore-tcp-device"); // Pretože tieto nastavenia sa používajú namiesto nastavení base TCPDevice.
             return string.Format(base.SqlInsert(q, tags), fields, values);
         }
@@ -172,7 +200,10 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
             StringBuilder values = new StringBuilder();
             values.AppendFormat("setStr01 = {0}, ", q.Str(this.IPAddress));
             values.AppendFormat("setInt01 = {0}, ", (Int32)(this.PortNumber));
-            values.AppendFormat("setInt02 = {0} ", (Int32)this.PacketType);
+            values.AppendFormat("setInt02 = {0}, ", (Int32)this.PacketType);
+            values.AppendFormat("setStr02 = {0}, ", q.Str(this.CustomsTemperature.Caption));
+            values.AppendFormat("setDec01 = {0}, ", q.Float(this.CustomsTemperature.Minimum));
+            values.AppendFormat("setDec02 = {0} ", q.Float(this.CustomsTemperature.Maximum));
             tags.Add("ignore-tcp-device"); // Pretože tieto nastavenia sa používajú namiesto nastavení base TCPDevice.
             return string.Format(base.SqlUpdate(q, tags), values);
         }
@@ -199,6 +230,7 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
             this.PortNumber = 5000;
             this.SocketType = SocketTypes.Client;
             this.PacketEndChar = @"\r\n";
+            this.CustomsTemperature = new CustomsTemperatureValues() { Minimum = 20F, Maximum = 30F };
         }
         /// <summary>
         /// Otvorí komunikáciu a snaží sa udržiavať pripojenie (napr. keď nastane prerušenie).

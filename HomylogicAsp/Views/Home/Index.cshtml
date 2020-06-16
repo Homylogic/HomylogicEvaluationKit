@@ -3,18 +3,24 @@
 @using X.Homylogic.Models.Objects;
 @using X.Homylogic.Models.Objects.Devices.Homyoko;
 @using System.Globalization;
+@using Newtonsoft.Json;
 
 @{
     ViewData["Title"] = "Home";
 
     bool homeIsEmpy = true;
 
+    /* LEPENICA - Neskor treba spravit lepsie ale zatial podporované len jedno zariadenie pre jeden typ, napr. len jedna meteostanica na home-screen.
+     * 
+     */
     Int64 WeatherStationID = 0;
     Int64 IVTControllerID = 0;
+
 
     CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
     ci.NumberFormat.NumberDecimalSeparator = ".";
     ci.NumberFormat.NegativeSign = "-";
+
 }
 
 
@@ -44,6 +50,8 @@
         .footer {
             background-color: white;
         }
+
+
     </style>
 }
 
@@ -62,7 +70,10 @@
                 {
                     WeatherStation weatherStation = (WeatherStation)device;
                     if (weatherStation.CanAutoDataUpdate)
-                        WeatherStationID = device.ID;
+                        WeatherStationID = weatherStation.ID;
+
+                    string T1Caption = string.IsNullOrEmpty(weatherStation.CustomsTemperature1.Caption) ? "Temperature 1" : weatherStation.CustomsTemperature1.Caption;
+                    string T2Caption = string.IsNullOrEmpty(weatherStation.CustomsTemperature2.Caption) ? "Temperature 2" : weatherStation.CustomsTemperature2.Caption;
 
                     <div class="card card-width card-clickable shadow" onclick="OnClickHistoryWeatherStation(@device.ID)">
                         <div class="card-header">
@@ -71,40 +82,56 @@
                         <div class="card-body">
                             <table style="width: 100%">
                                 <tr>
-                                    <td>Measure at:</td>
-                                    <td id="td-weather-time-@device.ID">@weatherStation.MeasureTime.ToString("HH:mm:ss")</td>
+                                    <td colspan="4" id="td-weather-time-@device.ID" class="font-digital7">@weatherStation.MeasureTime.ToString("HH:mm:ss")</td>
                                 </tr>
                                 <tr>
-                                    <td>Temperature 1:</td>
-                                    <td id="td-weather-t1-@device.ID">@weatherStation.Temperature1.ToString(ci)</td>
-                                    <td>°C</td>
+                                    <td colspan="4"><strong>Temperature</strong></td>
                                 </tr>
                                 <tr>
-                                    <td>Temperature 2:</td>
-                                    <td id="td-weather-t2-@device.ID">@weatherStation.Temperature2.ToString(ci)</td>
-                                    <td>°C</td>
+                                    <td colspan="2">@T1Caption</td>
+                                    <td colspan="2">@T2Caption</td>
                                 </tr>
                                 <tr>
-                                    <td>Windspeed:</td>
-                                    <td id="td-weather-windspeed-@device.ID">@weatherStation.Windspeed.ToString(ci)</td>
-                                    <td>m/s</td>
+                                    <td colspan="2"><canvas id="gauge-t1-@device.ID" width="100" height="100"></canvas></td>
+                                    <td colspan="2"><canvas id="gauge-t2-@device.ID" width="100" height="100"></canvas></td>
                                 </tr>
                                 <tr>
-                                    <td>-average 30min:</td>
-                                    <td id="td-weather-windspeed-avg-@device.ID">@weatherStation.WindspeedAvg.ToString(ci)</td>
-                                    <td>m/s</td>
+                                    <td id="td-weather-t1-@device.ID" style="text-align:right">@weatherStation.Temperature1.ToString(ci)</td>
+                                    <td style="text-align:left">°C</td>
+                                    <td id="td-weather-t2-@device.ID" style="text-align:right">@weatherStation.Temperature2.ToString(ci)</td>
+                                    <td style="text-align:left">°C</td>
                                 </tr>
                                 <tr>
-                                    <td>Sunshine:</td>
-                                    <td id="td-weather-sunshine-@device.ID">@weatherStation.SunshinePercent.ToString(ci)</td>
-                                    <td>%</td>
+                                    <td colspan="4"><strong>Wind</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">actual</td>
+                                    <td colspan="2">average 30min</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><canvas id="gauge-wind-@device.ID" width="100" height="100"></canvas></td>
+                                    <td colspan="2"><canvas id="gauge-windAvg-@device.ID" width="100" height="100"></canvas></td>
+                                </tr>
+                                <tr>
+                                    <td id="td-weather-windspeed-@device.ID" style="text-align:right">@weatherStation.Windspeed.ToString(ci)</td>
+                                    <td style="text-align:left">m/s</td>
+                                    <td id="td-weather-windspeed-avg-@device.ID" style="text-align:right">@weatherStation.WindspeedAvg.ToString(ci)</td>
+                                    <td style="text-align:left">m/s</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="4"><strong>Sunshine</strong></td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Sunshine:</td>
+                                    <td id="td-weather-sunshine-@device.ID" style="text-align:right">@weatherStation.SunshinePercent.ToString(ci)</td>
+                                    <td style="text-align:left">%</td>
                                 </tr>
                             </table>
                         </div>
                         <!--
-                    <div class="card-footer bg-transparent">
-                    </div>
-                    -->
+                        <div class="card-footer bg-transparent">
+                        </div>
+                        -->
                     </div>
 
                     homeIsEmpy = false;
@@ -125,24 +152,34 @@
                         <div class="card-body">
                             <table style="width: 100%">
                                 <tr>
-                                    <td>Measure at:</td>
-                                    <td id="td-ivtctl-time-@ivtController.ID">@ivtController.MeasureTime.ToString("HH:mm:ss")</td>
+                                    <td colspan="4" id="td-ivtctl-time-@device.ID" class="font-digital7">@ivtController.MeasureTime.ToString("HH:mm:ss")</td>
                                 </tr>
                                 <tr>
-                                    <td>Temperature:</td>
-                                    <td id="td-ivtctl-temperature-@device.ID">@ivtController.TemperatureFloor.ToString(ci)</td>
-                                    <td>°C</td>
+                                    <td colspan="4"><strong>Temperature</strong></td>
+                                </tr>
+                                @if (!string.IsNullOrEmpty(ivtController.CustomsTemperature.Caption))
+                                {
+                                    <tr>
+                                        <td colspan="4">@ivtController.CustomsTemperature.Caption</td>
+                                    </tr>
+                                }
+                                <tr>
+                                    <td colspan="4"><canvas id="gauge-ivtclt-temperature-@device.ID" width="100" height="100"></canvas></td>
                                 </tr>
                                 <tr>
-                                    <td>Water flow:</td>
-                                    <td id="td-ivtctl-flow-@ivtController.ID">@waterFlowUIText</td>
+                                    <td colspan="2" id="td-ivtctl-temperature-@device.ID" style="text-align:right">@ivtController.TemperatureFloor.ToString(ci)</td>
+                                    <td colspan="2" style="text-align:left">°C</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">Water flow:</td>
+                                    <td colspan="2" id="td-ivtctl-flow-@device.ID">@waterFlowUIText</td>
                                 </tr>
                             </table>
                         </div>
                         <!--
-                    <div class="card-footer bg-transparent">
-                    </div>
-                    -->
+                        <div class="card-footer bg-transparent">
+                        </div>
+                        -->
                     </div>
 
                     homeIsEmpy = false;
@@ -169,15 +206,33 @@
 </div>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/gaugejs/dist/gauge.min.js"></script>
 
 <script>
     var JSWeatherStationID = @WeatherStationID;
     var JSIVTControllerID = @IVTControllerID;
+    var GaugeT1, GaugeT2, GaugeWind, GaugeWindAwg
+    var GaugeIVT
 
     $(document).ready(function () {
+        // Set customs for gauges
+        if (JSWeatherStationID > 0) {
+            CreateWeatherStationGauges(JSWeatherStationID);
+        }
+        if (JSIVTControllerID > 0) {
+            var curTemp = $("#td-ivtctl-temperature-" + JSIVTControllerID).html();
+            $.get('/Devices/GetCustomsHomyokoIVTController/' + JSIVTControllerID, function (data) {
+                if (data == null) return;
+                //console.log(data);
+                var dataJson = JSON.parse(data);
+                GaugeIVT = CreateIVTGauge("gauge-ivtclt-temperature-" + JSIVTControllerID, Number(dataJson.Minimum), Number(dataJson.Maximum), Number(curTemp));
+            }); // End of $.GET
+        }
+
         setInterval(AutoDataUpdate, 6000);
     });
-    function AutoDataUpdate() {
+    function AutoDataUpdate()
+    {
         // Aktualizovanie meteo-stanice
         if (JSWeatherStationID > 0)
         {
@@ -191,6 +246,11 @@
                 $("#td-weather-windspeed-" + JSWeatherStationID).html(dataJson.Wind);
                 $("#td-weather-windspeed-avg-" + JSWeatherStationID).html(dataJson.WindAvg);
                 $("#td-weather-sunshine-" + JSWeatherStationID).html(dataJson.Shine);
+
+                if (GaugeT1 != null) GaugeT1.set(dataJson.T1);
+                if (GaugeT2 != null) GaugeT2.set(dataJson.T2);
+                if (GaugeWind != null) GaugeWind.set(dataJson.Wind);
+                if (GaugeWindAwg != null) GaugeWindAwg.set(dataJson.WindAvg);
             });
         }
 
@@ -202,6 +262,8 @@
                 $("#td-ivtctl-time-" + JSIVTControllerID).html(dataJson.MTime);
                 $("#td-ivtctl-temperature-" + JSIVTControllerID).html(dataJson.T);
                 $("#td-ivtctl-flow-" + JSIVTControllerID).html(dataJson.Flow);
+
+                if (GaugeIVT != null) GaugeIVT.set(dataJson.T);
             });
         }
 
@@ -210,8 +272,150 @@
     {
         window.location = "Devices/HistoryWeatherStation/" + id;
     }
-    function OnClickIVTController(id) {
+    function OnClickIVTController(id)
+    {
         window.location = "/Devices/DeviceControls/" + id;
     }
+    function CreateWeatherStationGauges(deviceID)
+    {
+        var curTemp1 = $("#td-weather-t1-" + deviceID).html();
+        var curTemp2 = $("#td-weather-t2-" + deviceID).html();
+        var curWind = $("#td-weather-windspeed-" + deviceID).html();
+        var curWindAvg = $("#td-weather-windspeed-avg-" + deviceID).html();
+
+        $.get('/Devices/GetCustomsHomyokoWeatherStation/' + JSWeatherStationID, function (data) {
+            if (data == null) return;
+            //console.log(data);
+            var dataJson = JSON.parse(data);
+            GaugeT1 = CreateTempGauge("gauge-t1-" + deviceID, Number(dataJson.T1Minimum), Number(dataJson.T1Maximum), Number(curTemp1));
+            GaugeT2 = CreateTempGauge("gauge-t2-" + deviceID, Number(dataJson.T2Minimum), Number(dataJson.T2Maximum), Number(curTemp2));
+            GaugeWind = CreateWindGauge("gauge-wind-" + deviceID, Number(dataJson.WDLightAir), Number(dataJson.WDGentleBreeze), Number(dataJson.WDStrongBreeze), Number(curWind));
+            GaugeWindAwg = CreateWindGauge("gauge-windAvg-" + deviceID, Number(dataJson.WDLightAir), Number(dataJson.WDGentleBreeze), Number(dataJson.WDStrongBreeze), Number(curWindAvg));
+
+        }); // End of $.GET
+
+
+
+
+    }
+
+
+    /*
+    * CREATES COMMON GAUGES -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    */
+    function CreateTempGauge(canvasGaugeName, TMin, TMax, currentTemp)
+    {
+        var opts = {
+            angle: -0.25,
+            lineWidth: 0.2,
+            radiusScale: 0.9,
+            pointer: {
+                length: 0.6,
+                strokeWidth: 0.05,
+                color: '#000000'
+            }/*,
+            staticLabels: {
+                font: "10px sans-serif",
+                labels: [200, 500, 2100, 2800],
+                fractionDigits: 0
+            }*/,
+            staticZones: [
+                { strokeStyle: "#0091ff", min: TMin - 30, max: TMin },
+                { strokeStyle: "#30B32D", min: TMin, max: 20 },
+                { strokeStyle: "#FFDD00", min: 20, max: TMax },
+                { strokeStyle: "#F03E3E", min: TMax, max: TMax + 30 },
+            ],
+            limitMax: false,
+            limitMin: false,
+            highDpiSupport: true
+        };
+
+        var target = document.getElementById(canvasGaugeName);
+        if (target == null) {
+            console.log("Canvas gauge '" + canvasGaugeName + "' not found.");
+        } else {
+            var gauge = new Gauge(target).setOptions(opts);
+            gauge.setMinValue(TMin - 30);
+            gauge.maxValue = TMax + 30;
+            gauge.set(currentTemp);
+            return gauge;
+        }
+    }
+    function CreateWindGauge(canvasGaugeName, Speed1, Speed2, Speed3, currentSpeed) {
+        var opts = {
+            angle: -0.25,
+            lineWidth: 0.2,
+            radiusScale: 0.9,
+            pointer: {
+                length: 0.6,
+                strokeWidth: 0.05,
+                color: '#000000'
+            }/*,
+            staticLabels: {
+                font: "10px sans-serif",
+                labels: [200, 500, 2100, 2800],
+                fractionDigits: 0
+            }*/,
+            staticZones: [
+                { strokeStyle: "#0091ff", min: 0, max: Speed1 },
+                { strokeStyle: "#30B32D", min: Speed1, max: Speed2 },
+                { strokeStyle: "#FFDD00", min: Speed2, max: Speed3 },
+                { strokeStyle: "#F03E3E", min: Speed3, max: Speed3 + 10},
+            ],
+            limitMax: false,
+            limitMin: false,
+            highDpiSupport: true
+        };
+
+
+        var target = document.getElementById(canvasGaugeName);
+        if (target == null) {
+            console.log("Canvas gauge '" + canvasGaugeName + "' not found.");
+        } else {
+            var gauge = new Gauge(target).setOptions(opts);
+            gauge.setMinValue(0);
+            gauge.maxValue = Speed3 + 10;
+            gauge.set(currentSpeed);
+            return gauge;
+        }
+    }
+    function CreateIVTGauge(canvasGaugeName, TMin, TMax, currentTemp) {
+        var opts = {
+            angle: -0.25,
+            lineWidth: 0.2,
+            radiusScale: 0.9,
+            pointer: {
+                length: 0.6,
+                strokeWidth: 0.05,
+                color: '#000000'
+            }/*,
+            staticLabels: {
+                font: "10px sans-serif",
+                labels: [200, 500, 2100, 2800],
+                fractionDigits: 0
+            }*/,
+            staticZones: [
+                { strokeStyle: "#0091ff", min: TMin - 10, max: TMin },
+                { strokeStyle: "#30B32D", min: TMin, max: TMax },
+                { strokeStyle: "#F03E3E", min: TMax, max: TMax + 10 },
+            ],
+            limitMax: false,
+            limitMin: false,
+            highDpiSupport: true
+        };
+
+        var target = document.getElementById(canvasGaugeName);
+        if (target == null) {
+            console.log("Canvas gauge '" + canvasGaugeName + "' not found.");
+        } else {
+            var gauge = new Gauge(target).setOptions(opts);
+            gauge.setMinValue(TMin - 10);
+            gauge.maxValue = TMax + 10;
+            gauge.set(currentTemp);
+            return gauge;
+        }
+    }
+
+
 
 </script>

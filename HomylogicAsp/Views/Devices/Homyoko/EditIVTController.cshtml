@@ -18,56 +18,91 @@
             @Html.HiddenFor(m => m.DeviceType)
 
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Name" class="control-label">Name</label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Notice" class="control-label">Notice</label>
-                <textarea asp-for="Notice" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Notice" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IPAddress" class="control-label">IP address</label>
-                <input asp-for="IPAddress" class="form-control" />
-                <span asp-validation-for="IPAddress" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PortNumber" class="control-label">Port number</label>
-                <input asp-for="PortNumber" class="form-control" />
-                <span asp-validation-for="PortNumber" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PacketType" class="control-label">Packet type</label>
-                <select asp-for="PacketType" class="browser-default custom-select form-control">
-                    <option value="@X.Homylogic.Models.Objects.Devices.Homyoko.WeatherStation.PacketTypes.Version_1">Version 1.</option>
-                    <option value="@X.Homylogic.Models.Objects.Devices.Homyoko.WeatherStation.PacketTypes.Version_2">Version 2.</option>
-                </select>
-                <span asp-validation-for="PacketType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <div class="custom-control custom-checkbox">
-                    <input asp-for="WriteToBuffer" type="checkbox" class="custom-control-input" id="checkbox-writetobuffer">
-                    <label class="custom-control-label" for="checkbox-writetobuffer">Write to input buffer</label>
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="main-tab" data-toggle="tab" href="#main" role="tab" aria-controls="main" aria-selected="true">Main</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="customs-tab" data-toggle="tab" href="#customs" role="tab" aria-controls="customs" aria-selected="false">Customs</a>
+                </li>
+                <!--
+                <li class="nav-item">
+                    <a class="nav-link" id="contact-tab" data-toggle="tab" href="#contact" role="tab" aria-controls="contact" aria-selected="false">Contact</a>
+                </li>
+                -->
+            </ul>
+            <div class="tab-content" id="myTabContent">
+                <div class="tab-pane fade show active" id="main" role="tabpanel" aria-labelledby="main-tab" style="padding: 12px;">
+                    <div class="form-group">
+                        <label asp-for="Name" class="control-label">Name</label>
+                        <input asp-for="Name" class="form-control" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Notice" class="control-label">Notice</label>
+                        <textarea asp-for="Notice" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Notice" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="IPAddress" class="control-label">IP address</label>
+                        <input asp-for="IPAddress" class="form-control" />
+                        <span asp-validation-for="IPAddress" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PortNumber" class="control-label">Port number</label>
+                        <input asp-for="PortNumber" class="form-control" />
+                        <span asp-validation-for="PortNumber" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="PacketType" class="control-label">Packet type</label>
+                        <select asp-for="PacketType" class="browser-default custom-select form-control">
+                            <option value="@X.Homylogic.Models.Objects.Devices.Homyoko.WeatherStation.PacketTypes.Version_1">Version 1.</option>
+                            <option value="@X.Homylogic.Models.Objects.Devices.Homyoko.WeatherStation.PacketTypes.Version_2">Version 2.</option>
+                        </select>
+                        <span asp-validation-for="PacketType" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input asp-for="WriteToBuffer" type="checkbox" class="custom-control-input" id="checkbox-writetobuffer">
+                            <label class="custom-control-label" for="checkbox-writetobuffer">Write to input buffer</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input asp-for="CanAutoDataUpdate" type="checkbox" class="custom-control-input" id="checkbox-autodataupdate">
+                            <label class="custom-control-label" for="checkbox-autodataupdate">Auto open and reading</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input asp-for="ShowOnHome" type="checkbox" class="custom-control-input" id="checkbox-showonhome">
+                            <label class="custom-control-label" for="checkbox-showonhome">Show on home screen</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="custom-control custom-checkbox">
+                            <input asp-for="Disabled" type="checkbox" class="custom-control-input" id="checkbox-disabled">
+                            <label class="custom-control-label" for="checkbox-disabled">Disabled</label>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="form-group">
-                <div class="custom-control custom-checkbox">
-                    <input asp-for="CanAutoDataUpdate" type="checkbox" class="custom-control-input" id="checkbox-autodataupdate">
-                    <label class="custom-control-label" for="checkbox-autodataupdate">Auto open and reading</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="custom-control custom-checkbox">
-                    <input asp-for="ShowOnHome" type="checkbox" class="custom-control-input" id="checkbox-showonhome">
-                    <label class="custom-control-label" for="checkbox-showonhome">Show on home screen</label>
-                </div>
-            </div>
-            <div class="form-group">
-                <div class="custom-control custom-checkbox">
-                    <input asp-for="Disabled" type="checkbox" class="custom-control-input" id="checkbox-disabled">
-                    <label class="custom-control-label" for="checkbox-disabled">Disabled</label>
+                <div class="tab-pane fade" id="customs" role="tabpanel" aria-labelledby="customs-tab" style="padding: 12px;">
+                    <h4>Temperature</h4>
+                    <div class="form-group">
+                        <label asp-for="CustomsTemperature.Caption" class="control-label">Caption</label>
+                        <input asp-for="CustomsTemperature.Caption" class="form-control" />
+                        <span asp-validation-for="CustomsTemperature.Caption" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CustomsTemperature.Minimum" class="control-label">Minimum - Cold [°C]</label>
+                        <input asp-for="CustomsTemperature.Minimum" class="form-control" />
+                        <span asp-validation-for="CustomsTemperature.Minimum" class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="CustomsTemperature.Maximum" class="control-label">Maximum - Hot [°C]</label>
+                        <input asp-for="CustomsTemperature.Maximum" class="form-control" />
+                        <span asp-validation-for="CustomsTemperature.Maximum" class="text-danger"></span>
+                    </div>
                 </div>
             </div>
             <div class="form-group">

@@ -12,6 +12,10 @@ namespace HomylogicAsp.Models.Devices.Homyoko
         public WeatherStation.PacketTypes PacketType { get; set; }
         public bool WriteToBuffer { get; set; }
         public bool CanAutoDataUpdate { get; set; }
+        public WeatherStation.CustomsTemperatureValues CustomsTemperature1 { get; set; }
+        public WeatherStation.CustomsTemperatureValues CustomsTemperature2 { get; set; }
+        public WeatherStation.CustomsWindspeedValues CustomsWindspeed { get; set; }
+        public WeatherStation.CustomsSunshineValues CustomsSunshine { get; set; }
 
         public EditWeatherStationViewModel()
         {
@@ -37,6 +41,10 @@ namespace HomylogicAsp.Models.Devices.Homyoko
             weatherStation.PacketType = this.PacketType;
             weatherStation.WriteToBuffer = this.WriteToBuffer;
             weatherStation.CanAutoDataUpdate = this.CanAutoDataUpdate;
+            weatherStation.CustomsTemperature1 = this.CustomsTemperature1;
+            weatherStation.CustomsTemperature2 = this.CustomsTemperature2;
+            weatherStation.CustomsWindspeed = this.CustomsWindspeed;
+            weatherStation.CustomsSunshine = this.CustomsSunshine;
             return weatherStation;
         }
         private void SetViewModel(WeatherStation weatherStation) 
@@ -52,6 +60,10 @@ namespace HomylogicAsp.Models.Devices.Homyoko
             this.PacketType = weatherStation.PacketType;
             this.WriteToBuffer = weatherStation.WriteToBuffer;
             this.CanAutoDataUpdate = weatherStation.CanAutoDataUpdate;
+            this.CustomsTemperature1 = weatherStation.CustomsTemperature1;
+            this.CustomsTemperature2 = weatherStation.CustomsTemperature2;
+            this.CustomsWindspeed = weatherStation.CustomsWindspeed;
+            this.CustomsSunshine = weatherStation.CustomsSunshine;
         }
 
     }

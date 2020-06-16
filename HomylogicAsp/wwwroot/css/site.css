@@ -105,3 +105,13 @@ body {
     }
 }
 
+
+/* FONTS ------------------------------------------------------------*/
+@font-face {
+    font-family: digital7;
+    src: url(../fonts/digital-7/digital-7.ttf);
+}
+.font-digital7 {
+    font-family: digital7;
+    font-size: 2em;
+}
