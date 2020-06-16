@@ -16,6 +16,7 @@ using System.Globalization;
 using Newtonsoft.Json;
 using X.Data;
 using System.Threading;
+using System.Runtime.CompilerServices;
 
 namespace HomylogicAsp.Controllers
 {
@@ -287,6 +288,11 @@ namespace HomylogicAsp.Controllers
                     Wind = weatherStation.Windspeed.ToString(ci),
                     WindAvg = weatherStation.WindspeedAvg.ToString(ci),
                     Shine = weatherStation.SunshinePercent.ToString(ci),
+                    EdgeT1 = string.Format("{0}/{1}", weatherStation.EdgeTemperature1.Minimum.ToString(ci), weatherStation.EdgeTemperature1.Maximum.ToString(ci)),
+                    EdgeT2 = string.Format("{0}/{1}", weatherStation.EdgeTemperature2.Minimum.ToString(ci), weatherStation.EdgeTemperature2.Maximum.ToString(ci)),
+                    EdgeWind = string.Format("{0}/{1}", weatherStation.EdgeWindspeed.Minimum.ToString(ci), weatherStation.EdgeWindspeed.Maximum.ToString(ci)),
+                    EdgeWindAvg = string.Format("{0}/{1}", weatherStation.EdgeWindspeedAvg.Minimum.ToString(ci), weatherStation.EdgeWindspeedAvg.Maximum.ToString(ci)),
+                    EdgeShine = string.Format("{0}/{1}", weatherStation.EdgeSunshinePercent.Minimum.ToString(ci), weatherStation.EdgeSunshinePercent.Maximum.ToString(ci)),
                 };
                 return JsonConvert.SerializeObject(jsonData);
             }

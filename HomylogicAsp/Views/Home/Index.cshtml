@@ -102,6 +102,12 @@
                                     <td style="text-align:left">°C</td>
                                 </tr>
                                 <tr>
+                                    <td id="td-weather-t1-edge-@device.ID" style="text-align:right">@weatherStation.EdgeTemperature1.Minimum.ToString(ci)/@weatherStation.EdgeTemperature1.Maximum.ToString(ci)</td>
+                                    <td style="text-align:left">°C</td>
+                                    <td id="td-weather-t2-edge-@device.ID" style="text-align:right">@weatherStation.EdgeTemperature2.Minimum.ToString(ci)/@weatherStation.EdgeTemperature2.Maximum.ToString(ci)</td>
+                                    <td style="text-align:left">°C</td>
+                                </tr>
+                                <tr>
                                     <td colspan="4"><strong>Wind</strong></td>
                                 </tr>
                                 <tr>
@@ -119,11 +125,21 @@
                                     <td style="text-align:left">m/s</td>
                                 </tr>
                                 <tr>
+                                    <td id="td-weather-windspeed-edge-@device.ID" style="text-align:right">@weatherStation.EdgeWindspeed.Minimum.ToString(ci)/@weatherStation.EdgeWindspeed.Maximum.ToString(ci)</td>
+                                    <td style="text-align:left">m/s</td>
+                                    <td id="td-weather-windspeed-avg-edge-@device.ID" style="text-align:right">@weatherStation.EdgeWindspeedAvg.Minimum.ToString(ci)/@weatherStation.EdgeWindspeedAvg.Maximum.ToString(ci)</td>
+                                    <td style="text-align:left">m/s</td>
+                                </tr>
+                                <tr>
                                     <td colspan="4"><strong>Sunshine</strong></td>
                                 </tr>
                                 <tr>
                                     <td colspan="2">Sunshine:</td>
                                     <td id="td-weather-sunshine-@device.ID" style="text-align:right">@weatherStation.SunshinePercent.ToString(ci)</td>
+                                    <td style="text-align:left">%</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" id="td-weather-sunshine-edge-@device.ID" style="text-align:right">@weatherStation.EdgeSunshinePercent.Minimum.ToString(ci)/@weatherStation.EdgeSunshinePercent.Maximum.ToString(ci)</td>
                                     <td style="text-align:left">%</td>
                                 </tr>
                             </table>
@@ -246,6 +262,11 @@
                 $("#td-weather-windspeed-" + JSWeatherStationID).html(dataJson.Wind);
                 $("#td-weather-windspeed-avg-" + JSWeatherStationID).html(dataJson.WindAvg);
                 $("#td-weather-sunshine-" + JSWeatherStationID).html(dataJson.Shine);
+                $("#td-weather-t1-edge-" + JSWeatherStationID).html(dataJson.EdgeT1);
+                $("#td-weather-t2-edge-" + JSWeatherStationID).html(dataJson.EdgeT2);
+                $("#td-weather-windspeed-edge-" + JSWeatherStationID).html(dataJson.EdgeWind);
+                $("#td-weather-windspeed-avg-edge-" + JSWeatherStationID).html(dataJson.EdgeWindAvg);
+                $("#td-weather-sunshine-edge-" + JSWeatherStationID).html(dataJson.EdgeShine);
 
                 if (GaugeT1 != null) GaugeT1.set(dataJson.T1);
                 if (GaugeT2 != null) GaugeT2.set(dataJson.T2);

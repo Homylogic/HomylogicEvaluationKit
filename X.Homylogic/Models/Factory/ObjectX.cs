@@ -5,6 +5,7 @@
  * 
  * 
  */
+using Google.Protobuf.WellKnownTypes;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -26,6 +27,24 @@ namespace X.Homylogic.Models.Factory
         /// Plánovač uloh, umožňuje vykonanie akcií podľa zadaného času.
         /// </summary>
         public ScheduleList Scheduler { get; private set; }
+        /// <summary>
+        /// Class for sotring edge values.
+        /// </summary>
+        public class EdgeValues
+        {
+            public float Minimum { get; set; } = float.NaN;
+            public float Maximum { get; set; } = float.NaN;
+            public void Update(float value) 
+            {
+                if (float.IsNaN(this.Minimum) || value < this.Minimum) this.Minimum = value;
+                if (float.IsNaN(this.Maximum) || value > this.Maximum) this.Maximum = value;
+            }
+            public void Reset() 
+            {
+                this.Minimum = float.NaN;
+                this.Maximum = float.NaN;
+            }
+        }
 
         #region --- DATA PROPERTIES ---
 

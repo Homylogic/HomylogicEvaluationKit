@@ -54,6 +54,7 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
 
         bool _isClosed = true;
         bool _isDataReceived;
+        DateTime _edgeValuesReset;
 
         /// <summary>
         /// Dátum a čas posledného merania údajov zo vzdialenej metostanice.
@@ -145,6 +146,26 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
         /// Customs settings values for sunshine.
         /// </summary>
         public CustomsSunshineValues CustomsSunshine { get; set; }
+        /// <summary>
+        /// Min/Max temperature 1 for current day.
+        /// </summary>
+        public EdgeValues EdgeTemperature1 { get; private set; }
+        /// <summary>
+        /// Min/Max temperature 2 for current day.
+        /// </summary>
+        public EdgeValues EdgeTemperature2 { get; private set; }
+        /// <summary>
+        /// Min/Max current windspeed for current day.
+        /// </summary>
+        public EdgeValues EdgeWindspeed { get; private set; }
+        /// <summary>
+        /// Min/Max average windspeed for current day.
+        /// </summary>
+        public EdgeValues EdgeWindspeedAvg { get; private set; }
+        /// <summary>
+        /// Min/Max sunshine for current day.
+        /// </summary>
+        public EdgeValues EdgeSunshinePercent { get; private set; }
 
         #region --- DATA PROPERTIES ---
 
@@ -249,6 +270,11 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
             this.CustomsTemperature2 = new CustomsTemperatureValues() { Maximum = 40F };
             this.CustomsWindspeed = new CustomsWindspeedValues() { LightAir = 2, GentleBreeze = 7, StrongBreeze = 12 };
             this.CustomsSunshine = new CustomsSunshineValues() { Day = 30};
+            this.EdgeTemperature1 = new EdgeValues();
+            this.EdgeTemperature2 = new EdgeValues();
+            this.EdgeWindspeed = new EdgeValues();
+            this.EdgeWindspeedAvg = new EdgeValues();
+            this.EdgeSunshinePercent = new EdgeValues();
         }
         /// <summary>
         /// Otvorí komunikáciu na krátku dobu max. 1 sekunda a odošle príkaz pre načítanie údajov z meteostanice. 
@@ -377,6 +403,24 @@ g_again:
                         this.Windspeed = float.Parse(strWind, ci);
                         this.WindspeedAvg = float.Parse(strWindA, ci);
                         this.Sunshine = float.Parse(strShine);
+
+                        // Update edge min/max values
+                        if (DateTime.Now.Hour == 0 && _edgeValuesReset.Day != DateTime.Now.Day) {
+                            // Reset values at new day after midnight.
+                            _edgeValuesReset = DateTime.Now;
+                            this.EdgeTemperature1.Reset();
+                            this.EdgeTemperature2.Reset();
+                            this.EdgeWindspeed.Reset();
+                            this.EdgeWindspeedAvg.Reset();
+                            this.EdgeSunshinePercent.Reset();
+                        }
+                        else { 
+                            this.EdgeTemperature1.Update(this.Temperature1);
+                            this.EdgeTemperature2.Update(this.Temperature2);
+                            this.EdgeWindspeed.Update(this.Windspeed);
+                            this.EdgeWindspeedAvg.Update(this.WindspeedAvg);
+                            this.EdgeSunshinePercent.Update(this.SunshinePercent);
+                        }
                     }
                     catch (Exception ex)
                     {
