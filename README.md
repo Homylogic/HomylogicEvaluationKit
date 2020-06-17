@@ -10,7 +10,7 @@ Next plans:
 - Add users and more settings
 
 
-16.06.2020 - Version released - June/2020 beta
+16.06.2020 - June/2020 beta
 - Added gauges
 - MySQL is recommended database now
 
