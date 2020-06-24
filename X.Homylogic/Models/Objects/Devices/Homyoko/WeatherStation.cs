@@ -34,6 +34,7 @@
  * 
  * 
  */
+using Org.BouncyCastle.Math.EC.Multiplier;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -55,6 +56,13 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
         bool _isClosed = true;
         bool _isDataReceived;
         DateTime _edgeValuesReset;
+
+        // Previous values for filter incorrect new values.
+        float Previous_Temperature1 = float.NaN;
+        float Previous_Temperature2 = float.NaN;
+        float Previous_Windspeed = float.NaN;
+        float Previous_WindspeedAvg = float.NaN;
+        float Previous_Sunshine = float.NaN;
 
         /// <summary>
         /// Dátum a čas posledného merania údajov zo vzdialenej metostanice.
@@ -301,6 +309,13 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
         {
             _isClosed = true;
             base.Close();
+
+            // When manually closed, reset previous values.
+            this.Previous_Temperature1 = float.NaN;
+            this.Previous_Temperature2 = float.NaN;
+            this.Previous_Windspeed = float.NaN;
+            this.Previous_WindspeedAvg = float.NaN;
+            this.Previous_Sunshine = float.NaN;
         }
         /// <summary>
         /// Vlákno ktoré sa spustí po otvorení komunikácie, používa sa pre odoslanie packetu pre vykonanie príkazu pre načítanie údajov zo stanice verzia 1 (používa sa u Pala na stožiari).
@@ -398,13 +413,57 @@ g_again:
                     try
                     {
                         this.MeasureTime = DateTime.Now;
-                        this.Temperature1 = float.Parse(strTemp1, ci);
-                        this.Temperature2 = float.Parse(strTemp2, ci);
-                        this.Windspeed = float.Parse(strWind, ci);
-                        this.WindspeedAvg = float.Parse(strWindA, ci);
-                        this.Sunshine = float.Parse(strShine);
+                        float temperature1 = float.Parse(strTemp1, ci);
+                        float temperature2 = float.Parse(strTemp2, ci);
+                        float windspeed = float.Parse(strWind, ci);
+                        float windspeedAvg = float.Parse(strWindA, ci);
+                        float sunshine = float.Parse(strShine, ci);
 
-                        // Update edge min/max values
+                        // Filter incorrect values.
+                        if (!float.IsNaN(this.Previous_Temperature1)) {
+                            float diff = Math.Abs(temperature1 - this.Previous_Temperature1);
+                            if (diff < 10) this.Temperature1 = temperature1;
+                        }
+                        else {
+                            this.Temperature1 = temperature1;
+                        }
+                        if (!float.IsNaN(this.Previous_Temperature2)) {
+                            float diff = Math.Abs(temperature2 - this.Previous_Temperature2);
+                            if (diff < 10) this.Temperature2 = temperature2;
+                        }
+                        else {
+                            this.Temperature2 = temperature2;
+                        }
+                        if (!float.IsNaN(this.Previous_Windspeed)) {
+                            float diff = Math.Abs(windspeed - this.Previous_Windspeed);
+                            if (diff < 10) this.Windspeed = windspeed;
+                        }
+                        else {
+                            this.Windspeed = windspeed;
+                        }
+                        if (!float.IsNaN(this.Previous_WindspeedAvg)) {
+                            float diff = Math.Abs(windspeedAvg - this.Previous_WindspeedAvg);
+                            if (diff < 10) this.WindspeedAvg = windspeedAvg;
+                        }
+                        else {
+                            this.WindspeedAvg = windspeedAvg;
+                        }
+                        if (!float.IsNaN(this.Previous_Sunshine)) {
+                            float diff = Math.Abs(sunshine - this.Previous_Sunshine);
+                            if (diff < 10) this.Sunshine = sunshine;
+                        }
+                        else {
+                            this.Sunshine = sunshine;
+                        }
+
+                        // Update previous values for filter incorrect new values.
+                        this.Previous_Temperature1 = this.Temperature1;
+                        this.Previous_Temperature2 = this.Temperature2;
+                        this.Previous_Windspeed = this.Windspeed;
+                        this.Previous_WindspeedAvg = this.WindspeedAvg;
+                        this.Sunshine = this.Sunshine;
+
+                        // Update edge min/max values.
                         if (DateTime.Now.Hour == 0 && _edgeValuesReset.Day != DateTime.Now.Day) {
                             // Reset values at new day after midnight.
                             _edgeValuesReset = DateTime.Now;

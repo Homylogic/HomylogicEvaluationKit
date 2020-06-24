@@ -28,7 +28,7 @@ namespace X.Homylogic.Models.Factory
         /// </summary>
         public ScheduleList Scheduler { get; private set; }
         /// <summary>
-        /// Class for sotring edge values.
+        /// Class for storing edge values.
         /// </summary>
         public class EdgeValues
         {
