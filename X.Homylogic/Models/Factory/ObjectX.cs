@@ -139,7 +139,7 @@ namespace X.Homylogic.Models.Factory
         public ObjectX(bool canSchedule) 
         {
             if (canSchedule)
-                this.Scheduler = new ScheduleList(this.DBClient);
+                this.Scheduler = new ScheduleList(this.DBClient.Clone());
         }
     }
 }

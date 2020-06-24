@@ -60,29 +60,6 @@ namespace HomylogicAsp.Controllers
             }
             return RedirectToAction("Index");
         }
-        // POST: Home/TryAllowAccessSettings 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult TryAllowAccessSettings(DevicesViewModel devicesViewModel)
-        {
-            try
-            {
-                if (Body.Environment.Settings.Security.Password == devicesViewModel.PasswordAccess)
-                {
-                    Security.AllowUserAccess(this.HttpContext.Response);
-                    devicesViewModel.HasAccess = true;
-                }
-                else
-                {
-                    devicesViewModel.PasswordException = new Exception(); // Zobrazí že bolo zadané nesprávne heslo.
-                    Thread.Sleep(1000);
-                }
-            }
-            catch (Exception)
-            {
-            }
-            return View("Index", devicesViewModel);
-        }
         // GET: GetIsOpen
         public string GetIsOpen()
         {

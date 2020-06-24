@@ -7,7 +7,7 @@
     string versionDB = X.Homylogic.Models.Database.VERSION.ToString().Insert(1, ".");
     string serialNumber = X.Homylogic.SystemInfo.DeviceSerialNumber;
     string freeSpace = X.Basic.IO.Units.FormatSizeWithUnit(X.Homylogic.SystemInfo.FreeSpace());
-
+    X.App.Users.UserRecord CurrentUser = X.Homylogic.Body.Environment.Users.GetCurrentUser(ViewContext.HttpContext.Request.Cookies["AccessToken"]);
 }
 <h1>@ViewData["Title"]</h1>
 
@@ -33,6 +33,10 @@
         </tr>
     </tbody>
 </table>
+
+<br />
+<p>You are currently logged as user <strong>@CurrentUser.Name</strong>.</p>
+
 <hr />
 <input class="btn btn-info" type="button" onclick="location.href = '/Home/SSL'" value="Install SSL certificate" />
 

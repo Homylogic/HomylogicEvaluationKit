@@ -16,6 +16,8 @@ namespace X.Data.Providers
         readonly MySqlConnectionStringBuilder _connectionStringBuilder;
         readonly MySqlConnection _connection;
 
+        public MySqlConnectionStringBuilder ConnectionStringBuilder => _connectionStringBuilder;
+
         /// <summary>
         /// Inicializuje databázového klienta typu MySQl Server.
         /// </summary>

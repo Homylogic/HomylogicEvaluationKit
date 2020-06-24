@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using HomylogicAsp.Models;
 using X.Homylogic;
 using System.Threading;
+using HomylogicAsp.Models.Users;
+using System.Security.Authentication;
 
 namespace HomylogicAsp.Controllers
 {
@@ -30,6 +32,10 @@ namespace HomylogicAsp.Controllers
         public IActionResult About()
         {
             return View(new AboutViewModel());
+        }
+        public IActionResult UserLogIn(string url)
+        {
+            return View(new UserLogInViewModel() { TargetURL = url } );
         }
         public IActionResult SSL()
         {
@@ -60,12 +66,7 @@ namespace HomylogicAsp.Controllers
             try
             {
                 settingsViewModel.Settings.Home.BackgroundImage = settingsViewModel.Home_BackgroundImage;
-                if (settingsViewModel.Settings.Security.Password != settingsViewModel.Security_Password)
-                {
-                    // Password has been changed.
-                    Security.ResetAllAccess();
-                }
-                settingsViewModel.Settings.Security.Password = settingsViewModel.Security_Password;
+                settingsViewModel.Settings.Security.DefaultUserID = settingsViewModel.Security_DefaultUserID;
                 settingsViewModel.Settings.Save();
             }
             catch (Exception ex)
@@ -74,28 +75,34 @@ namespace HomylogicAsp.Controllers
             }
             return View("Settings", settingsViewModel);
         }
-        // POST: Home/TryAllowAccessSettings 
+        // POST: Home/UserLogIn 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult TryAllowAccessSettings(SettingsViewModel settingsViewModel)
+        public ActionResult UserLogIn(UserLogInViewModel userLogInViewModel)
         {
             try
             {
-                if (Body.Environment.Settings.Security.Password == settingsViewModel.PasswordAccess)
-                {
-                    Security.AllowUserAccess(this.HttpContext.Response);
-                    settingsViewModel.HasAccess = true;
+                if (string.IsNullOrEmpty(userLogInViewModel.Name)) throw new ArgumentNullException("User name is empty, can't login.");
+                if (Body.Environment.Users.LogIn(userLogInViewModel.Name, userLogInViewModel.Password)) {
+                    
+                    string accessToken = Body.Environment.Users.AddUserAccess(userLogInViewModel.Name);
+                    HttpContext.Response.Cookies.Append("AccessToken", accessToken);
+                    userLogInViewModel.AccessToken = accessToken;
+                    userLogInViewModel.Name = null;
+                    userLogInViewModel.Password = null;
+                    // Redirect to target URL after sucessfull login.
+                    if (!string.IsNullOrEmpty(userLogInViewModel.TargetURL))
+                        return LocalRedirect(userLogInViewModel.TargetURL);
                 }
                 else {
-                    settingsViewModel.SaveException = new Exception(); // Zobrazí že bolo zadané nesprávne heslo.
-                    Thread.Sleep(1000);
+                    userLogInViewModel.LogInException = new InvalidCredentialException("Invalid user password.");
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                userLogInViewModel.LogInException = ex;
             }
-            return View("Settings", settingsViewModel);
+            return View(userLogInViewModel);
         }
-
     }
 }

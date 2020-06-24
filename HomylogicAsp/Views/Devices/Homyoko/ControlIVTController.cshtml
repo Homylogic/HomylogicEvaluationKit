@@ -6,7 +6,14 @@
     bool CanWriteToBuffer = false;
     DeviceX device = (DeviceX)X.Homylogic.Body.Runtime.Devices.FindDataRecord(deviceID);
     CanWriteToBuffer = device.WriteToBuffer;
+
+    X.App.Users.UserRecord CurrentUser = X.Homylogic.Body.Environment.Users.GetCurrentUser(ViewContext.HttpContext.Request.Cookies["AccessToken"]);
+    bool UserCanControl = ((X.Homylogic.Models.Users.HomylogicPrivilegeList)CurrentUser.Privileges).Devices.CanControlID(deviceID);
+    if (CurrentUser.IsAdmin) UserCanControl = true;
+
 }
+
+
 
 <input class="btn btn-primary" type="button" onclick="location.href = '/Devices/HistoryIVTController/@deviceID'" value="History" />
 <input class="btn btn-primary" type="button" onclick="location.href = '/Schedule/IVTController/@deviceID'" value="Scheduler" />
@@ -14,14 +21,24 @@
 
 <div>
     <p><strong>Heating</strong></p>
-    <input class="btn btn-success" type="button" onclick="OnHeatOn()" value="On" />
-    <input class="btn btn-danger" type="button" onclick="OnHeatOff()" value="Off" />&nbsp;&nbsp;<label id="IVTStatus"></label>
+    @if (UserCanControl) {
+        <input class="btn btn-success" type="button" onclick="OnHeatOn()" value="On" />
+        <input class="btn btn-danger" type="button" onclick="OnHeatOff()" value="Off" /><label id="IVTStatus"></label>
+    }
+    else { 
+        <p>User <strong>@CurrentUser.Name</strong> has not allowed permission.</p>
+    }
 </div>
 <br />
 <div>
     <p><strong>Pumps</strong></p>
-    <input class="btn btn-success" type="button" onclick="OnPumpOn()" value="On" />
-    <input class="btn btn-danger" type="button" onclick="OnPumpOff()" value="Off" />&nbsp;&nbsp;<label id="PumpStatus"></label>
+    @if (UserCanControl) {
+        <input class="btn btn-success" type="button" onclick="OnPumpOn()" value="On" />
+        <input class="btn btn-danger" type="button" onclick="OnPumpOff()" value="Off" /><label id="PumpStatus"></label>
+    }
+    else { 
+        <p>User <strong>@CurrentUser.Name</strong> has not allowed permission.</p>
+    }
 </div>
 <div>
     <label id="Problem" class="text-danger"></label>
@@ -44,43 +61,6 @@
             setInterval(AutoRefreshState, 3000);
         OnGetInputBufferTable();
     });
-    function OnHeatOn() {
-        $("#IVTStatus").text("IVT is turning on ...");
-        $.get('/Devices/ControlIVTControllerHeatOn/' + deviceID, function (data) {
-            if (data != "OK") {
-                $("#IVTStatus").text("");
-                $("#Result").text(data);
-            }
-        });
-    }
-    function OnHeatOff() {
-        $("#IVTStatus").text("IVT is turning off ...");
-        $.get('/Devices/ControlIVTControllerHeatOff/' + deviceID, function (data) {
-            if (data != "OK")
-            {
-                $("#IVTStatus").text("");
-                $("#Result").text(data);
-            }
-        });
-    }
-    function OnPumpOn() {
-        $("#PumpStatus").text("Pumps is turning on ...");
-        $.get('/Devices/ControlIVTControllerPumpOn/' + deviceID, function (data) {
-            if (data != "OK") {
-                $("#PumpStatus").text("");
-                $("#Result").text(data);
-            }
-        });
-    }
-    function OnPumpOff() {
-        $("#PumpStatus").text("Pumps is turning off ...");
-        $.get('/Devices/ControlIVTControllerPumpOff/' + deviceID, function (data) {
-            if (data != "OK") {
-                $("#PumpStatus").text("");
-                $("#Result").text(data);
-            }
-        });
-    }
     function AutoRefreshState() {
         $.get('/Devices/GetControlStatusIVTController/' + deviceID, function (data) {
             if (data == null) return;
@@ -108,3 +88,44 @@
         });
     }
 </script>
+
+@if (UserCanControl) { 
+    <script>
+        function OnHeatOn() {
+            $("#IVTStatus").text("IVT is turning on ...");
+            $.get('/Devices/ControlIVTControllerHeatOn/' + deviceID, function (data) {
+                if (data != "OK") {
+                    $("#IVTStatus").text("");
+                    $("#Result").text(data);
+                }
+            });
+        }
+        function OnHeatOff() {
+            $("#IVTStatus").text("IVT is turning off ...");
+            $.get('/Devices/ControlIVTControllerHeatOff/' + deviceID, function (data) {
+                if (data != "OK") {
+                    $("#IVTStatus").text("");
+                    $("#Result").text(data);
+                }
+            });
+        }
+        function OnPumpOn() {
+            $("#PumpStatus").text("Pumps is turning on ...");
+            $.get('/Devices/ControlIVTControllerPumpOn/' + deviceID, function (data) {
+                if (data != "OK") {
+                    $("#PumpStatus").text("");
+                    $("#Result").text(data);
+                }
+            });
+        }
+        function OnPumpOff() {
+            $("#PumpStatus").text("Pumps is turning off ...");
+            $.get('/Devices/ControlIVTControllerPumpOff/' + deviceID, function (data) {
+                if (data != "OK") {
+                    $("#PumpStatus").text("");
+                    $("#Result").text(data);
+                }
+            });
+        }
+    </script>
+}

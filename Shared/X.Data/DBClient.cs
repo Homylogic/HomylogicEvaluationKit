@@ -4,6 +4,7 @@
  * Obsahuje základné funkcie pre prácu s databázov.
  * 
  */
+using MySql.Data.MySqlClient;
 using System;
 using System.Data.Common;
 using X.Data.Providers;
@@ -83,6 +84,23 @@ namespace X.Data
         /// </summary>
         /// <param name="tableName">Názov tabuľky.</param>
         public bool IsTableExist(string tableName) { return _clientProvider.IsTableExist(tableName); }
+
+        /// <summary>
+        /// Returns new DBClient object, with new connection object.
+        /// </summary>
+        public DBClient Clone() 
+        {
+            switch (this.ClientType) 
+            {
+                case ClientTypes.Sqlite:
+                    return new DBClient(((SqliteClient)_clientProvider).ConnectionStringBuilder.DataSource);
+
+                case ClientTypes.MySql:
+                    MySqlConnectionStringBuilder connectionStringBuilder = ((MySqlClient)_clientProvider).ConnectionStringBuilder;
+                    return new DBClient(connectionStringBuilder.Server, connectionStringBuilder.UserID, connectionStringBuilder.Password, connectionStringBuilder.Database);
+            }
+            throw new InvalidOperationException("Unknown database provider.");
+        }
 
         /// <summary>
         /// Zatvorenie objektu.

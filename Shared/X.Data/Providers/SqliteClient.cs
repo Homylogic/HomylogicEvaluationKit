@@ -10,11 +10,13 @@ using Microsoft.Data.Sqlite;
 
 namespace X.Data.Providers
 {
-    public sealed class SqliteClient : 
+    public sealed class SqliteClient :
         IDBClient
     {
         readonly SqliteConnectionStringBuilder _connectionStringBuilder;
         readonly SqliteConnection _connection;
+
+        public SqliteConnectionStringBuilder ConnectionStringBuilder => _connectionStringBuilder;
 
         /// <summary>
         /// Inicializuje databázového klienta typu SQLite Server.

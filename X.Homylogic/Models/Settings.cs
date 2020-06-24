@@ -32,9 +32,9 @@ namespace X.Homylogic.Models
         public sealed class SecuritySettings
         {
             /// <summary>
-            /// Heslo pre prístup k nastaveniam a runtime.
+            /// Default user, defines user for access to application without login, usually guest.
             /// </summary>
-            public String Password { get; set; } = null;
+            public Int64 DefaultUserID { get; set; } = 1;
         }
 
         #endregion
@@ -91,7 +91,7 @@ namespace X.Homylogic.Models
         {
             switch (settingsRecord.Key)
             {
-                case "password": this.Security.Password = settingsRecord.Value.Text; break;
+                case "default_user": this.Security.DefaultUserID = settingsRecord.Value.Int64; break;
             }
         }
         private void SaveHomeSettings(Hashtable hashtable)
@@ -105,9 +105,9 @@ namespace X.Homylogic.Models
         private void SaveSecuritySettings(Hashtable hashtable)
         {
             SettingsRecord settingsRecord;
-            // Password
-            settingsRecord = this.GetSettingsRecord(hashtable, "security", "password");
-            settingsRecord.Value.SetValue(this.Security.Password);
+            // DefaultUserName
+            settingsRecord = this.GetSettingsRecord(hashtable, "security", "default_user");
+            settingsRecord.Value.SetValue(this.Security.DefaultUserID);
             settingsRecord.Save();
         }
         private SettingsRecord GetSettingsRecord(Hashtable hashtable, string section, string key) 

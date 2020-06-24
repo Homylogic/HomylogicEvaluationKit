@@ -107,7 +107,7 @@ namespace HomylogicAsp
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("OK");
 
-            // * * * LOADIN APPLICATION ENVIRONMENT * * *
+            // * * * LOADING APPLICATION ENVIRONMENT * * *
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("Loading environment ...");
             try
@@ -130,6 +130,23 @@ namespace HomylogicAsp
             try
             {
                 Body.Runtime.Load();
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Error");
+                Console.WriteLine(ex.Message);
+                goto g_skipInit;
+            }
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("OK");
+
+            // * * * LOADING APPLICATION ENVIRONMENT USERS * * *
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.Write("Loading users ...");
+            try
+            {
+                Body.Environment.LoadUsers();
             }
             catch (Exception ex)
             {

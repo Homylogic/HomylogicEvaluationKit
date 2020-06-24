@@ -104,6 +104,12 @@ body {
         max-width: 18rem;
     }
 }
+@media (min-width: 768px) {
+    .card {
+        align-self: flex-start; /* Automatická výška karty podľa veľkosti obsahu */
+    }
+}
+
 
 
 /* FONTS ------------------------------------------------------------*/
@@ -111,6 +117,7 @@ body {
     font-family: digital7;
     src: url(../fonts/digital-7/digital-7.ttf);
 }
+
 .font-digital7 {
     font-family: digital7;
     font-size: 2em;

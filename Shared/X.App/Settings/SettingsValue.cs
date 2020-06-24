@@ -24,13 +24,42 @@ namespace X.App.Settings
         {
             get 
             {
-                if (string.IsNullOrEmpty(_value)) return 0;
-                CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-                ci.NumberFormat.NumberDecimalSeparator = ".";
-                ci.NumberFormat.NegativeSign = "-";
-                ci.NumberFormat.NumberGroupSeparator = "";
-                return Int32.Parse(_value, ci);
+                try
+                {
+                    if (string.IsNullOrEmpty(_value)) return 0;
+                    CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
+                    ci.NumberFormat.NumberDecimalSeparator = ".";
+                    ci.NumberFormat.NegativeSign = "-";
+                    ci.NumberFormat.NumberGroupSeparator = "";
+                    return Int32.Parse(_value, ci);
+                }
+                catch (Exception)
+                {
+                    return 0;
+                }
             }    
+        }
+        /// <summary>
+        /// Vráti celočíslenú hodnotu.
+        /// </summary>
+        public Int64 Int64
+        {
+            get
+            {
+                try
+                {
+                    if (string.IsNullOrEmpty(_value)) return 0;
+                    CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
+                    ci.NumberFormat.NumberDecimalSeparator = ".";
+                    ci.NumberFormat.NegativeSign = "-";
+                    ci.NumberFormat.NumberGroupSeparator = "";
+                    return Int64.Parse(_value, ci);
+                }
+                catch (Exception)
+                {
+                    return 0;
+                }
+            }
         }
         /// <summary>
         /// Nastavenie textovej hodnoty.
@@ -46,6 +75,17 @@ namespace X.App.Settings
             ci.NumberFormat.NegativeSign = "-";
             ci.NumberFormat.NumberGroupSeparator = "";
             _value = number.ToString(ci); 
+        }
+        /// <summary>
+        /// Nastavenie celočíslenú hodnoty.
+        /// </summary>
+        public void SetValue(Int64 number)
+        {
+            CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
+            ci.NumberFormat.NumberDecimalSeparator = ".";
+            ci.NumberFormat.NegativeSign = "-";
+            ci.NumberFormat.NumberGroupSeparator = "";
+            _value = number.ToString(ci);
         }
     }
 }

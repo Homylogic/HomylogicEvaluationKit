@@ -4,9 +4,21 @@
 
 @{
     ViewData["Title"] = "Triggers";
+    X.App.Users.UserRecord CurrentUser = X.Homylogic.Body.Environment.Users.GetCurrentUser(ViewContext.HttpContext.Request.Cookies["AccessToken"]);
 }
 
 <h1>@ViewData["Title"]</h1>
+@if (!CurrentUser.IsAdmin && !((X.Homylogic.Models.Users.HomylogicPrivilegeList)CurrentUser.Privileges).Triggers.TriggerList)
+{
+    <p>User <strong>@CurrentUser.Name</strong> has not allowed permission.</p>
+    <input class="btn btn-primary" type="button" onclick="OnLogInClick()" value="Switch user" />
+    <script>
+        function OnLogInClick() {
+            window.location = "/Home/UserLogIn?url=/Triggers";
+        }
+    </script>
+    return;
+}
 
 
 <div class="d-flex p-2 bd-highlight">
@@ -36,7 +48,7 @@
             @for (int i = 0; i < ViewData.Model.TriggerList.List.Count; i++)
             {
                 TriggerX trigger = (TriggerX)ViewData.Model.TriggerList.List[i];
-            
+
                 string className = "clickable-row";
 
                 if (trigger.ID == ViewData.Model.SelectedID)

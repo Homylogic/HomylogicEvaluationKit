@@ -13,15 +13,10 @@ namespace X.Homylogic.Models.Factory
 {
     public abstract class ObjectXList : X.Data.Factory.DataList
     {
-
         #region --- DATA LIST ---
 
-        /// <summary>
-        /// Nastavit pripojenie k DB tohoto programu.
-        /// </summary>
         public override DBClient DBClient => Body.Database.DBClient;
 
         #endregion
-
     }
 }

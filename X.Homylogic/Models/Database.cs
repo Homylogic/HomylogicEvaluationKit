@@ -13,6 +13,7 @@ using X.Data;
 using X.App;
 using X.Homylogic.Models.Objects;
 using X.App.Logs;
+using X.App.Users;
 using X.App.Settings;
 
 namespace X.Homylogic.Models
@@ -160,6 +161,11 @@ namespace X.Homylogic.Models
             _dbClient.ExecuteNonQuery($"INSERT INTO main (version) VALUES ({VERSION})");
 
             // -- Environment --
+            // Users
+            UserList.CreateTable(_dbClient);
+            PrivilegeList.CreateTable(_dbClient);
+            Users.CreateUsers(_dbClient);
+
             // Settings
             SettingsList.CreateTable(_dbClient);
 
@@ -172,7 +178,6 @@ namespace X.Homylogic.Models
             DeviceXList.CreateTable(_dbClient);
             // Schedule
             Schedule.ScheduleList.CreateTable(_dbClient);
-
         }
 
 

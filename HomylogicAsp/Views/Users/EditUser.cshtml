@@ -1,0 +1,128 @@
+﻿@model HomylogicAsp.Models.Users.EditUserViewModel
+@{
+    ViewData["Title"] = "Users";
+    if (ViewData.Model.ID == 0) {
+        ViewData["SubTitle"] = "Add new user";
+
+        // Initialize default editing permissions.
+        if (ViewData.Model.PermissionValues == null) {
+            X.Homylogic.Models.Users.HomylogicPrivilegeList privilegeList = new X.Homylogic.Models.Users.HomylogicPrivilegeList();
+            ViewData.Model.PermissionValues = privilegeList.EditPermissionsRead();
+        }
+    } else
+        ViewData["SubTitle"] = "Edit user";
+
+}
+
+<h1>@ViewData["Title"]</h1>
+<h4><img id="navigate-back" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Save">
+            @Html.HiddenFor(m => m.ID)
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label">Name</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            @if (ViewData.Model.ID != 1) { // Guest is always without password.
+                <div class="form-group">
+                    <label asp-for="Password" class="control-label">Password</label>
+                    <input asp-for="Password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+            }
+            @if (ViewData.Model.ID != 1) { // Guest can't be superuser.
+                <div class="form-group">
+                    <div class="custom-control custom-checkbox">
+                        @if (ViewData.Model.ID == 2) { // Admin user is always superadmin (check is disabled).
+                            <input asp-for="IsAdmin" type="checkbox" class="custom-control-input" id="checkbox-isAdmin" disabled>
+                            @Html.HiddenFor(m => m.IsAdmin)
+                        }
+                        else
+                        {
+                            <input asp-for="IsAdmin" type="checkbox" class="custom-control-input" id="checkbox-isAdmin" onchange="OnCheckedChangedIsAdmin(this)">
+                        }
+                        <label class="custom-control-label" for="checkbox-isAdmin">Administrator</label>
+                    </div>
+                </div>
+            }
+            @if (ViewData.Model.ID == 0 || ViewData.Model.ID > 2) { // Disabled is not allowed for guest and admin.
+                <div class="form-group">
+                    <div class="custom-control custom-checkbox">
+                        <input asp-for="Disabled" type="checkbox" class="custom-control-input" id="checkbox-disabled">
+                        <label class="custom-control-label" for="checkbox-disabled">Disabled</label>
+                    </div>
+                </div>
+            }
+            <div id="privileges" class="form-group">
+                <input class="btn btn-outline-secondary" type="button" onclick="OnClickExpander('expander-panel-privileges')" value="Privileges" />
+                <div id="expander-panel-privileges" style="display: none">
+                    @for (int i = 0; i < ViewData.Model.PermissionValues.Count; i++)
+                    {
+                        @Html.HiddenFor(m => m.PermissionValues[i].Caption); // !!! Important for correct working (otherwise are permissions always empty).
+                        @Html.HiddenFor(m => m.PermissionValues[i].Key); // Required for EditPermissionsSave().
+
+                        X.App.Users.PrivilegeList.EditPermissionValues permission = ViewData.Model.PermissionValues[i];
+                        if (permission.IsCategory)
+                        {
+                            <h4>@permission.Caption</h4>
+                            continue;
+                        }
+                        if (permission.IsSubCategory)
+                        {
+                            <h5>@permission.Caption</h5>
+                            continue;
+                        }
+                        if (permission.ValueType == X.App.Users.PrivilegeList.EditPermissionValues.ValueTypes.Boolean)
+                        {
+                            string checkId = $"checkbox-{permission.Key}";
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input asp-for="PermissionValues[i].ValueBool" type="checkbox" class="custom-control-input" id="@checkId">
+                                    <label class="custom-control-label" for="@checkId">@permission.Caption</label>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <div class="form-group">
+                @if (ViewData.Model.SaveException != null)
+                {
+                    <label class="control-label text-danger">@ViewData.Model.SaveException.Message</label><br>
+                }
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        var checkBox = document.getElementById("checkbox-isAdmin");
+        OnCheckedChangedIsAdmin(checkBox);
+    });
+    function OnCheckedChangedIsAdmin(checkBox)
+    {
+        var x = document.getElementById("privileges");
+        if (checkBox.checked) {
+            x.style.display = "none";
+        } else {
+            x.style.display = "block";
+        }
+    }
+</script>

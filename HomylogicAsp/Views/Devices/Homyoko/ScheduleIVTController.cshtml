@@ -19,15 +19,16 @@
     // Načítanie zoznamu pložiek plánovača.
     ivtController.Scheduler.LoadData();
 
-    bool HasUserAccess = Security.HasUserAccess(ViewContext.HttpContext.Request);
+    X.App.Users.UserRecord CurrentUser = X.Homylogic.Body.Environment.Users.GetCurrentUser(ViewContext.HttpContext.Request.Cookies["AccessToken"]);
+    bool UserCanEdit = ((X.Homylogic.Models.Users.HomylogicPrivilegeList)CurrentUser.Privileges).Devices.DeviceList;
+    if (CurrentUser.IsAdmin) UserCanEdit = true;
 
 }
 
 <h1>@ViewData["Title"]</h1>
 <h4><img onclick="OnNavigateBack()" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
 
-@if (HasUserAccess) 
-{ 
+@if (UserCanEdit) { 
     <div class="d-flex p-2 bd-highlight">
         <input class="btn btn-primary flex-margin" type="button" onclick="OnAddClick()" value="Add" />
         <input class="btn btn-primary flex-margin" type="button" onclick="OnEditClick()" value="Edit" />
@@ -114,20 +115,25 @@
             document.cookie = "SelectedScheduleID=" + SelectedRowID;
         });
     });
-    function OnAddClick()
-    {
-        window.location = "/Schedule/CreateIVTController/" + @ViewData.Model.OwnerID;
-    }
-    function OnEditClick()
-    {
-        window.location = "/Schedule/EditIVTController/" + @ViewData.Model.OwnerID + "?scheduleID=" + SelectedRowID;
-    }
-    function OnDeleteClick()
-    {
-        window.location = "/Schedule/DeleteIVTController/" + @ViewData.Model.OwnerID + "?scheduleID=" + SelectedRowID;
-    }
     function OnNavigateBack()
     {
         window.location = "/Devices/DeviceControls/" + @ViewData.Model.OwnerID;
     }
 </script>
+
+@if (UserCanEdit) { 
+    <script>
+        function OnAddClick()
+        {
+            window.location = "/Schedule/CreateIVTController/" + @ViewData.Model.OwnerID;
+        }
+        function OnEditClick()
+        {
+            window.location = "/Schedule/EditIVTController/" + @ViewData.Model.OwnerID + "?scheduleID=" + SelectedRowID;
+        }
+        function OnDeleteClick()
+        {
+            window.location = "/Schedule/DeleteIVTController/" + @ViewData.Model.OwnerID + "?scheduleID=" + SelectedRowID;
+        }
+    </script>
+}

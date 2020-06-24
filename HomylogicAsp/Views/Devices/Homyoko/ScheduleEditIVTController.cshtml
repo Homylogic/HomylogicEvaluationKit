@@ -8,11 +8,18 @@
 
     List<KeyValuePair<string, string>> Actions = ViewData.Model.GetDeviceActions();
 
+    X.App.Users.UserRecord CurrentUser = X.Homylogic.Body.Environment.Users.GetCurrentUser(ViewContext.HttpContext.Request.Cookies["AccessToken"]);
 }
 
 <h1>@ViewData["Title"]</h1>
 <h4><img id="navigate-back" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
 <hr />
+
+@if (!CurrentUser.IsAdmin && !((X.Homylogic.Models.Users.HomylogicPrivilegeList)CurrentUser.Privileges).Devices.DeviceList)
+{
+    <p>User <strong>@CurrentUser.Name</strong> has not allowed permission.</p>
+    return;
+}
 
 <div class="row">
     <div class="col-md-4">

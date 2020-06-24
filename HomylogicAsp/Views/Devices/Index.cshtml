@@ -4,35 +4,23 @@
 
 @{
     ViewData["Title"] = "Devices";
-
-    bool HasUserAccess = ViewData.Model.HasAccess;
-    if (!HasUserAccess)
-        HasUserAccess = Security.HasUserAccess(ViewContext.HttpContext.Request);
+    X.App.Users.UserRecord CurrentUser = X.Homylogic.Body.Environment.Users.GetCurrentUser(ViewContext.HttpContext.Request.Cookies["AccessToken"]);
 }
 
 <h1>@ViewData["Title"]</h1>
 
-@if (!HasUserAccess)
+@if (!CurrentUser.IsAdmin && !((X.Homylogic.Models.Users.HomylogicPrivilegeList)CurrentUser.Privileges).Devices.DeviceList)
 {
-    <form asp-controller="Devices" asp-action="TryAllowAccessSettings">
-        <div class="form-group row">
-            <label asp-for="PasswordAccess" class="col-sm-2 col-form-label">Password</label>
-            <div class="col-sm-3">
-                <input asp-for="PasswordAccess" class="form-control" />
-                @if (ViewData.Model.PasswordException != null)
-                {
-                    <span asp-validation-for="PasswordAccess" class="text-danger">Password is not valid.</span>
-                }
-                else
-                {
-                    <span asp-validation-for="PasswordAccess" class="text-danger"></span>
-                }
-            </div>
-        </div>
-        <input type="submit" value="OK" class="btn btn-primary" />
-    </form>
+    <p>User <strong>@CurrentUser.Name</strong> has not allowed permission.</p>
+    <input class="btn btn-primary" type="button" onclick="OnLogInClick()" value="Switch user" />
+    <script>
+        function OnLogInClick() {
+            window.location = "/Home/UserLogIn?url=/Devices";
+        }
+    </script>
     return;
 }
+
 
 <div class="d-flex p-2 bd-highlight">
     <input class="btn btn-primary flex-margin" type="button" onclick="OnAddClick()" value="Add" />

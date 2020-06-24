@@ -38,7 +38,7 @@ namespace X.App.Settings
             sql.Append(")");
             dbClient.ExecuteNonQuery(sql.ToString());
             sql.Clear();
-            sql.CreateIndex("userID", "userID", SettingsRecord.TABLE_NAME);
+            sql.CreateIndex("userID_settings", "userID", SettingsRecord.TABLE_NAME);
             dbClient.ExecuteNonQuery(sql.ToString());
         } 
 

@@ -1,0 +1,54 @@
+﻿@model HomylogicAsp.Models.Users.UserLogInViewModel
+
+@using X.Homylogic.Models;
+
+@{
+    ViewData["Title"] = "User login";
+
+    string accessToken = ViewData.Model.AccessToken;
+    if (string.IsNullOrEmpty(accessToken))
+        accessToken = ViewContext.HttpContext.Request.Cookies["AccessToken"];
+    X.App.Users.UserRecord CurrentUser = X.Homylogic.Body.Environment.Users.GetCurrentUser(accessToken);
+
+}
+<h1>@ViewData["Title"]</h1>
+<p>You are currently logged as user <strong>@CurrentUser.Name</strong>.</p>
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-controller="Home" asp-action="UserLogIn">
+            @Html.HiddenFor(m => m.TargetURL)
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label">Name</label>
+                <select asp-for="Name" class="browser-default custom-select form-control">
+                    @for (int i = 0; i < ViewData.Model.UserList.List.Count; i++)
+                    {
+                        X.App.Users.UserRecord user = (X.App.Users.UserRecord)ViewData.Model.UserList.List[i];
+                        if (user.Disabled) continue;
+                        <option value="@user.Name">@user.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Password" class="control-label">Password</label>
+                <input type="password" asp-for="Password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                @if (ViewData.Model.LogInException != null)
+                {
+                    <label class="control-label text-danger">@ViewData.Model.LogInException.Message</label><br>
+                }
+                <input type="submit" value="Log in" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
