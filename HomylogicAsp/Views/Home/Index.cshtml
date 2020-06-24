@@ -75,74 +75,76 @@
                     string T1Caption = string.IsNullOrEmpty(weatherStation.CustomsTemperature1.Caption) ? "Temperature 1" : weatherStation.CustomsTemperature1.Caption;
                     string T2Caption = string.IsNullOrEmpty(weatherStation.CustomsTemperature2.Caption) ? "Temperature 2" : weatherStation.CustomsTemperature2.Caption;
 
-                    <div class="card card-width card-clickable shadow" onclick="OnClickHistoryWeatherStation(@device.ID)">
+                    <div class="card card-fullwidth card-clickable shadow" onclick="OnClickHistoryWeatherStation(@device.ID)">
                         <div class="card-header">
                             <strong>@device.Name</strong>
                         </div>
                         <div class="card-body">
-                            <table style="width: 100%">
-                                <tr>
-                                    <td colspan="4" id="td-weather-time-@device.ID" class="font-digital7">@weatherStation.MeasureTime.ToString("HH:mm:ss")</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="4"><strong>Temperature</strong></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">@T1Caption</td>
-                                    <td colspan="2">@T2Caption</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2"><canvas id="gauge-t1-@device.ID" width="100" height="100"></canvas></td>
-                                    <td colspan="2"><canvas id="gauge-t2-@device.ID" width="100" height="100"></canvas></td>
-                                </tr>
-                                <tr>
-                                    <td id="td-weather-t1-@device.ID" style="text-align:right">@weatherStation.Temperature1.ToString(ci)</td>
-                                    <td style="text-align:left">°C</td>
-                                    <td id="td-weather-t2-@device.ID" style="text-align:right">@weatherStation.Temperature2.ToString(ci)</td>
-                                    <td style="text-align:left">°C</td>
-                                </tr>
-                                <tr>
-                                    <td id="td-weather-t1-edge-@device.ID" style="text-align:right">@weatherStation.EdgeTemperature1.Minimum.ToString(ci)/@weatherStation.EdgeTemperature1.Maximum.ToString(ci)</td>
-                                    <td style="text-align:left">°C</td>
-                                    <td id="td-weather-t2-edge-@device.ID" style="text-align:right">@weatherStation.EdgeTemperature2.Minimum.ToString(ci)/@weatherStation.EdgeTemperature2.Maximum.ToString(ci)</td>
-                                    <td style="text-align:left">°C</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="4"><strong>Wind</strong></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">actual</td>
-                                    <td colspan="2">average 30min</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2"><canvas id="gauge-wind-@device.ID" width="100" height="100"></canvas></td>
-                                    <td colspan="2"><canvas id="gauge-windAvg-@device.ID" width="100" height="100"></canvas></td>
-                                </tr>
-                                <tr>
-                                    <td id="td-weather-windspeed-@device.ID" style="text-align:right">@weatherStation.Windspeed.ToString(ci)</td>
-                                    <td style="text-align:left">m/s</td>
-                                    <td id="td-weather-windspeed-avg-@device.ID" style="text-align:right">@weatherStation.WindspeedAvg.ToString(ci)</td>
-                                    <td style="text-align:left">m/s</td>
-                                </tr>
-                                <tr>
-                                    <td id="td-weather-windspeed-edge-@device.ID" style="text-align:right">@weatherStation.EdgeWindspeed.Minimum.ToString(ci)/@weatherStation.EdgeWindspeed.Maximum.ToString(ci)</td>
-                                    <td style="text-align:left">m/s</td>
-                                    <td id="td-weather-windspeed-avg-edge-@device.ID" style="text-align:right">@weatherStation.EdgeWindspeedAvg.Minimum.ToString(ci)/@weatherStation.EdgeWindspeedAvg.Maximum.ToString(ci)</td>
-                                    <td style="text-align:left">m/s</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="4"><strong>Sunshine</strong></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">Sunshine:</td>
-                                    <td id="td-weather-sunshine-@device.ID" style="text-align:right">@weatherStation.SunshinePercent.ToString(ci)</td>
-                                    <td style="text-align:left">%</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="3" id="td-weather-sunshine-edge-@device.ID" style="text-align:right">@weatherStation.EdgeSunshinePercent.Minimum.ToString(ci)/@weatherStation.EdgeSunshinePercent.Maximum.ToString(ci)</td>
-                                    <td style="text-align:left">%</td>
-                                </tr>
-                            </table>
+                            <div>
+                                <label id="lbl-weather-time-@device.ID" class="font-digital7">@weatherStation.MeasureTime.ToString("HH:mm:ss")</label>
+                            </div>                                                        
+                            <div style="display: flex; flex-wrap: wrap; justify-content: space-around;">
+                                <div style="display: inline-block; min-width: 300px;">
+                                    <p style="font-size: large;"><strong>Temperature</strong></p>
+                                    <div style="display: inline-block">
+                                        <p>@T1Caption</p>
+                                        <canvas id="gauge-t1-@device.ID" style="display: block" width="100" height="100"></canvas>
+                                        <div>
+                                            <label id="lbl-weather-t1-@device.ID" style="font-size: large;">@weatherStation.Temperature1.ToString(ci)</label><label>&nbsp;°C</label>
+                                        </div>
+                                        <div>
+                                            <label id="lbl-weather-t1-edge-@device.ID">@weatherStation.EdgeTemperature1.Minimum.ToString(ci)/@weatherStation.EdgeTemperature1.Maximum.ToString(ci)</label>
+                                        </div>
+                                    </div>
+                                    <div style="display: inline-block">
+                                        <p>@T2Caption</p>
+                                        <canvas id="gauge-t2-@device.ID" style="display: block" width="100" height="100"></canvas>
+                                        <div>
+                                            <label id="lbl-weather-t2-@device.ID" style="font-size: large;">@weatherStation.Temperature2.ToString(ci)</label><label>&nbsp;°C</label>
+                                        </div>
+                                        <div>
+                                            <label id="lbl-weather-t2-edge-@device.ID">@weatherStation.EdgeTemperature2.Minimum.ToString(ci)/@weatherStation.EdgeTemperature2.Maximum.ToString(ci)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display: inline-block; min-width: 300px;">
+                                    <p style="font-size: large;"><strong>Wind</strong></p>
+                                    <div style="display: inline-block">
+                                        <p>Actual</p>
+                                        <canvas id="gauge-wind-@device.ID" style="display: block" width="100" height="100"></canvas>
+                                        <div>
+                                            <label id="lbl-weather-windspeed-@device.ID" style="font-size: large;">@weatherStation.Windspeed.ToString(ci)</label><label>&nbsp;m/s</label>
+                                        </div>
+                                        <div>
+                                            <label id="lbl-weather-windspeed-edge-@device.ID">@weatherStation.EdgeWindspeed.Minimum.ToString(ci)/@weatherStation.EdgeWindspeed.Maximum.ToString(ci)</label>
+                                        </div>
+                                    </div>
+                                    <div style="display: inline-block">
+                                        <p>Average 30min</p>
+                                        <canvas id="gauge-windAvg-@device.ID" style="display: block" width="100" height="100"></canvas>
+                                        <div>
+                                            <label id="lbl-weather-windspeed-avg-@device.ID" style="font-size: large;">@weatherStation.WindspeedAvg.ToString(ci)</label><label>&nbsp;m/s</label>
+                                        </div>
+                                        <div>
+                                            <label id="lbl-weather-windspeed-avg-edge-@device.ID">@weatherStation.EdgeWindspeedAvg.Minimum.ToString(ci)/@weatherStation.EdgeWindspeedAvg.Maximum.ToString(ci)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display: inline-block; min-width: 300px;">
+                                    <p style="font-size: large;"><strong>Sunshine</strong></p>
+                                    <div>
+                                        <canvas id="gauge-sunshine-@device.ID" width="100" height="100"></canvas>
+                                    </div>
+                                    <div style="display: inline-block">
+                                        <div>
+                                            <label id="lbl-weather-sunshine-@device.ID" style="font-size: large;">@weatherStation.SunshinePercent.ToString(ci)</label><label>&nbsp;%</label>
+                                        </div>
+                                        <div>
+                                            <label id="lbl-weather-sunshine-edge-@device.ID">@weatherStation.EdgeSunshinePercent.Minimum.ToString(ci)/@weatherStation.EdgeSunshinePercent.Maximum.ToString(ci)</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <!--
                         <div class="card-footer bg-transparent">
@@ -166,31 +168,24 @@
                             <strong>@ivtController.Name</strong>
                         </div>
                         <div class="card-body">
-                            <table style="width: 100%">
-                                <tr>
-                                    <td colspan="4" id="td-ivtctl-time-@device.ID" class="font-digital7">@ivtController.MeasureTime.ToString("HH:mm:ss")</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="4"><strong>Temperature</strong></td>
-                                </tr>
+                            <div>
+                                <label id="lbl-ivtctl-time-@device.ID" class="font-digital7">@ivtController.MeasureTime.ToString("HH:mm:ss")</label>
+                            </div>
+                            <div>
+                                <p style="font-size: large;"><strong>Temperature</strong></p>
                                 @if (!string.IsNullOrEmpty(ivtController.CustomsTemperature.Caption))
                                 {
-                                    <tr>
-                                        <td colspan="4">@ivtController.CustomsTemperature.Caption</td>
-                                    </tr>
+                                    <p>@ivtController.CustomsTemperature.Caption</p>
                                 }
-                                <tr>
-                                    <td colspan="4"><canvas id="gauge-ivtclt-temperature-@device.ID" width="100" height="100"></canvas></td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2" id="td-ivtctl-temperature-@device.ID" style="text-align:right">@ivtController.TemperatureFloor.ToString(ci)</td>
-                                    <td colspan="2" style="text-align:left">°C</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">Water flow:</td>
-                                    <td colspan="2" id="td-ivtctl-flow-@device.ID">@waterFlowUIText</td>
-                                </tr>
-                            </table>
+                                <canvas id="gauge-ivtclt-temperature-@device.ID" width="100" height="100"></canvas>
+                                <div>
+                                    <label id="lbl-ivtctl-temperature-@device.ID" style="font-size: large;">@ivtController.TemperatureFloor.ToString(ci)</label><label>&nbsp;°C</label>
+                                </div>
+                                <div style="font-size: large;">
+                                    <label>Water flow:&nbsp;</label>
+                                    <label id="lbl-ivtctl-flow-@device.ID">@waterFlowUIText</label>
+                                </div>
+                            </div>
                         </div>
                         <!--
                         <div class="card-footer bg-transparent">
@@ -227,7 +222,7 @@
 <script>
     var JSWeatherStationID = @WeatherStationID;
     var JSIVTControllerID = @IVTControllerID;
-    var GaugeT1, GaugeT2, GaugeWind, GaugeWindAwg
+    var GaugeT1, GaugeT2, GaugeWind, GaugeWindAwg, GaugeSunshine
     var GaugeIVT
 
     $(document).ready(function () {
@@ -236,7 +231,7 @@
             CreateWeatherStationGauges(JSWeatherStationID);
         }
         if (JSIVTControllerID > 0) {
-            var curTemp = $("#td-ivtctl-temperature-" + JSIVTControllerID).html();
+            var curTemp = $("#lbl-ivtctl-temperature-" + JSIVTControllerID).html();
             $.get('/Devices/GetCustomsHomyokoIVTController/' + JSIVTControllerID, function (data) {
                 if (data == null) return;
                 //console.log(data);
@@ -256,22 +251,23 @@
                 if (data == null) return;
                 //console.log(data);
                 var dataJson = JSON.parse(data);
-                $("#td-weather-time-" + JSWeatherStationID).html(dataJson.MTime);
-                $("#td-weather-t1-" + JSWeatherStationID).html(dataJson.T1);
-                $("#td-weather-t2-" + JSWeatherStationID).html(dataJson.T2);
-                $("#td-weather-windspeed-" + JSWeatherStationID).html(dataJson.Wind);
-                $("#td-weather-windspeed-avg-" + JSWeatherStationID).html(dataJson.WindAvg);
-                $("#td-weather-sunshine-" + JSWeatherStationID).html(dataJson.Shine);
-                $("#td-weather-t1-edge-" + JSWeatherStationID).html(dataJson.EdgeT1);
-                $("#td-weather-t2-edge-" + JSWeatherStationID).html(dataJson.EdgeT2);
-                $("#td-weather-windspeed-edge-" + JSWeatherStationID).html(dataJson.EdgeWind);
-                $("#td-weather-windspeed-avg-edge-" + JSWeatherStationID).html(dataJson.EdgeWindAvg);
-                $("#td-weather-sunshine-edge-" + JSWeatherStationID).html(dataJson.EdgeShine);
+                $("#lbl-weather-time-" + JSWeatherStationID).html(dataJson.MTime);
+                $("#lbl-weather-t1-" + JSWeatherStationID).html(dataJson.T1);
+                $("#lbl-weather-t2-" + JSWeatherStationID).html(dataJson.T2);
+                $("#lbl-weather-windspeed-" + JSWeatherStationID).html(dataJson.Wind);
+                $("#lbl-weather-windspeed-avg-" + JSWeatherStationID).html(dataJson.WindAvg);
+                $("#lbl-weather-sunshine-" + JSWeatherStationID).html(dataJson.Shine);
+                $("#lbl-weather-t1-edge-" + JSWeatherStationID).html(dataJson.EdgeT1);
+                $("#lbl-weather-t2-edge-" + JSWeatherStationID).html(dataJson.EdgeT2);
+                $("#lbl-weather-windspeed-edge-" + JSWeatherStationID).html(dataJson.EdgeWind);
+                $("#lbl-weather-windspeed-avg-edge-" + JSWeatherStationID).html(dataJson.EdgeWindAvg);
+                $("#lbl-weather-sunshine-edge-" + JSWeatherStationID).html(dataJson.EdgeShine);
 
                 if (GaugeT1 != null) GaugeT1.set(dataJson.T1);
                 if (GaugeT2 != null) GaugeT2.set(dataJson.T2);
                 if (GaugeWind != null) GaugeWind.set(dataJson.Wind);
                 if (GaugeWindAwg != null) GaugeWindAwg.set(dataJson.WindAvg);
+                if (GaugeSunshine != null) GaugeSunshine.set(dataJson.Shine);
             });
         }
 
@@ -280,9 +276,9 @@
                 if (data == null) return;
                 //console.log(data);
                 var dataJson = JSON.parse(data);
-                $("#td-ivtctl-time-" + JSIVTControllerID).html(dataJson.MTime);
-                $("#td-ivtctl-temperature-" + JSIVTControllerID).html(dataJson.T);
-                $("#td-ivtctl-flow-" + JSIVTControllerID).html(dataJson.Flow);
+                $("#lbl-ivtctl-time-" + JSIVTControllerID).html(dataJson.MTime);
+                $("#lbl-ivtctl-temperature-" + JSIVTControllerID).html(dataJson.T);
+                $("#lbl-ivtctl-flow-" + JSIVTControllerID).html(dataJson.Flow);
 
                 if (GaugeIVT != null) GaugeIVT.set(dataJson.T);
             });
@@ -299,10 +295,11 @@
     }
     function CreateWeatherStationGauges(deviceID)
     {
-        var curTemp1 = $("#td-weather-t1-" + deviceID).html();
-        var curTemp2 = $("#td-weather-t2-" + deviceID).html();
-        var curWind = $("#td-weather-windspeed-" + deviceID).html();
-        var curWindAvg = $("#td-weather-windspeed-avg-" + deviceID).html();
+        var curTemp1 = $("#lbl-weather-t1-" + deviceID).html();
+        var curTemp2 = $("#lbl-weather-t2-" + deviceID).html();
+        var curWind = $("#lbl-weather-windspeed-" + deviceID).html();
+        var curWindAvg = $("#lbl-weather-windspeed-avg-" + deviceID).html();
+        var curSunshine = $("#lbl-weather-sunshine-" + deviceID).html();
 
         $.get('/Devices/GetCustomsHomyokoWeatherStation/' + JSWeatherStationID, function (data) {
             if (data == null) return;
@@ -312,12 +309,9 @@
             GaugeT2 = CreateTempGauge("gauge-t2-" + deviceID, Number(dataJson.T2Minimum), Number(dataJson.T2Maximum), Number(curTemp2));
             GaugeWind = CreateWindGauge("gauge-wind-" + deviceID, Number(dataJson.WDLightAir), Number(dataJson.WDGentleBreeze), Number(dataJson.WDStrongBreeze), Number(curWind));
             GaugeWindAwg = CreateWindGauge("gauge-windAvg-" + deviceID, Number(dataJson.WDLightAir), Number(dataJson.WDGentleBreeze), Number(dataJson.WDStrongBreeze), Number(curWindAvg));
+            GaugeSunshine = CreateSunshineGauge("gauge-sunshine-" + deviceID, Number(dataJson.SunDay), Number(curSunshine));
 
         }); // End of $.GET
-
-
-
-
     }
 
 
@@ -397,6 +391,42 @@
             gauge.setMinValue(0);
             gauge.maxValue = Speed3 + 10;
             gauge.set(currentSpeed);
+            return gauge;
+        }
+    }
+    function CreateSunshineGauge(canvasGaugeName, dayStart, currentShine) {
+        var opts = {
+            angle: -0.25,
+            lineWidth: 0.2,
+            radiusScale: 0.9,
+            pointer: {
+                length: 0.6,
+                strokeWidth: 0.05,
+                color: '#000000'
+            }/*,
+            staticLabels: {
+                font: "10px sans-serif",
+                labels: [200, 500, 2100, 2800],
+                fractionDigits: 0
+            }*/,
+            staticZones: [
+                { strokeStyle: "#575757", min: 0, max: dayStart },
+                { strokeStyle: "#FFDD00", min: dayStart, max: 100 },
+            ],
+            limitMax: false,
+            limitMin: false,
+            highDpiSupport: true
+        };
+
+
+        var target = document.getElementById(canvasGaugeName);
+        if (target == null) {
+            console.log("Canvas gauge '" + canvasGaugeName + "' not found.");
+        } else {
+            var gauge = new Gauge(target).setOptions(opts);
+            gauge.setMinValue(0);
+            gauge.maxValue = 100;
+            gauge.set(currentShine);
             return gauge;
         }
     }

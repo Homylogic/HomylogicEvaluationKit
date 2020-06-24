@@ -271,6 +271,7 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
         public WeatherStation() 
         { 
             base.DeviceType = DeviceTypes.HomyokoWeatherStation;
+            this._ignoreLogDisconnect = true;
             this.PortNumber = 5242;
             this.SocketType = SocketTypes.Client;
             this.PacketEndChar = @"\r\n";

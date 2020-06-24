@@ -25,6 +25,10 @@ namespace X.Homylogic.Models.Objects.Devices
         TcpClient _tcpClient;
         NetworkStream _networkStream;
         bool _isClosing;
+        /// <summary>
+        /// Allows disable logs client/server disconnect.
+        /// </summary>
+        protected bool _ignoreLogDisconnect = false;
 
         #region --- DATA PROPERTIES ---
 
@@ -242,13 +246,15 @@ g_start:
                                 {
                                     if (this.SocketType == SocketTypes.Server)
                                     {
-                                        Body.Environment.Logs.Info($"Remote client has beend disconnected.", source:$"{TITLE} : {this.Name}");
+                                        if (!_ignoreLogDisconnect)
+                                            Body.Environment.Logs.Info($"Remote client has beend disconnected.", source:$"{TITLE} : {this.Name}");
                                         this.CanWrite = false;
                                         goto g_start;
                                     }
                                     else
                                     {
-                                        Body.Environment.Logs.Info($"Remote server has beend disconnected.", source:$"{TITLE} : {this.Name}");
+                                        if (!_ignoreLogDisconnect)
+                                            Body.Environment.Logs.Info($"Remote server has beend disconnected.", source:$"{TITLE} : {this.Name}");
                                         goto g_exit;
                                     }
                                 }

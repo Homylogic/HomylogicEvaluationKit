@@ -98,22 +98,24 @@ body {
 }
 
 /* Home cards */
+.card {
+    background-color: rgba(255,255,255, 0.9) !important;
+}
 .card-clickable {
     cursor: pointer;
 }
-.card-width {
-    max-width: initial;
+.card-body {
+    margin: 0 !important;
 }
-@media (min-width: 768px) {
-    .card-width {
-        max-width: 18rem;
-    }
+.card-fullwidth {
+    flex: 100% !important;
+    margin-bottom: 2em !important;
 }
-@media (min-width: 768px) {
-    .card {
-        align-self: flex-start; /* Automatická výška karty podľa veľkosti obsahu */
-    }
+/* Cards content */
+.card-body p {
+    margin: 0;
 }
+
 
 
 
@@ -131,7 +133,7 @@ body {
 
 
 
-/* SCROLL BARS ------------------------------------------------------------*/
+/* SCROLL BARS STYLE --------------------------------------------------*/
 
 /* width */
 ::-webkit-scrollbar {
