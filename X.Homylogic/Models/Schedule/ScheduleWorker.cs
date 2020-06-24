@@ -8,6 +8,7 @@ using Org.BouncyCastle.Asn1.Cms;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -70,7 +71,8 @@ g_start:    try
                                     for (int n = 0; n < ivtController.Scheduler.List.Count; n++)
                                     {
                                         ScheduleRecord schedule = (ScheduleRecord)ivtController.Scheduler.List[n];
-                                        if (schedule.IsProcessedToday) continue;
+                                        // Ignore scheduler item which was already processed today.
+                                        if (schedule.LastProcessedDate != DateTime.MinValue && schedule.LastProcessedDate == DateTime.Now.Date) continue;
                                         bool isDay = false;
                                         if (schedule.DayMonday && day == DayOfWeek.Monday) isDay = true;
                                         if (schedule.DayTuesday && day == DayOfWeek.Tuesday) isDay = true;
@@ -170,7 +172,7 @@ g_start:    try
                                 }
                                 if (closeDevice)
                                     device.Close();
-                                schedule.IsProcessedToday = true;
+                                schedule.LastProcessedDate = DateTime.Now.Date;
                                 lock (_syncObject)
                                 {
                                     _deviceIDs.Remove(curIDs);

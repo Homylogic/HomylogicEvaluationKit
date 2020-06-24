@@ -17,9 +17,9 @@ namespace X.Homylogic.Models.Schedule
         readonly DBClient _dbClient;
 
         /// <summary>
-        /// Či bola už položka dnes spracovaná.
+        /// Last processed date.
         /// </summary>
-        public bool IsProcessedToday;
+        public DateTime LastProcessedDate = DateTime.MinValue;
 
         #region --- DATA PROPERTIES ---
 
@@ -136,6 +136,12 @@ namespace X.Homylogic.Models.Schedule
             sql.AppendFormat("methodName = {0}, ", q.Str(this.MethodName));
             sql.AppendFormat("actionSettings = {0}", q.Str(this.ActionSettings));
             return sql.ToString();
+        }
+        public override void Save()
+        {
+            base.Save();
+            // Reset last processed date when scheduler items was saved.
+            this.LastProcessedDate = DateTime.MinValue;
         }
 
         #endregion
