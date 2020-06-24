@@ -54,20 +54,25 @@ button.accept-policy {
 /* Sticky footer styles
 -------------------------------------------------- */
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  /* Margin bottom by footer height */
-  margin-bottom: 60px;
+    /* Margin bottom by footer height */
+    margin-bottom: 60px;
+    /* Main body has no vertical scrolls, only content body container can scroll vertically */
+    overflow-y: hidden;
+}
+#body-container {
+    overflow-y: auto;
 }
 .footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px; /* Vertically center the text there */
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px; /* Vertically center the text there */
 }
 
 
@@ -121,4 +126,29 @@ body {
 .font-digital7 {
     font-family: digital7;
     font-size: 2em;
+}
+
+
+
+
+/* SCROLL BARS ------------------------------------------------------------*/
+
+/* width */
+::-webkit-scrollbar {
+    width: 20px;
+}
+/* Track */
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey;
+    border-radius: 10px;
+}
+/* Handle */
+::-webkit-scrollbar-thumb {
+    background: darkgray ;
+    border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: black;
 }
