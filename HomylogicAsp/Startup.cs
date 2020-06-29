@@ -52,6 +52,13 @@ namespace HomylogicAsp
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllerRoute(
+                    name: "Devices",
+                    pattern: "Devices/{controller}/{action=Index}/{id?}");
+
+                /* MORE INFO about custom endpoints ...
+                    https://docs.microsoft.com/en-us/aspnet/core/mvc/controllers/routing?view=aspnetcore-3.1 
+                 */
             });
         }
     }

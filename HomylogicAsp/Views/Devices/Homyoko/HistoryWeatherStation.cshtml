@@ -1,6 +1,8 @@
 ﻿@model HomylogicAsp.Models.Devices.Homyoko.EditWeatherStationViewModel
 
+
 @using X.Homylogic.Models.Objects.Devices.Homyoko;
+
 
 @{
     ViewData["Title"] = "Meteostation history";
@@ -10,17 +12,24 @@
     {
         ViewData["SubTitle"] = "Meteostation device not found.";
     }
-    else {
+    else
+    {
         ViewData["SubTitle"] = weatherStation.Name;
     }
-
-    
-
 
 }
 
 <h1>@ViewData["Title"]</h1>
-<h4><img id="navigate-back" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
+<h4><img onclick="OnNavigateBack()" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
+
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label">Date period</label>
+    <div class="col-sm-3">
+        <select id="history-selected-data-range" class="browser-default custom-select form-control" onchange="OnDataRangeChanged()">
+            <option value="@HomylogicAsp.Controllers.Devices.HistoryController.SELECTABLE_RANGE_DEFALT_KEY">@HomylogicAsp.Controllers.Devices.HistoryController.SELECTABLE_RANGE_DEFALT_CAPTION</option>
+        </select>
+    </div>
+</div>
 
 <canvas id="chart-temperatures"></canvas>
 <canvas id="chart-winds"></canvas>
@@ -29,158 +38,202 @@
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 <script src="~/lib/chartjs/Chart.bundle.js"></script>
 
+
 <script>
-    var configTemperatures = {
-        type: 'line',
-        data: {
-            datasets: [{
-                label: 'Temperature 1',
-                backgroundColor: 'rgba(255, 0, 0, 0.7)',
-                borderColor: 'rgba(255, 0, 0, 0.5)',
-                fill: false
-            }, {
-                label: 'Temperature 2',
-                backgroundColor: 'rgba(0, 0, 255, 0.7)',
-                borderColor: 'rgba(0, 0, 255, 0.5)',
-                fill: false
-            }]
-        },
-        options: {
-            responsive: true,
-            title: {
-                display: true,
-                text: 'Temperatures'
-            },
-            tooltips: {
-                mode: 'index',
-                intersect: false,
-            },
-            hover: {
-                mode: 'nearest',
-                intersect: true
-            },
-            scales: {
-                xAxes: [{
-                    display: true,
-                    type: 'time',
-                    distribution: 'linear',
-                    time: {
-                        unit: 'day',
-                        displayFormats: {
-                            day: 'HH:mm - MMM D'
-                        }
-                    },
-                }],
-                yAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Temperature °C'
-                    }
-                }]
-            }
-        }
-    };
-    var configWinds = {
-        type: 'line',
-        data: {
-            datasets: [{
-                label: 'Windspeed average',
-                backgroundColor: 'rgba(0, 255, 0, 0.7)',
-                borderColor: 'rgba(0, 255, 0, 0.5)',
-                fill: false
-            }, {
-                label: 'Windspeed actual',
-                backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                borderColor: 'rgba(0, 0, 0, 0.3)',
-                fill: false
-            }]
-        },
-        options: {
-            responsive: true,
-            title: {
-                display: true,
-                text: 'Windspeed'
-            },
-            tooltips: {
-                mode: 'index',
-                intersect: false,
-            },
-            hover: {
-                mode: 'nearest',
-                intersect: true
-            },
-            scales: {
-                xAxes: [{
-                    display: true,
-                    type: 'time',
-                    distribution: 'linear',
-                    time: {
-                        unit: 'day',
-                        displayFormats: {
-                            day: 'HH:mm - MMM D'
-                        }
-                    },
-                }],
-                yAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Speed m/s'
-                    }
-                }]
-            }
-        }
-    };
-    var configShine = {
-        type: 'line',
-        data: {
-            datasets: [{
-                label: 'Sunshine',
-                backgroundColor: 'rgba(198, 179, 0, 0.7)',
-                borderColor: 'rgba(198, 179, 0, 0.5)',
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            title: {
-                display: true,
-                text: 'Sunshine'
-            },
-            tooltips: {
-                mode: 'index',
-                intersect: false,
-            },
-            hover: {
-                mode: 'nearest',
-                intersect: true
-            },
-            scales: {
-                xAxes: [{
-                    display: true,
-                    type: 'time',
-                    distribution: 'linear',
-                    time: {
-                        unit: 'day',
-                        displayFormats: {
-                            day: 'HH:mm - MMM D'
-                        }
-                    },
-                }],
-                yAxes: [{
-                    display: true,
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Shine %'
-                    }
-                }]
-            }
-        }
-    };
+    var backUrl = null;
 
-    $(document).ready(function () {
+    $(document).ready(function ()
+    {
+        // Read last selected data range key from URL param and cookies on first time when url is empty.
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        var rangeKey = urlParams.get('key');
+        if (rangeKey == null) {
+            rangeKey = getCookie("SelectedHistoryRangeDevice" + @weatherStation.ID);
+        }
+        backUrl = urlParams.get('backUrl');
 
+        // Get available history data ranges.
+        var url = '/Devices/History/GetSelectablesDataRange/' + @weatherStation.ID;
+        $.get(url, function (data) {
+            if (data == null) return;
+            var arrData = data.split(";");
+            var htmlOptions;
+            for (var i = 0; i < arrData.length; i++) {
+                if (arrData[i].trim() == '') continue;
+                arrValues = arrData[i].split(":");
+                var key = arrValues[0];
+                var caption = arrValues[1];
+                var selected = (rangeKey == key) ? " selected " : "";
+                htmlOptions += '<option value="' + key + '"' + selected + '>' + caption + '</option>';
+            }
+            $("#history-selected-data-range").html(htmlOptions);
+        });
+
+        // Charts configuration.
+        var scaleX_Unit = "hour"; // Default for today and yesterday.
+        if (rangeKey != null) {
+            if (rangeKey.startsWith("[days") || rangeKey.startsWith("[month-"))
+                scaleX_Unit = "day";
+            if (rangeKey.startsWith("[year-"))
+                scaleX_Unit = "month";
+        }
+        var configTemperatures = {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: 'Temperature 1',
+                    backgroundColor: 'rgba(255, 0, 0, 0.7)',
+                    borderColor: 'rgba(255, 0, 0, 0.5)',
+                    fill: false
+                }, {
+                    label: 'Temperature 2',
+                    backgroundColor: 'rgba(0, 0, 255, 0.7)',
+                    borderColor: 'rgba(0, 0, 255, 0.5)',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Temperatures'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        type: 'time',
+                        distribution: 'linear',
+                        time: {
+                            unit: scaleX_Unit,
+                            displayFormats: {
+                                hour: 'HH:mm',
+                                day: 'MMM D',
+                                month: 'MMM D'
+                            }
+                        },
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Temperature °C'
+                        }
+                    }]
+                }
+            }
+        };
+        var configWinds = {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: 'Windspeed average',
+                    backgroundColor: 'rgba(0, 255, 0, 0.7)',
+                    borderColor: 'rgba(0, 255, 0, 0.5)',
+                    fill: false
+                }, {
+                    label: 'Windspeed actual',
+                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                    borderColor: 'rgba(0, 0, 0, 0.3)',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Windspeed'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        type: 'time',
+                        distribution: 'linear',
+                        time: {
+                            unit: scaleX_Unit,
+                            displayFormats: {
+                                hour: 'HH:mm',
+                                day: 'MMM D',
+                                month: 'MMM D'
+                            }
+                        },
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Speed m/s'
+                        }
+                    }]
+                }
+            }
+        };
+        var configShine = {
+            type: 'line',
+            data: {
+                datasets: [{
+                    label: 'Sunshine',
+                    backgroundColor: 'rgba(198, 179, 0, 0.7)',
+                    borderColor: 'rgba(198, 179, 0, 0.5)',
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Sunshine'
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                hover: {
+                    mode: 'nearest',
+                    intersect: true
+                },
+                scales: {
+                    xAxes: [{
+                        display: true,
+                        type: 'time',
+                        distribution: 'linear',
+                        time: {
+                            unit: scaleX_Unit,
+                            displayFormats: {
+                                hour: 'HH:mm',
+                                day: 'MMM D',
+                                month: 'MMM D'
+                            }
+                        },
+                    }],
+                    yAxes: [{
+                        display: true,
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Shine %'
+                        }
+                    }]
+                }
+            }
+        };
+
+        // Create history charts objects.
         var ctxTemps = document.getElementById('chart-temperatures').getContext('2d');
         window.chartTemps = new Chart(ctxTemps, configTemperatures);
         var ctxWinds = document.getElementById('chart-winds').getContext('2d');
@@ -188,8 +241,11 @@
         var ctxShine = document.getElementById('chart-shine').getContext('2d');
         window.chartShine = new Chart(ctxShine, configShine);
 
-        // Načítaj históriu údajov.
-        var url = '/Devices/GetHistoryHomyokoWeatherStation/' + @weatherStation.ID;
+        // Load history data.
+        var url = '/Devices/History/GetHistoryHomyokoWeatherStation/' + @weatherStation.ID + '?rangeKey=' + rangeKey;
+        // Add group per hour for small screens, because charts are too small for too many data points.
+        if (window.innerWidth < 900)
+            url += '&dataGroupType=' + @Convert.ToInt32(HomylogicAsp.Controllers.Devices.HistoryController.DataGroupTypes.AvgHour);
         $.get(url, function (data) {
             if (data == null) return;
             var arrData = data.split(";");
@@ -219,9 +275,23 @@
         // Nastaviť obmedzenie na maximálnu šírku stránky,
         // nastavuje sa podľa výšky, aby graf vošiel akurát na stránku.
         $("#body-container").css("max-width", window.outerHeight + "px");
-
     });
+    function OnDataRangeChanged()
+    {
+        // Save current selected option in cookies.
+        var rangeKey = $("#history-selected-data-range").val();
+        document.cookie = "SelectedHistoryRangeDevice" + @weatherStation.ID + "=" + rangeKey;
 
+        // Refresh current page with new selected rangeKey parameter value.
+        window.location = "/Devices/History/WeatherStation/" + @weatherStation.ID + "?key=" + rangeKey + "&backUrl=" + backUrl ;
+    }
+    function OnNavigateBack() {
+        if (backUrl == null) {
+            window.history.back();
+        } else {
+            window.location = backUrl;
+        }
+    }
 
 </script>
 

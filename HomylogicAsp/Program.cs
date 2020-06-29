@@ -90,6 +90,8 @@ namespace HomylogicAsp
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("OK");
 
+
+
             // * * * DATABASE CHECK OR TRANSFORM TO NEW VERSION * * *
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("Checking database ...");
@@ -106,6 +108,8 @@ namespace HomylogicAsp
             }
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("OK");
+
+
 
             // * * * LOADING APPLICATION ENVIRONMENT * * *
             Console.ForegroundColor = ConsoleColor.White;
@@ -124,6 +128,8 @@ namespace HomylogicAsp
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("OK");
 
+
+
             // * * * LOAD RUNTIME OBJECTS FROM DATABASE * * *
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("Loading objects ...");
@@ -140,6 +146,8 @@ namespace HomylogicAsp
             }
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("OK");
+
+
 
             // * * * LOADING APPLICATION ENVIRONMENT USERS * * *
             Console.ForegroundColor = ConsoleColor.White;
@@ -158,6 +166,8 @@ namespace HomylogicAsp
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("OK");
 
+
+
             // * * * START RUNTIME OBJECTS * * *
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("Starting objects ...");
@@ -174,6 +184,8 @@ namespace HomylogicAsp
             }
             Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("OK");
+
+
 
             // * * * START KESTREL ASP WEB SERVER * * *
             Console.ForegroundColor = ConsoleColor.White;

@@ -314,47 +314,6 @@ namespace HomylogicAsp.Controllers
                 return null;
             }
         }
-        // GET: HistoryWeatherStation/?
-        public ActionResult HistoryWeatherStation(int id) 
-        {
-            return View("Homyoko/HistoryWeatherStation", new Models.Devices.Homyoko.EditWeatherStationViewModel() { ID = id });
-        }
-        // GET: GetHistoryHomyokoWeatherStation/?
-        public string GetHistoryHomyokoWeatherStation(int id)
-        {
-            // Načítaj zoznam histórie log údajov a vrát ich v čo najkratšej textovej podobe.
-            StringBuilder result = new StringBuilder();
-            string tableName = $"deviceHistory_{id}";
-            string sql = $"SELECT logTime, temperature1, temperature2, windspeed, windspeedAvg, sunshine FROM {tableName} ORDER BY logTime DESC";
-            DBClient dbClient = Body.Database.DBClientLogs;
-            CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-            ci.NumberFormat.NumberDecimalSeparator = ".";
-            ci.NumberFormat.NegativeSign = "-";
-            ci.NumberFormat.NumberGroupSeparator = "";
-            try
-            {
-                dbClient.Open();
-                using DBReader dbReader = dbClient.ExecuteReader(sql);
-                int count = 0;
-                while (dbReader.Read())
-                {
-                    string time = dbReader.GetDateTime("logTime").ToString("yyyy-MM-dd HH:mm:ss");
-                    string temp1 = dbReader.GetFloat("temperature1").ToString(ci);
-                    string temp2 = dbReader.GetFloat("temperature2").ToString(ci);
-                    string wind = dbReader.GetFloat("windspeed").ToString(ci);
-                    string windA = dbReader.GetFloat("windspeedAvg").ToString(ci);
-                    int shineVal = dbReader.GetInt32("sunshine");
-                    string shine = Math.Round(shineVal * WeatherStation.SUN_SHINE_PERCENT_COEF, 2).ToString(ci);
-                    result.AppendFormat("{0},{1},{2},{3},{4},{5};", time, temp1, temp2, wind, windA, shine);
-                    count++;
-                    if (count > 300) break;
-                }
-            }
-            catch (Exception)
-            {
-            }
-            return result.ToString();
-        }
         // GET: GetDataHomyokoWeatherStation/?
         public string GetDataHomyokoIVTController(int id)
         {
@@ -415,43 +374,6 @@ namespace HomylogicAsp.Controllers
                 Body.Environment.Logs.Error("Can't get customs of IVT controller device.", new Exception($"Device (ID: {id}) is not IVT controller."), this.GetType().Name);
                 return null;
             }
-        }
-
-        // GET: HistoryIVTController/?
-        public ActionResult HistoryIVTController(int id)
-        {
-            return View("Homyoko/HistoryIVTController", new Models.Devices.Homyoko.EditIVTControllerViewModel() { ID = id });
-        }
-        // GET: GetHistoryHomyokoIVTController/?
-        public string GetHistoryHomyokoIVTController(int id)
-        {
-            // Načítaj zoznam histórie log údajov a vrát ich v čo najkratšej textovej podobe.
-            StringBuilder result = new StringBuilder();
-            string tableName = $"deviceHistory_{id}";
-            string sql = $"SELECT logTime, temperatureFloor FROM {tableName} ORDER BY logTime DESC";
-            DBClient dbClient = Body.Database.DBClientLogs;
-            CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-            ci.NumberFormat.NumberDecimalSeparator = ".";
-            ci.NumberFormat.NegativeSign = "-";
-            ci.NumberFormat.NumberGroupSeparator = "";
-            try
-            {
-                dbClient.Open();
-                using DBReader dbReader = dbClient.ExecuteReader(sql);
-                int count = 0;
-                while (dbReader.Read())
-                {
-                    string time = dbReader.GetDateTime("logTime").ToString("yyyy-MM-dd HH:mm:ss");
-                    string temp = dbReader.GetFloat("temperatureFloor").ToString(ci);
-                    result.AppendFormat("{0},{1};", time, temp);
-                    count++;
-                    if (count > 300) break;
-                }
-            }
-            catch (Exception)
-            {
-            }
-            return result.ToString();
         }
         // GET: GetControlStatusIVTController/?
         public string GetControlStatusIVTController(int id)
