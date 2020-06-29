@@ -7,12 +7,13 @@ https://homylogic.com
 Next plans:
 - Build advanced and universal Meteostation ver.2
 - Add support for louver device
-- Add users and more settings
 
 
-16.06.2020 - June/2020 beta
+29.06.2020 - June/2020 beta
 - Added gauges
+- Add users with privileges
 - MySQL is recommended database now
+
 
 09.06.2020 - First version released - May/2020 beta
 
