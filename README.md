@@ -4,7 +4,7 @@ Automation Software
 https://homylogic.com
 
 
-Next version at september:
+Next version in september:
 - Build advanced and universal Meteostation ver.2
 - Add support for louver device
 
