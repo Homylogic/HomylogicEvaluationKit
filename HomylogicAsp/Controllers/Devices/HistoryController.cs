@@ -13,7 +13,6 @@ using HomylogicAsp.Models.Devices;
 using System.Text;
 using X.Homylogic.Models.Objects.Devices.Homyoko;
 using System.Globalization;
-using Newtonsoft.Json;
 using X.Data;
 using System.Threading;
 using System.Runtime.CompilerServices;
@@ -57,10 +56,6 @@ namespace HomylogicAsp.Controllers.Devices
                     sql.Append("GROUP BY DATE_FORMAT(logTime, '%Y-%m') ");
                 }
                 sql.Append("ORDER BY logTime DESC");
-                CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-                ci.NumberFormat.NumberDecimalSeparator = ".";
-                ci.NumberFormat.NegativeSign = "-";
-                ci.NumberFormat.NumberGroupSeparator = "";
                 List<int> yearsAdded = new List<int>();
                 dbClient.Open();
                 using DBReader dbReader = dbClient.ExecuteReader(sql.ToString());
@@ -136,22 +131,18 @@ namespace HomylogicAsp.Controllers.Devices
                     sql.Append(sqlWhere);
                 }
                 sql.Append("ORDER BY logTime DESC");
-                CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-                ci.NumberFormat.NumberDecimalSeparator = ".";
-                ci.NumberFormat.NegativeSign = "-";
-                ci.NumberFormat.NumberGroupSeparator = "";
                 dbClient.Open();
                 using DBReader dbReader = dbClient.ExecuteReader(sql.ToString());
                 int count = 0;
                 while (dbReader.Read())
                 {
                     string time = dbReader.GetDateTime("logTime").ToString("yyyy-MM-dd HH:mm:ss");
-                    string temp1 = dbReader.GetFloat("temperature1").ToString(ci);
-                    string temp2 = dbReader.GetFloat("temperature2").ToString(ci);
-                    string wind = dbReader.GetFloat("windspeed").ToString(ci);
-                    string windA = dbReader.GetFloat("windspeedAvg").ToString(ci);
+                    string temp1 = dbReader.GetFloat("temperature1").ToString(XCommon.CSVNumberCulture);
+                    string temp2 = dbReader.GetFloat("temperature2").ToString(XCommon.CSVNumberCulture);
+                    string wind = dbReader.GetFloat("windspeed").ToString(XCommon.CSVNumberCulture);
+                    string windA = dbReader.GetFloat("windspeedAvg").ToString(XCommon.CSVNumberCulture);
                     int shineVal = dbReader.GetInt32("sunshine");
-                    string shine = Math.Round(shineVal * X.Homylogic.Models.Objects.Devices.Homyoko.WeatherStation.SUN_SHINE_PERCENT_COEF, 2).ToString(ci);
+                    string shine = Math.Round(shineVal * X.Homylogic.Models.Objects.Devices.Homyoko.WeatherStation.SUN_SHINE_PERCENT_COEF, 2).ToString(XCommon.CSVNumberCulture);
                     result.AppendFormat("{0},{1},{2},{3},{4},{5};", time, temp1, temp2, wind, windA, shine);
                     count++;
                 }
@@ -206,10 +197,6 @@ namespace HomylogicAsp.Controllers.Devices
                 sql.Append(sqlWhere);
             }
             sql.Append("ORDER BY logTime DESC");
-            CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-            ci.NumberFormat.NumberDecimalSeparator = ".";
-            ci.NumberFormat.NegativeSign = "-";
-            ci.NumberFormat.NumberGroupSeparator = "";
             try
             {
                 dbClient.Open();
@@ -218,7 +205,7 @@ namespace HomylogicAsp.Controllers.Devices
                 while (dbReader.Read())
                 {
                     string time = dbReader.GetDateTime("logTime").ToString("yyyy-MM-dd HH:mm:ss");
-                    string temp = dbReader.GetFloat("temperatureFloor").ToString(ci);
+                    string temp = dbReader.GetFloat("temperatureFloor").ToString(XCommon.CSVNumberCulture);
                     result.AppendFormat("{0},{1};", time, temp);
                     count++;
                     if (count > 300) break;

@@ -130,15 +130,21 @@ g_start:
 
                     foreach (Int64 dataUpdateID in autoDataUpdatesID)
                     {
-                        try
+                        DeviceX device = (DeviceX)Body.Runtime.Devices.FindDataRecord(dataUpdateID);
+                        if (device != null)
                         {
-                            DeviceX device = (DeviceX)Body.Runtime.Devices.FindDataRecord(dataUpdateID);
-                            if (device != null)
+                            try
                             {
                                 // Načítanie údajov so zariadenie a nastavenie premenných.
                                 IAutoDataUpdate autoDataUpdate = (IAutoDataUpdate)device;
                                 autoDataUpdate.AutoDataUpdate();
-
+                            }
+                            catch (Exception ex)
+                            {
+                                Body.Environment.Logs.Error($"Problem updating device data (ID: {dataUpdateID}).", ex, this.GetType().Name);
+                            }
+                            try
+                            {
                                 // Vykonaj zápis do histórie log údajov.
                                 if (device is IHistoryDataLogs historyDataLogs)
                                 {
@@ -148,12 +154,12 @@ g_start:
                                         ishistoryLogged = true;
                                     }
                                 }
-                            }                                
-                        }
-                        catch (Exception ex)
-                        {
-                            Body.Environment.Logs.Error($"Problem updating weather device (ID: {dataUpdateID}).", ex, this.GetType().Name);
-                        }
+                            }
+                            catch (Exception ex)
+                            {
+                                Body.Environment.Logs.Error($"Problem updating device history (ID: {dataUpdateID}).", ex, this.GetType().Name);
+                            }
+                        }                                
                     }
 
                     if (ishistoryLogged)

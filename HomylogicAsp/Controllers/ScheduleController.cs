@@ -13,7 +13,6 @@ using HomylogicAsp.Models.Devices;
 using System.Text;
 using X.Homylogic.Models.Objects.Devices.Homyoko;
 using System.Globalization;
-using Newtonsoft.Json;
 using X.Data;
 using HomylogicAsp.Models.Devices.Homyoko;
 using X.Homylogic.Models.Schedule;

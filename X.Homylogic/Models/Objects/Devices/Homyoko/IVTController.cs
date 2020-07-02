@@ -51,9 +51,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.Text;
 using System.Threading;
+using X.Basic;
 using X.Data;
 using X.Data.Management;
 
@@ -301,10 +301,6 @@ g_again:
         /// </summary>
         protected override void OnDataRecived(string data, string packetEndChar)
         {
-            CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-            ci.NumberFormat.NumberDecimalSeparator = ".";
-            ci.NumberFormat.NegativeSign = "-";
-
             // Spracuj prijaté údaje a nastav premenné.
             switch (this.PacketType)
             {
@@ -323,8 +319,8 @@ g_again:
                                 string strVon = arrTemps[1].Replace("\r\n", string.Empty).Replace("Vonku: ", string.Empty).Trim();
 
                                 this.MeasureTime = DateTime.Now;
-                                this.TemperatureFloor = float.Parse(strPodlaha, ci);
-                                this.TemperatureOut = float.Parse(strVon, ci);
+                                this.TemperatureFloor = float.Parse(strPodlaha, XCommon.CSVNumberCulture);
+                                this.TemperatureOut = float.Parse(strVon, XCommon.CSVNumberCulture);
                             }
                             catch (Exception ex)
                             {
@@ -509,14 +505,6 @@ g_again:
                 long lastID = (long)Body.Database.DBClientLogs.ExecuteScalar($"SELECT ID FROM deviceHistory_{this.ID} ORDER BY ID DESC LIMIT 30000, 1");
                 Body.Database.DBClientLogs.ExecuteNonQuery($"DELETE FROM deviceHistory_{this.ID} WHERE ID < {lastID}");
             }
-        }
-        /// <summary>
-        /// Nastaví hodnoty (vlastnosti) histórie, podľa údajov z databázy.
-        /// </summary>
-        public void SetDataHistory()
-        {
-            // TODO: Dorobiť históriu - napr. max/min teplota ...
-            throw new NotImplementedException("Zatiaľ nedokončené ...");
         }
 
         #endregion

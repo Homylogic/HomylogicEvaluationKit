@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HomylogicInstallSSLWin", "T
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Batchs", "Batchs", "{0B85278D-526C-4FCD-B4B2-CDAAC8D6C111}"
 	ProjectSection(SolutionItems) = preProject
-		Batchs\Copy HomylogicAsp to RaspberryPi98 .bat = Batchs\Copy HomylogicAsp to RaspberryPi98 .bat
+		Batchs\Copy HomylogicAsp to RaspberryPi .bat = Batchs\Copy HomylogicAsp to RaspberryPi .bat
 	EndProjectSection
 EndProject
 Global

@@ -5,7 +5,7 @@
  * 
  */
 using System;
-using System.Globalization;
+using X.Basic;
 
 namespace X.Data.Management
 {
@@ -34,12 +34,7 @@ namespace X.Data.Management
         /// </summary>
         public string Float(float value) 
         {
-            CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-            // TODO: V exa.Basic zalozit format cisla ...
-            ci.NumberFormat.NumberDecimalSeparator = ".";
-            ci.NumberFormat.NegativeSign = "-";
-            ci.NumberFormat.NumberGroupSeparator = "";
-            return value.ToString(ci); 
+            return value.ToString(XCommon.CSVNumberCulture); 
         }
 
 

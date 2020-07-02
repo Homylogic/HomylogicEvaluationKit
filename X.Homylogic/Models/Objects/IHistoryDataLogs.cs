@@ -15,6 +15,5 @@ namespace X.Homylogic.Models.Objects.Devices
         void DropTableHistory(long id);
         void WriteLogHistory();
         void DeleteLogHistory();
-        void SetDataHistory();
     }
 }

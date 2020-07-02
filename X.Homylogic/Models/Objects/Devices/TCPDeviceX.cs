@@ -244,15 +244,13 @@ g_start:
                                 byte[] buff = new byte[1];
                                 if (_tcpClient.Client.Receive(buff, SocketFlags.Peek) == 0)
                                 {
-                                    if (this.SocketType == SocketTypes.Server)
-                                    {
+                                    if (this.SocketType == SocketTypes.Server) {
                                         if (!_ignoreLogDisconnect)
                                             Body.Environment.Logs.Info($"Remote client has beend disconnected.", source:$"{TITLE} : {this.Name}");
                                         this.CanWrite = false;
                                         goto g_start;
                                     }
-                                    else
-                                    {
+                                    else {
                                         if (!_ignoreLogDisconnect)
                                             Body.Environment.Logs.Info($"Remote server has beend disconnected.", source:$"{TITLE} : {this.Name}");
                                         goto g_exit;
@@ -281,7 +279,7 @@ g_start:
                     }
                     catch (SocketException ex) 
                     { 
-                        if (ex.ErrorCode == 10053) goto g_exit; // Zariadenie bolo zatvorené.
+                        if (ex.ErrorCode == 10053 || ex.ErrorCode == 10054) goto g_exit; // Zariadenie bolo zatvorené.
                     }
                     catch (Exception ex)
                     {

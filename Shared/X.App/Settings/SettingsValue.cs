@@ -4,9 +4,7 @@
  * 
  */
 using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
+using X.Basic;
 
 namespace X.App.Settings
 {
@@ -27,11 +25,7 @@ namespace X.App.Settings
                 try
                 {
                     if (string.IsNullOrEmpty(_value)) return 0;
-                    CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-                    ci.NumberFormat.NumberDecimalSeparator = ".";
-                    ci.NumberFormat.NegativeSign = "-";
-                    ci.NumberFormat.NumberGroupSeparator = "";
-                    return Int32.Parse(_value, ci);
+                    return Int32.Parse(_value, XCommon.CSVNumberCulture);
                 }
                 catch (Exception)
                 {
@@ -49,11 +43,7 @@ namespace X.App.Settings
                 try
                 {
                     if (string.IsNullOrEmpty(_value)) return 0;
-                    CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-                    ci.NumberFormat.NumberDecimalSeparator = ".";
-                    ci.NumberFormat.NegativeSign = "-";
-                    ci.NumberFormat.NumberGroupSeparator = "";
-                    return Int64.Parse(_value, ci);
+                    return Int64.Parse(_value, XCommon.CSVNumberCulture);
                 }
                 catch (Exception)
                 {
@@ -70,22 +60,14 @@ namespace X.App.Settings
         /// </summary>
         public void SetValue(Int32 number) 
         {
-            CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-            ci.NumberFormat.NumberDecimalSeparator = ".";
-            ci.NumberFormat.NegativeSign = "-";
-            ci.NumberFormat.NumberGroupSeparator = "";
-            _value = number.ToString(ci); 
+            _value = number.ToString(XCommon.CSVNumberCulture); 
         }
         /// <summary>
         /// Nastavenie celočíslenú hodnoty.
         /// </summary>
         public void SetValue(Int64 number)
         {
-            CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-            ci.NumberFormat.NumberDecimalSeparator = ".";
-            ci.NumberFormat.NegativeSign = "-";
-            ci.NumberFormat.NumberGroupSeparator = "";
-            _value = number.ToString(ci);
+            _value = number.ToString(XCommon.CSVNumberCulture);
         }
     }
 }

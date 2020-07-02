@@ -13,7 +13,6 @@ using HomylogicAsp.Models.Devices;
 using System.Text;
 using X.Homylogic.Models.Objects.Devices.Homyoko;
 using System.Globalization;
-using Newtonsoft.Json;
 using X.Data;
 using System.Threading;
 using System.Runtime.CompilerServices;
@@ -252,26 +251,22 @@ namespace HomylogicAsp.Controllers
             }
             if (device is WeatherStation)
             {
-                CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-                ci.NumberFormat.NumberDecimalSeparator = ".";
-                ci.NumberFormat.NegativeSign = "-";
-
                 WeatherStation weatherStation = (WeatherStation)device;
-                var jsonData = new
-                {
-                    MTime = weatherStation.MeasureTime.ToString("HH:mm:ss"),
-                    T1 = weatherStation.Temperature1.ToString(ci),
-                    T2 = weatherStation.Temperature2.ToString(ci),
-                    Wind = weatherStation.Windspeed.ToString(ci),
-                    WindAvg = weatherStation.WindspeedAvg.ToString(ci),
-                    Shine = weatherStation.SunshinePercent.ToString(ci),
-                    EdgeT1 = string.Format("{0}/{1}", weatherStation.EdgeTemperature1.Minimum.ToString(ci), weatherStation.EdgeTemperature1.Maximum.ToString(ci)),
-                    EdgeT2 = string.Format("{0}/{1}", weatherStation.EdgeTemperature2.Minimum.ToString(ci), weatherStation.EdgeTemperature2.Maximum.ToString(ci)),
-                    EdgeWind = string.Format("{0}/{1}", weatherStation.EdgeWindspeed.Minimum.ToString(ci), weatherStation.EdgeWindspeed.Maximum.ToString(ci)),
-                    EdgeWindAvg = string.Format("{0}/{1}", weatherStation.EdgeWindspeedAvg.Minimum.ToString(ci), weatherStation.EdgeWindspeedAvg.Maximum.ToString(ci)),
-                    EdgeShine = string.Format("{0}/{1}", weatherStation.EdgeSunshinePercent.Minimum.ToString(ci), weatherStation.EdgeSunshinePercent.Maximum.ToString(ci)),
-                };
-                return JsonConvert.SerializeObject(jsonData);
+                // ! Using 'Newtonsoft.Json + JsonConvert.SerializeObject' is problem with memory leak, don't use JSON serializer.
+                // Return simple CSV string.
+                return string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}|{9}|{10}",
+                    weatherStation.MeasureTime.ToString("HH:mm:ss"),
+                    weatherStation.Temperature1.ToString(XCommon.CSVNumberCulture),
+                    weatherStation.Temperature2.ToString(XCommon.CSVNumberCulture),
+                    weatherStation.Windspeed.ToString(XCommon.CSVNumberCulture),
+                    weatherStation.WindspeedAvg.ToString(XCommon.CSVNumberCulture),
+                    weatherStation.SunshinePercent.ToString(XCommon.CSVNumberCulture),
+                    string.Format("{0}/{1}", weatherStation.EdgeTemperature1.Minimum.ToString(XCommon.CSVNumberCulture), weatherStation.EdgeTemperature1.Maximum.ToString(XCommon.CSVNumberCulture)),
+                    string.Format("{0}/{1}", weatherStation.EdgeTemperature2.Minimum.ToString(XCommon.CSVNumberCulture), weatherStation.EdgeTemperature2.Maximum.ToString(XCommon.CSVNumberCulture)),
+                    string.Format("{0}/{1}", weatherStation.EdgeWindspeed.Minimum.ToString(XCommon.CSVNumberCulture), weatherStation.EdgeWindspeed.Maximum.ToString(XCommon.CSVNumberCulture)),
+                    string.Format("{0}/{1}", weatherStation.EdgeWindspeedAvg.Minimum.ToString(XCommon.CSVNumberCulture), weatherStation.EdgeWindspeedAvg.Maximum.ToString(XCommon.CSVNumberCulture)),
+                    string.Format("{0}/{1}", weatherStation.EdgeSunshinePercent.Minimum.ToString(XCommon.CSVNumberCulture), weatherStation.EdgeSunshinePercent.Maximum.ToString(XCommon.CSVNumberCulture))
+                );
             }
             else {
                 Body.Environment.Logs.Error("Can't get data of weather device.", new Exception($"Device (ID: {id}) is not weather station."), this.GetType().Name);
@@ -289,24 +284,23 @@ namespace HomylogicAsp.Controllers
             }
             if (device is WeatherStation)
             {
-                CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-                ci.NumberFormat.NumberDecimalSeparator = ".";
-                ci.NumberFormat.NegativeSign = "-";
-
                 WeatherStation weatherStation = (WeatherStation)device;
-                var jsonData = new
-                {
-                    T1Caption = weatherStation.CustomsTemperature1.Caption,
-                    T1Minimum = weatherStation.CustomsTemperature1.Minimum.ToString(ci),
-                    T1Maximum = weatherStation.CustomsTemperature1.Maximum.ToString(ci),
-                    T2Minimum = weatherStation.CustomsTemperature2.Minimum.ToString(ci),
-                    T2Maximum = weatherStation.CustomsTemperature2.Maximum.ToString(ci),
-                    WDLightAir = weatherStation.CustomsWindspeed.LightAir.ToString(ci),
-                    WDGentleBreeze = weatherStation.CustomsWindspeed.GentleBreeze.ToString(ci),
-                    WDStrongBreeze = weatherStation.CustomsWindspeed.StrongBreeze.ToString(ci),
-                    SunDay = weatherStation.CustomsSunshine.Day.ToString(ci),
-                };
-                return JsonConvert.SerializeObject(jsonData);
+                // ! Using 'Newtonsoft.Json + JsonConvert.SerializeObject' is problem with memory leak, don't use JSON serializer.
+                // Return simple CSV string.
+                string CustomsTemperature1_Caption = weatherStation.CustomsTemperature1.Caption;
+                if (!string.IsNullOrEmpty(CustomsTemperature1_Caption)) 
+                    CustomsTemperature1_Caption = CustomsTemperature1_Caption.Replace("|", ",");
+                return string.Format("{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}|{8}",
+                    CustomsTemperature1_Caption,
+                    weatherStation.CustomsTemperature1.Minimum.ToString(XCommon.CSVNumberCulture),
+                    weatherStation.CustomsTemperature1.Maximum.ToString(XCommon.CSVNumberCulture),
+                    weatherStation.CustomsTemperature2.Minimum.ToString(XCommon.CSVNumberCulture),
+                    weatherStation.CustomsTemperature2.Maximum.ToString(XCommon.CSVNumberCulture),
+                    weatherStation.CustomsWindspeed.LightAir.ToString(XCommon.CSVNumberCulture),
+                    weatherStation.CustomsWindspeed.GentleBreeze.ToString(XCommon.CSVNumberCulture),
+                    weatherStation.CustomsWindspeed.StrongBreeze.ToString(XCommon.CSVNumberCulture),
+                    weatherStation.CustomsSunshine.Day.ToString(XCommon.CSVNumberCulture)
+                );
             }
             else
             {
@@ -325,19 +319,17 @@ namespace HomylogicAsp.Controllers
             }
             if (device is IVTController)
             {
-                CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-                ci.NumberFormat.NumberDecimalSeparator = ".";
-                ci.NumberFormat.NegativeSign = "-";
-
                 IVTController ivtController = (IVTController)device;
+                // ! Using 'Newtonsoft.Json + JsonConvert.SerializeObject' is problem with memory leak, don't use JSON serializer.
+                // Return simple CSV string.
                 string waterFlowUIText = X.Basic.CodeDom.Ennum.GetDescription(typeof(IVTController.WaterFlowTypes), ivtController.WaterFlow);
-                var jsonData = new
-                {
-                    MTime = ivtController.MeasureTime.ToString("HH:mm:ss"),
-                    T = ivtController.TemperatureFloor.ToString(ci),
-                    Flow = X.Basic.CodeDom.Ennum.GetDescription(typeof(IVTController.WaterFlowTypes), ivtController.WaterFlow)
-                };
-                return JsonConvert.SerializeObject(jsonData);
+                if (!string.IsNullOrEmpty(waterFlowUIText)) 
+                    waterFlowUIText = waterFlowUIText.Replace("|", ",");
+                return string.Format("{0}|{1}|{2}",
+                    ivtController.MeasureTime.ToString("HH:mm:ss"),
+                    ivtController.TemperatureFloor.ToString(XCommon.CSVNumberCulture),
+                    waterFlowUIText
+                );
             }
             else
             {
@@ -356,18 +348,17 @@ namespace HomylogicAsp.Controllers
             }
             if (device is IVTController)
             {
-                CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-                ci.NumberFormat.NumberDecimalSeparator = ".";
-                ci.NumberFormat.NegativeSign = "-";
-
                 IVTController ivtController = (IVTController)device;
-                var jsonData = new
-                {
-                    Caption = ivtController.CustomsTemperature.Caption,
-                    Minimum = ivtController.CustomsTemperature.Minimum.ToString(ci),
-                    Maximum = ivtController.CustomsTemperature.Maximum.ToString(ci)
-                };
-                return JsonConvert.SerializeObject(jsonData);
+                // ! Using 'Newtonsoft.Json + JsonConvert.SerializeObject' is problem with memory leak, don't use JSON serializer.
+                // Return simple CSV string.
+                string CustomsTemperature_Caption = ivtController.CustomsTemperature.Caption;
+                if (!string.IsNullOrEmpty(CustomsTemperature_Caption))
+                    CustomsTemperature_Caption = CustomsTemperature_Caption.Replace("|", ",");
+                return string.Format("{0}|{1}|{2}",
+                    CustomsTemperature_Caption,
+                    ivtController.CustomsTemperature.Minimum.ToString(XCommon.CSVNumberCulture),
+                    ivtController.CustomsTemperature.Maximum.ToString(XCommon.CSVNumberCulture)
+                );
             }
             else
             {

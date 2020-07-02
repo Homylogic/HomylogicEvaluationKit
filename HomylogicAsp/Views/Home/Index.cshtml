@@ -2,8 +2,7 @@
 
 @using X.Homylogic.Models.Objects;
 @using X.Homylogic.Models.Objects.Devices.Homyoko;
-@using System.Globalization;
-@using Newtonsoft.Json;
+@using X.Basic;
 
 @{
     ViewData["Title"] = "Home";
@@ -16,10 +15,6 @@
     Int64 WeatherStationID = 0;
     Int64 IVTControllerID = 0;
 
-
-    CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-    ci.NumberFormat.NumberDecimalSeparator = ".";
-    ci.NumberFormat.NegativeSign = "-";
 
 }
 
@@ -90,20 +85,20 @@
                                         <p>@T1Caption</p>
                                         <canvas id="gauge-t1-@device.ID" style="display: block" width="100" height="100"></canvas>
                                         <div>
-                                            <label id="lbl-weather-t1-@device.ID" style="font-size: large;">@weatherStation.Temperature1.ToString(ci)</label><label>&nbsp;°C</label>
+                                            <label id="lbl-weather-t1-@device.ID" style="font-size: large;">@weatherStation.Temperature1.ToString(XCommon.CSVNumberCulture)</label><label>&nbsp;°C</label>
                                         </div>
                                         <div>
-                                            <label id="lbl-weather-t1-edge-@device.ID">@weatherStation.EdgeTemperature1.Minimum.ToString(ci)/@weatherStation.EdgeTemperature1.Maximum.ToString(ci)</label>
+                                            <label id="lbl-weather-t1-edge-@device.ID">@weatherStation.EdgeTemperature1.Minimum.ToString(XCommon.CSVNumberCulture)/@weatherStation.EdgeTemperature1.Maximum.ToString(XCommon.CSVNumberCulture)</label>
                                         </div>
                                     </div>
                                     <div style="display: inline-block">
                                         <p>@T2Caption</p>
                                         <canvas id="gauge-t2-@device.ID" style="display: block" width="100" height="100"></canvas>
                                         <div>
-                                            <label id="lbl-weather-t2-@device.ID" style="font-size: large;">@weatherStation.Temperature2.ToString(ci)</label><label>&nbsp;°C</label>
+                                            <label id="lbl-weather-t2-@device.ID" style="font-size: large;">@weatherStation.Temperature2.ToString(XCommon.CSVNumberCulture)</label><label>&nbsp;°C</label>
                                         </div>
                                         <div>
-                                            <label id="lbl-weather-t2-edge-@device.ID">@weatherStation.EdgeTemperature2.Minimum.ToString(ci)/@weatherStation.EdgeTemperature2.Maximum.ToString(ci)</label>
+                                            <label id="lbl-weather-t2-edge-@device.ID">@weatherStation.EdgeTemperature2.Minimum.ToString(XCommon.CSVNumberCulture)/@weatherStation.EdgeTemperature2.Maximum.ToString(XCommon.CSVNumberCulture)</label>
                                         </div>
                                     </div>
                                 </div>
@@ -113,20 +108,20 @@
                                         <p>Actual</p>
                                         <canvas id="gauge-wind-@device.ID" style="display: block" width="100" height="100"></canvas>
                                         <div>
-                                            <label id="lbl-weather-windspeed-@device.ID" style="font-size: large;">@weatherStation.Windspeed.ToString(ci)</label><label>&nbsp;m/s</label>
+                                            <label id="lbl-weather-windspeed-@device.ID" style="font-size: large;">@weatherStation.Windspeed.ToString(XCommon.CSVNumberCulture)</label><label>&nbsp;m/s</label>
                                         </div>
                                         <div>
-                                            <label id="lbl-weather-windspeed-edge-@device.ID">@weatherStation.EdgeWindspeed.Minimum.ToString(ci)/@weatherStation.EdgeWindspeed.Maximum.ToString(ci)</label>
+                                            <label id="lbl-weather-windspeed-edge-@device.ID">@weatherStation.EdgeWindspeed.Minimum.ToString(XCommon.CSVNumberCulture)/@weatherStation.EdgeWindspeed.Maximum.ToString(XCommon.CSVNumberCulture)</label>
                                         </div>
                                     </div>
                                     <div style="display: inline-block">
                                         <p>Average 30min</p>
                                         <canvas id="gauge-windAvg-@device.ID" style="display: block" width="100" height="100"></canvas>
                                         <div>
-                                            <label id="lbl-weather-windspeed-avg-@device.ID" style="font-size: large;">@weatherStation.WindspeedAvg.ToString(ci)</label><label>&nbsp;m/s</label>
+                                            <label id="lbl-weather-windspeed-avg-@device.ID" style="font-size: large;">@weatherStation.WindspeedAvg.ToString(XCommon.CSVNumberCulture)</label><label>&nbsp;m/s</label>
                                         </div>
                                         <div>
-                                            <label id="lbl-weather-windspeed-avg-edge-@device.ID">@weatherStation.EdgeWindspeedAvg.Minimum.ToString(ci)/@weatherStation.EdgeWindspeedAvg.Maximum.ToString(ci)</label>
+                                            <label id="lbl-weather-windspeed-avg-edge-@device.ID">@weatherStation.EdgeWindspeedAvg.Minimum.ToString(XCommon.CSVNumberCulture)/@weatherStation.EdgeWindspeedAvg.Maximum.ToString(XCommon.CSVNumberCulture)</label>
                                         </div>
                                     </div>
                                 </div>
@@ -137,10 +132,10 @@
                                     </div>
                                     <div style="display: inline-block">
                                         <div>
-                                            <label id="lbl-weather-sunshine-@device.ID" style="font-size: large;">@weatherStation.SunshinePercent.ToString(ci)</label><label>&nbsp;%</label>
+                                            <label id="lbl-weather-sunshine-@device.ID" style="font-size: large;">@weatherStation.SunshinePercent.ToString(XCommon.CSVNumberCulture)</label><label>&nbsp;%</label>
                                         </div>
                                         <div>
-                                            <label id="lbl-weather-sunshine-edge-@device.ID">@weatherStation.EdgeSunshinePercent.Minimum.ToString(ci)/@weatherStation.EdgeSunshinePercent.Maximum.ToString(ci)</label>
+                                            <label id="lbl-weather-sunshine-edge-@device.ID">@weatherStation.EdgeSunshinePercent.Minimum.ToString(XCommon.CSVNumberCulture)/@weatherStation.EdgeSunshinePercent.Maximum.ToString(XCommon.CSVNumberCulture)</label>
                                         </div>
                                     </div>
                                 </div>
@@ -179,7 +174,7 @@
                                 }
                                 <canvas id="gauge-ivtclt-temperature-@device.ID" width="100" height="100"></canvas>
                                 <div>
-                                    <label id="lbl-ivtctl-temperature-@device.ID" style="font-size: large;">@ivtController.TemperatureFloor.ToString(ci)</label><label>&nbsp;°C</label>
+                                    <label id="lbl-ivtctl-temperature-@device.ID" style="font-size: large;">@ivtController.TemperatureFloor.ToString(XCommon.CSVNumberCulture)</label><label>&nbsp;°C</label>
                                 </div>
                                 <div style="font-size: large;">
                                     <label>Water flow:&nbsp;</label>
@@ -235,8 +230,8 @@
             $.get('/Devices/GetCustomsHomyokoIVTController/' + JSIVTControllerID, function (data) {
                 if (data == null) return;
                 //console.log(data);
-                var dataJson = JSON.parse(data);
-                GaugeIVT = CreateIVTGauge("gauge-ivtclt-temperature-" + JSIVTControllerID, Number(dataJson.Minimum), Number(dataJson.Maximum), Number(curTemp));
+                var arrData = data.split("|");
+                GaugeIVT = CreateIVTGauge("gauge-ivtclt-temperature-" + JSIVTControllerID, Number(arrData[1]), Number(arrData[2]), Number(curTemp));
             }); // End of $.GET
         }
 
@@ -250,24 +245,23 @@
             $.get('/Devices/GetDataHomyokoWeatherStation/' + JSWeatherStationID, function (data) {
                 if (data == null) return;
                 //console.log(data);
-                var dataJson = JSON.parse(data);
-                $("#lbl-weather-time-" + JSWeatherStationID).html(dataJson.MTime);
-                $("#lbl-weather-t1-" + JSWeatherStationID).html(dataJson.T1);
-                $("#lbl-weather-t2-" + JSWeatherStationID).html(dataJson.T2);
-                $("#lbl-weather-windspeed-" + JSWeatherStationID).html(dataJson.Wind);
-                $("#lbl-weather-windspeed-avg-" + JSWeatherStationID).html(dataJson.WindAvg);
-                $("#lbl-weather-sunshine-" + JSWeatherStationID).html(dataJson.Shine);
-                $("#lbl-weather-t1-edge-" + JSWeatherStationID).html(dataJson.EdgeT1);
-                $("#lbl-weather-t2-edge-" + JSWeatherStationID).html(dataJson.EdgeT2);
-                $("#lbl-weather-windspeed-edge-" + JSWeatherStationID).html(dataJson.EdgeWind);
-                $("#lbl-weather-windspeed-avg-edge-" + JSWeatherStationID).html(dataJson.EdgeWindAvg);
-                $("#lbl-weather-sunshine-edge-" + JSWeatherStationID).html(dataJson.EdgeShine);
-
-                if (GaugeT1 != null) GaugeT1.set(dataJson.T1);
-                if (GaugeT2 != null) GaugeT2.set(dataJson.T2);
-                if (GaugeWind != null) GaugeWind.set(dataJson.Wind);
-                if (GaugeWindAwg != null) GaugeWindAwg.set(dataJson.WindAvg);
-                if (GaugeSunshine != null) GaugeSunshine.set(dataJson.Shine);
+                var arrData = data.split("|");
+                $("#lbl-weather-time-" + JSWeatherStationID).html(arrData[0]);
+                $("#lbl-weather-t1-" + JSWeatherStationID).html(arrData[1]);
+                $("#lbl-weather-t2-" + JSWeatherStationID).html(arrData[2]);
+                $("#lbl-weather-windspeed-" + JSWeatherStationID).html(arrData[3]);
+                $("#lbl-weather-windspeed-avg-" + JSWeatherStationID).html(arrData[4]);
+                $("#lbl-weather-sunshine-" + JSWeatherStationID).html(arrData[5]);
+                $("#lbl-weather-t1-edge-" + JSWeatherStationID).html(arrData[6]);
+                $("#lbl-weather-t2-edge-" + JSWeatherStationID).html(arrData[7]);
+                $("#lbl-weather-windspeed-edge-" + JSWeatherStationID).html(arrData[8]);
+                $("#lbl-weather-windspeed-avg-edge-" + JSWeatherStationID).html(arrData[9]);
+                $("#lbl-weather-sunshine-edge-" + JSWeatherStationID).html(arrData[10]);
+                if (GaugeT1 != null) GaugeT1.set(arrData[1]);
+                if (GaugeT2 != null) GaugeT2.set(arrData[2]);
+                if (GaugeWind != null) GaugeWind.set(arrData[3]);
+                if (GaugeWindAwg != null) GaugeWindAwg.set(arrData[4]);
+                if (GaugeSunshine != null) GaugeSunshine.set(arrData[5]);
             });
         }
 
@@ -275,12 +269,11 @@
             $.get('/Devices/GetDataHomyokoIVTController/' + JSIVTControllerID, function (data) {
                 if (data == null) return;
                 //console.log(data);
-                var dataJson = JSON.parse(data);
-                $("#lbl-ivtctl-time-" + JSIVTControllerID).html(dataJson.MTime);
-                $("#lbl-ivtctl-temperature-" + JSIVTControllerID).html(dataJson.T);
-                $("#lbl-ivtctl-flow-" + JSIVTControllerID).html(dataJson.Flow);
-
-                if (GaugeIVT != null) GaugeIVT.set(dataJson.T);
+                var arrData = data.split("|");
+                $("#lbl-ivtctl-time-" + JSIVTControllerID).html(arrData[0]);
+                $("#lbl-ivtctl-temperature-" + JSIVTControllerID).html(arrData[1]);
+                $("#lbl-ivtctl-flow-" + JSIVTControllerID).html(arrData[2]);
+                if (GaugeIVT != null) GaugeIVT.set(arrData[1]);
             });
         }
 
@@ -304,12 +297,12 @@
         $.get('/Devices/GetCustomsHomyokoWeatherStation/' + JSWeatherStationID, function (data) {
             if (data == null) return;
             //console.log(data);
-            var dataJson = JSON.parse(data);
-            GaugeT1 = CreateTempGauge("gauge-t1-" + deviceID, Number(dataJson.T1Minimum), Number(dataJson.T1Maximum), Number(curTemp1));
-            GaugeT2 = CreateTempGauge("gauge-t2-" + deviceID, Number(dataJson.T2Minimum), Number(dataJson.T2Maximum), Number(curTemp2));
-            GaugeWind = CreateWindGauge("gauge-wind-" + deviceID, Number(dataJson.WDLightAir), Number(dataJson.WDGentleBreeze), Number(dataJson.WDStrongBreeze), Number(curWind));
-            GaugeWindAwg = CreateWindGauge("gauge-windAvg-" + deviceID, Number(dataJson.WDLightAir), Number(dataJson.WDGentleBreeze), Number(dataJson.WDStrongBreeze), Number(curWindAvg));
-            GaugeSunshine = CreateSunshineGauge("gauge-sunshine-" + deviceID, Number(dataJson.SunDay), Number(curSunshine));
+            var arrData = data.split("|");
+            GaugeT1 = CreateTempGauge("gauge-t1-" + deviceID, Number(arrData[1]), Number(arrData[2]), Number(curTemp1));
+            GaugeT2 = CreateTempGauge("gauge-t2-" + deviceID, Number(arrData[3]), Number(arrData[4]), Number(curTemp2));
+            GaugeWind = CreateWindGauge("gauge-wind-" + deviceID, Number(arrData[5]), Number(arrData[6]), Number(arrData[7]), Number(curWind));
+            GaugeWindAwg = CreateWindGauge("gauge-windAvg-" + deviceID, Number(arrData[5]), Number(arrData[6]), Number(arrData[7]), Number(curWindAvg));
+            GaugeSunshine = CreateSunshineGauge("gauge-sunshine-" + deviceID, Number(arrData[8]), Number(curSunshine));
 
         }); // End of $.GET
     }

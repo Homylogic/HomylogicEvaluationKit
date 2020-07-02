@@ -38,9 +38,9 @@ using Org.BouncyCastle.Math.EC.Multiplier;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Globalization;
 using System.Text;
 using System.Threading;
+using X.Basic;
 using X.Data;
 using X.Data.Management;
 
@@ -56,6 +56,7 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
         bool _isClosed = true;
         bool _isDataReceived;
         DateTime _edgeValuesReset;
+        bool _ignoreLogCantOpenSocket = false;
 
         // Previous values for filter incorrect new values.
         float Previous_Temperature1 = float.NaN;
@@ -341,9 +342,10 @@ g_again:
                     {
                         // Odošli príkazy viac krát po sebe aby zariadenie 100% odpovedalo.
                         this.Write("xxsens5242xx");
+                        Thread.Sleep(100);
                         break;
                     }
-                    Thread.Sleep(60);
+                    Thread.Sleep(10);
                 }
                 if (_isClosed || this.Disabled) return;
 
@@ -351,7 +353,7 @@ g_again:
                 if (numOfTry > 0 && _isDataReceived == false) 
                 {
                     // Zatiaľ sa nepodarilo prijať údaje opakuj akciu.
-                    Thread.Sleep(60);
+                    Thread.Sleep(500);
                     goto g_again;
                 }
             }
@@ -359,24 +361,23 @@ g_again:
             {
                 Body.Environment.Logs.Error($"Problem sending initialization packet.", ex, $"{TITLE} : {this.Name}");
             }
+
             _isClosed = true;
+            _ignoreLogCantOpenSocket = false;
         }
         /// <summary>
         /// Logs error when device can't open connection.
         /// </summary>
         protected override void OnCantOpenSocket(Exception ex)
         {
-            Body.Environment.Logs.Error($"Can't open weather station device {this.IPAddress}:{this.PortNumber}.", ex, $"{TITLE} : {this.Name}");
+            if (!_ignoreLogCantOpenSocket)
+                Body.Environment.Logs.Error($"Can't open weather station device {this.IPAddress}:{this.PortNumber}.", ex, $"{TITLE} : {this.Name}");
         }
         /// <summary>
         /// Spracovanie prijatých údajov.
         /// </summary>
         protected override void OnDataRecived(string data, string packetEndChar)
         {
-            CultureInfo ci = (System.Globalization.CultureInfo)CultureInfo.CurrentCulture.Clone();
-            ci.NumberFormat.NumberDecimalSeparator = ".";
-            ci.NumberFormat.NegativeSign = "-";
-
             // Spracuj prijaté údaje a nastav premenné.
             switch (this.PacketType)
             {
@@ -414,11 +415,11 @@ g_again:
                     try
                     {
                         this.MeasureTime = DateTime.Now;
-                        float temperature1 = float.Parse(strTemp1, ci);
-                        float temperature2 = float.Parse(strTemp2, ci);
-                        float windspeed = float.Parse(strWind, ci);
-                        float windspeedAvg = float.Parse(strWindA, ci);
-                        float sunshine = float.Parse(strShine, ci);
+                        float temperature1 = float.Parse(strTemp1, XCommon.CSVNumberCulture);
+                        float temperature2 = float.Parse(strTemp2, XCommon.CSVNumberCulture);
+                        float windspeed = float.Parse(strWind, XCommon.CSVNumberCulture);
+                        float windspeedAvg = float.Parse(strWindA, XCommon.CSVNumberCulture);
+                        float sunshine = float.Parse(strShine, XCommon.CSVNumberCulture);
 
                         // Filter incorrect values.
                         if (!float.IsNaN(this.Previous_Temperature1)) {
@@ -495,6 +496,7 @@ g_again:
         /// </summary>
         public void AutoDataUpdate()
         {
+            _ignoreLogCantOpenSocket = true; // Disable logs exception 'OnCantOpenSocket' because 'AutoDataUpdate' can generate repetitive errors 'Connection refused'.
             this.Open();
         }
 
@@ -561,14 +563,6 @@ g_again:
                 long lastID = (long)Body.Database.DBClientLogs.ExecuteScalar($"SELECT ID FROM deviceHistory_{this.ID} ORDER BY ID DESC LIMIT 30000, 1");
                 Body.Database.DBClientLogs.ExecuteNonQuery($"DELETE FROM deviceHistory_{this.ID} WHERE ID < {lastID}");
             }
-        }
-        /// <summary>
-        /// Nastaví hodnoty (vlastnosti) histórie, podľa údajov z databázy.
-        /// </summary>
-        public void SetDataHistory()
-        {
-            // TODO: Dorobiť históriu - napr. max/min teplota ...
-            throw new NotImplementedException("Zatiaľ nedokončené ...");
         }
 
         #endregion
