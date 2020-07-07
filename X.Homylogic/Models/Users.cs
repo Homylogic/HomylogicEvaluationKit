@@ -11,7 +11,6 @@ using X.App.Users;
 using X.Data;
 using X.Homylogic.Models.Objects;
 using X.Homylogic.Models.Objects.Devices.Homyoko;
-using Microsoft.AspNetCore.Http;
 
 namespace X.Homylogic.Models
 {

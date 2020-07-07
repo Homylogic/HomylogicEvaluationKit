@@ -92,6 +92,8 @@ namespace X.Homylogic.Models.Objects.Triggers
         }
         public override void Save()
         {
+            // Poznámka sa používa len pre čítanie ako info v UI DataGride.
+            this.Notice = $"Data: {this.Data}";
             // Nastaviť relačný názov zaridenia podľa zadaného identifikátor.
             this.Name = DeviceXList.GetRelationDeviceName(this.DeviceID);
             base.Save();

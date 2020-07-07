@@ -24,6 +24,7 @@ namespace X.Homylogic.Models.Objects.Devices
         TcpListener _tcpListener;
         TcpClient _tcpClient;
         NetworkStream _networkStream;
+        List<ServerClient> _serverClients;
         bool _isClosing;
         /// <summary>
         /// Allows disable logs client/server disconnect.
@@ -139,26 +140,58 @@ namespace X.Homylogic.Models.Objects.Devices
             if (_networkStream != null) 
                 _networkStream.Dispose();
             _networkStream = null;
+
+            if (this.SocketType == SocketTypes.Server && _serverClients != null) {
+                foreach (ServerClient client in _serverClients)
+                {
+                    client.Dispose();
+                }
+                _serverClients.Clear();
+            }
+            _serverClients = null;
         }
         /// <summary>
-        /// Odošle zadané údaje na pripojený TCP socket.
+        /// Write (send) data to all connected clients or to connected server.
         /// </summary>
         public override void Write(string data) 
         {
-            // Skontroluje stav zariadenia, napr. či je komunikácia otvorená.
-            base.Write(data);
             if (_isClosing) throw new InvalidOperationException($"Can't write data to closing TCP socket device '{this.Name}'.");
 
-            // Odoslanie údajov na port.
-            try
+            switch (this.SocketType) 
             {
-                byte[] bytes = Encoding.UTF8.GetBytes(data);
-                _networkStream.Write(bytes, 0, bytes.Length);
-                _networkStream.Flush();
-            }
-            catch (Exception ex)
-            {
-                Body.Environment.Logs.Error($"Can't write data to TCP device {this.IPAddress}:{this.PortNumber}.", ex, $"{TITLE} : {this.Name}");
+                case SocketTypes.Server:
+                    // Send data to all connected clients.
+                    if (_serverClients == null || _serverClients.Count == 0) throw new InvalidOperationException($"Can't write data TCP socket device '{this.Name}', because there are no connected clients.");
+
+                    try
+                    {
+                        foreach (ServerClient client in _serverClients)
+                        {
+                            client.Write(data);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Body.Environment.Logs.Error($"Can't write data to connected clients of TCP device {this.IPAddress}:{this.PortNumber}.", ex, $"{TITLE} : {this.Name}");
+                    }
+                    break;
+
+                case SocketTypes.Client:
+                    // Check device status (if there is opened connection).
+                    base.Write(data);
+
+                    // Send data to server.
+                    try
+                    {
+                        byte[] bytes = Encoding.UTF8.GetBytes(data);
+                        _networkStream.Write(bytes, 0, bytes.Length);
+                        _networkStream.Flush();
+                    }
+                    catch (Exception ex)
+                    {
+                        Body.Environment.Logs.Error($"Can't write data to TCP device {this.IPAddress}:{this.PortNumber}.", ex, $"{TITLE} : {this.Name}");
+                    }
+                    break;
             }
         }
         /// <summary>
@@ -179,24 +212,48 @@ g_start:
                     switch (this.SocketType)
                     {
                         case SocketTypes.Server:
-                            // Spusti TCP server.
+                            // Start TCP server.
                             System.Net.IPAddress ipAddress = System.Net.IPAddress.Parse(this.IPAddress);
                             _tcpListener = new TcpListener(ipAddress, this.PortNumber);
                             _tcpListener.Start();
 
-                            // Ćakaj na pripojenie klienta.
+                            // Waint for clients connection.
+                            _serverClients = new List<ServerClient>();
                             while (!_isClosing && !this.Disabled)
                             {
+                                // Remove disconnected clients from list.
+                                for (int i = _serverClients.Count - 1; i >= 0; i--)
+                                {
+                                    ServerClient serverClient = _serverClients[i];
+                                    if (serverClient.IsDisposed || !serverClient.IsConnected) {
+                                        serverClient.Dispose();
+                                        _serverClients.RemoveAt(i);
+                                    }
+                                }
+                                // Check for new client connection.
                                 if (!_tcpListener.Pending())
                                 {
                                     Thread.Sleep(100);
                                     continue;
                                 }
                                 else {
-                                    // Nejaký klient sa chce pripojiť.
-                                    _tcpClient = _tcpListener.AcceptTcpClient();
-                                    break;
+                                    // New client connected.
+                                    TcpClient tcpClient = _tcpListener.AcceptTcpClient();
+                                    ServerClient serverClient = null;
+                                    try
+                                    {
+                                        serverClient = new ServerClient(this, tcpClient);
+                                        _serverClients.Add(serverClient);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        if (serverClient != null)
+                                            serverClient.Dispose();
+                                        Body.Environment.Logs.Error($"Problem when connecting new client to the TCP server device.", ex, $"{TITLE} : {this.Name}");
+                                    }
                                 }
+                                // Allow write(send) data, if there are any connected clients.
+                                this.CanWrite = (_serverClients.Count > 0);
                             }
                             break;
 
@@ -211,8 +268,7 @@ g_start:
                 catch (SocketException ex) 
                 {
                     // Ak nenastalo manuálne zatvorenie servera počas čakania na klientov.
-                    if (ex.ErrorCode != 10004) 
-                    {
+                    if (ex.ErrorCode != 10004) {
                         this.OnCantOpenSocket(ex);
                     }
                     goto g_exit;
@@ -310,8 +366,107 @@ g_exit:
         {
             Body.Environment.Logs.Error($"Can't open TCP socket device {this.IPAddress}:{this.PortNumber}.", ex, $"{TITLE} : {this.Name}");
         }
+        /// <summary>
+        /// Data received from connected client.
+        /// </summary>
+        internal void OnServerClientDataRecived(ServerClient serverClient, string data) 
+        {
+            this.OnDataRecived(data, this.PacketEndChar);
+        }
+        /// <summary>
+        /// Connected client to TCP server.
+        /// </summary>
+        internal sealed class ServerClient :
+            IDisposable
+        {
+            TCPDeviceX _tcpDevice;
+            TcpClient _tcpClient;
+            NetworkStream _networkStream;
+            readonly Thread _threadDataReceived;
+
+            public bool IsDisposed { get; private set; }
+            public bool IsConnected { get; private set; }
+
+            public ServerClient(TCPDeviceX tcpDevice, TcpClient tcpClient) 
+            {
+                _tcpDevice = tcpDevice;
+                _tcpClient = tcpClient;
+                _networkStream = _tcpClient.GetStream();
+                _threadDataReceived = new Thread(ThreadDataReceived) { Name = this.GetType().Name, IsBackground = true };
+                _threadDataReceived.Start();
+                this.IsConnected = true;
+            }
+            public void Write(string data) 
+            {
+                byte[] bytes = Encoding.UTF8.GetBytes(data);
+                _networkStream.Write(bytes, 0, bytes.Length);
+                _networkStream.Flush();
+            }
+            [MTAThread]
+            void ThreadDataReceived()
+            {
+g_start:        try
+                {
+                    while (!this.IsDisposed) 
+                    {
+                        // Wait for receive data.
+                        while (_networkStream != null && !_networkStream.DataAvailable)
+                        {
+                            // Check if client is connected.
+                            if (_tcpClient.Client.Poll(0, SelectMode.SelectRead))
+                            {
+                                byte[] buff = new byte[1];
+                                if (_tcpClient.Client.Receive(buff, SocketFlags.Peek) == 0) {
+                                    this.IsConnected = false;
+                                    break;
+                                }
+                            }
+                            Thread.Sleep(100);
+                        }
+                        if (this.IsDisposed || !this.IsConnected) goto g_exit;
+                        if (_networkStream == null) goto g_exit;
+
+                        // Read received data.
+                        try
+                        {
+                            byte[] bytes = new byte[1024];
+                            int readBytes = _networkStream.Read(bytes, 0, bytes.Length);
+                            if (readBytes > 0)
+                            {
+                                // Vykonaj prijatie údajov so zariadenia (zapíše údaje do bufferu a vyvolá udalosť na zariadení).
+                                string data = Encoding.UTF8.GetString(bytes, 0, readBytes);
+                                _tcpDevice.OnServerClientDataRecived(this, data);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Body.Environment.Logs.Error($"Problem processing received TCP socket data of connected client.", ex, $"{TITLE} : {_tcpDevice.Name}");
+                        }
+                    }
+                }
+                catch (Exception)
+                {
+                    Thread.Sleep(5000);
+                    if (!this.IsDisposed)
+                        goto g_start;
+                }
+g_exit:;
+            }
+            public void Dispose()
+            {
+                _tcpDevice = null;
+
+                if (_tcpClient != null)
+                    _tcpClient.Dispose();
+                _tcpClient = null;
+
+                if (_networkStream != null)
+                    _networkStream.Dispose();
+                _networkStream = null;
+
+                this.IsDisposed = true;
+            }
+        }
 
     }
-
-
 }
