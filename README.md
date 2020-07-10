@@ -3,8 +3,8 @@ Homylogic Evaluation Kit
 Automation Software
 https://homylogic.com
 
-
 Next version in september:
+- You can watch current work progress in Projects tab.
 - Build advanced and universal Meteostation ver.2
 - Add support for louver device
 
