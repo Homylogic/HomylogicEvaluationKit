@@ -28,6 +28,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Batchs", "Batchs", "{0B8527
 		Batchs\Copy HomylogicAsp to RaspberryPi .bat = Batchs\Copy HomylogicAsp to RaspberryPi .bat
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PSD", "PSD", "{263B164E-7310-4289-9BA9-CBFC6E55CBA9}"
+	ProjectSection(SolutionItems) = preProject
+		PSD\Variable.psd = PSD\Variable.psd
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

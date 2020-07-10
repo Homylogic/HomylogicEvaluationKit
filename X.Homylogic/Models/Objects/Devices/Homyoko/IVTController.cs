@@ -127,6 +127,23 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
         /// Nastavuje as automaticky pri prijatí chybného stavu IVT zariadenia.
         /// </summary>
         public bool IsProblemHighTemperature { get; private set; } = false;
+
+        #region --- DATA PROPERTIES ---
+
+        public enum PacketTypes : Int32
+        {
+            [Description("Version 1.")]
+            Version_1 = 1
+            /* Verzia 2 sa zatiaľ neplánuje, ale pre istotu ...
+            [Description("Version 2.")]
+            Version_2 = 2
+            */
+        }
+        /// <summary>
+        /// Určuje verziu komunikácie so zariadením (formát používaných paketov).
+        /// </summary>
+        public PacketTypes PacketType { get; set; } = PacketTypes.Version_1;
+        public override string Settings => $"IP: {this.IPAddress}:{this.PortNumber}";
         /// <summary>
         /// Customs settings values for temperatures.
         /// </summary>
@@ -149,23 +166,6 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
         /// Temperature 1 customs settings.
         /// </summary>
         public CustomsTemperatureValues CustomsTemperature { get; set; }
-
-        #region --- DATA PROPERTIES ---
-
-        public enum PacketTypes : Int32
-        {
-            [Description("Version 1.")]
-            Version_1 = 1
-            /* Verzia 2 sa zatiaľ neplánuje, ale pre istotu ...
-            [Description("Version 2.")]
-            Version_2 = 2
-            */
-        }
-        /// <summary>
-        /// Určuje verziu komunikácie so zariadením (formát používaných paketov).
-        /// </summary>
-        public PacketTypes PacketType { get; set; } = PacketTypes.Version_1;
-        public override string Settings => $"IP: {this.IPAddress}:{this.PortNumber}";
 
         #endregion
 

@@ -34,7 +34,6 @@
  * 
  * 
  */
-using Org.BouncyCastle.Math.EC.Multiplier;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -93,11 +92,26 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
         /// Úroveň svetelného jasu v percentách.
         /// </summary>
         public float SunshinePercent => (float)Math.Round(this.Sunshine * SUN_SHINE_PERCENT_COEF, 2);
+
+        #region --- DATA PROPERTIES ---
+
+        public enum PacketTypes : Int32
+        {
+            [Description("Version 1.")]
+            Version_1 = 1,
+            [Description("Version 2.")]
+            Version_2 = 2
+        }
+        /// <summary>
+        /// Určuje verziu komunikácie so zariadením (formát používaných paketov).
+        /// </summary>
+        public PacketTypes PacketType { get; set; } = PacketTypes.Version_1;
+        public override string Settings => $"IP: {this.IPAddress}:{this.PortNumber}";
         /// <summary>
         /// Customs settings values for temperatures.
         /// </summary>
         public class CustomsTemperatureValues
-        { 
+        {
             /// <summary>
             /// Caption for temperature, etc. shown on home screen.
             /// </summary>
@@ -175,21 +189,6 @@ namespace X.Homylogic.Models.Objects.Devices.Homyoko
         /// Min/Max sunshine for current day.
         /// </summary>
         public EdgeValues EdgeSunshinePercent { get; private set; }
-
-        #region --- DATA PROPERTIES ---
-
-        public enum PacketTypes : Int32
-        {
-            [Description("Version 1.")]
-            Version_1 = 1,
-            [Description("Version 2.")]
-            Version_2 = 2
-        }
-        /// <summary>
-        /// Určuje verziu komunikácie so zariadením (formát používaných paketov).
-        /// </summary>
-        public PacketTypes PacketType { get; set; } = PacketTypes.Version_1;
-        public override string Settings => $"IP: {this.IPAddress}:{this.PortNumber}";
 
         #endregion
 

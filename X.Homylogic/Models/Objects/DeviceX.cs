@@ -44,7 +44,9 @@ namespace X.Homylogic.Models.Objects
             [Description("Homyoko meteo station")]
             HomyokoWeatherStation = 1001,
             [Description("Homyoko IVT controller")]
-            HomyokoIVTController = 1002
+            HomyokoIVTController = 1002/* ,
+            [Description("Homyoko louvers")]
+            HomyokoLouvers = 1003*/
         }
         /// <summary>
         /// Určuje typ zariadenia.

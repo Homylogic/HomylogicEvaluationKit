@@ -23,33 +23,21 @@ namespace X.Homylogic.Models
     {
         Thread _workerThread;
         bool _isWorking = true;
-        /// <summary>
-        /// Zoznam spúšťačov.
-        /// </summary>
-        public Objects.TriggerXList Triggers { get; private set; }
-        /// <summary>
-        /// Zásobník údajov pre čítanie.
-        /// </summary>
+
+        public TriggerXList Triggers { get; private set; }
+        public VariableXList Variables { get; private set; }
         public Objects.Buffers.InputBufferXList InputBuffers { get; private set; }
-        /// <summary>
-        /// Zásobník údajov pre odosielanie.
-        /// </summary>
         public Objects.Buffers.OutputBufferXList OutputBuffers { get; private set; }
-        /// <summary>
-        /// Zoznam zariadení.
-        /// </summary>
-        public Objects.DeviceXList Devices { get; private set; }
-        /// <summary>
-        /// Vykonávanie plánovaných úloh.
-        /// </summary>
+        public DeviceXList Devices { get; private set; }
         public Schedule.ScheduleWorker ScheduleWorker { get; private set; }
 
         public Runtime()
         {
-            this.Triggers = new Objects.TriggerXList();
+            this.Triggers = new TriggerXList();
+            this.Variables = new VariableXList();
             this.InputBuffers = new Objects.Buffers.InputBufferXList();
             this.OutputBuffers = new Objects.Buffers.OutputBufferXList();
-            this.Devices = new Objects.DeviceXList();
+            this.Devices = new DeviceXList();
             this.ScheduleWorker = new Schedule.ScheduleWorker();
         }
         /// <summary>
@@ -58,6 +46,7 @@ namespace X.Homylogic.Models
         public void Load()
         {
             this.Triggers.LoadData();
+            this.Variables.LoadData();
             this.InputBuffers.LoadData(recordsLimit:500); // Načítaj maximálne N záznamov, viac nemá význam načítavať (posledných N prijatých údajov je dostačujúce).
             this.OutputBuffers.LoadData();
             this.Devices.LoadData();

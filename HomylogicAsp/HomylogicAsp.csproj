@@ -53,10 +53,10 @@
 
   <ItemGroup>
     <Content Update="wwwroot\images\devices\Device_SerialPort_16.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\images\devices\Device_TCPSocket_16.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Content>
     <Content Update="wwwroot\images\triggers\Trigger_Device_Close_16.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

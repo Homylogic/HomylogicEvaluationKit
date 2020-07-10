@@ -61,8 +61,8 @@ namespace X.Homylogic.Models.Objects
         }
         public DeviceX GetInitializedDevice(DeviceX.DeviceTypes deviceType) 
         {
-            if (deviceType == DeviceX.DeviceTypes.Serial) return new Devices.SerialDeviceX() { ParentDataList = this };
-            if (deviceType == DeviceX.DeviceTypes.TCPSocket) return new Devices.TCPDeviceX() { ParentDataList = this };
+            if (deviceType == DeviceX.DeviceTypes.Serial) return new SerialDeviceX() { ParentDataList = this };
+            if (deviceType == DeviceX.DeviceTypes.TCPSocket) return new TCPDeviceX() { ParentDataList = this };
             if (deviceType == DeviceX.DeviceTypes.HomyokoWeatherStation) return new Devices.Homyoko.WeatherStation() { ParentDataList = this };
             if (deviceType == DeviceX.DeviceTypes.HomyokoIVTController) return new Devices.Homyoko.IVTController() { ParentDataList = this };
             return new DeviceX() { ParentDataList = this };

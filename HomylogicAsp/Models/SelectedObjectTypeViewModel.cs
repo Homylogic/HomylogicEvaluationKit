@@ -20,6 +20,10 @@ namespace HomylogicAsp.Models
                     SelectableValues = X.Basic.CodeDom.Ennum.GetEnnumValues(typeof(X.Homylogic.Models.Objects.DeviceX.DeviceTypes));
                     break;
 
+                case "Variables":
+                    SelectableValues = X.Basic.CodeDom.Ennum.GetEnnumValues(typeof(X.Homylogic.Models.Objects.VariableX.VariableTypes));
+                    break;
+
                 case "Triggers":
                     SelectableValues = X.Basic.CodeDom.Ennum.GetEnnumValues(typeof(X.Homylogic.Models.Objects.TriggerX.TriggerTypes));
                     break;

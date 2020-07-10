@@ -161,30 +161,20 @@ namespace X.Homylogic.Models
             _dbClient.ExecuteNonQuery($"INSERT INTO main (version) VALUES ({VERSION})");
 
             // -- Environment --
-            // Users
+            // Users.
             UserList.CreateTable(_dbClient);
             PrivilegeList.CreateTable(_dbClient);
             Users.CreateUsers(_dbClient);
-
-            // Settings
+            // Settings.
             SettingsList.CreateTable(_dbClient);
 
             // -- RUNTIME --
-            // Triggers
             TriggerXList.CreateTable(_dbClient);
-            // Buffers (input/output)
+            VariableXList.CreateTable(_dbClient);
             BufferXList.CreateTables(_dbClient);
-            // Devices
             DeviceXList.CreateTable(_dbClient);
-            // Schedule
             Schedule.ScheduleList.CreateTable(_dbClient);
         }
-
-
-
-
-
-
 
 
     }

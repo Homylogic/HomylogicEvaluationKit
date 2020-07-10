@@ -1,0 +1,61 @@
+﻿@model HomylogicAsp.Models.Variables.EditDecimalViewModel
+@{
+    ViewData["Title"] = "Variables";
+    if (ViewData.Model.ID == 0)
+        ViewData["SubTitle"] = "Add new decimal number variable";
+    else
+        ViewData["SubTitle"] = "Edit decimal number variable";
+}
+
+<h1>@ViewData["Title"]</h1>
+<h4><img id="navigate-back" src="~/images/svg/arrow-left-short.svg" class="img-navigate-back" />@ViewData["SubTitle"]</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="SaveDecimalVariable">
+            @Html.HiddenFor(m => m.ID)
+            @Html.HiddenFor(m => m.VariableType)
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="Name" class="control-label">Name</label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Value" class="control-label">Value</label>
+                <input asp-for="Value" class="form-control" type="number" />
+                <span asp-validation-for="Value" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DefaultValue" class="control-label">Default value</label>
+                <input asp-for="DefaultValue" class="form-control" type="number" />
+                <span asp-validation-for="DefaultValue" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Notice" class="control-label">Notice</label>
+                <textarea asp-for="Notice" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Notice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <div class="custom-control custom-checkbox">
+                    <input asp-for="Disabled" type="checkbox" class="custom-control-input" id="checkbox-disabled">
+                    <label class="custom-control-label" for="checkbox-disabled">Disabled</label>
+                </div>
+            </div>
+            <div class="form-group">
+                @if (ViewData.Model.SaveException != null)
+                {
+                    <label class="control-label text-danger">@ViewData.Model.SaveException.Message</label><br>
+                }
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+

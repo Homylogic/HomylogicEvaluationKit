@@ -91,6 +91,17 @@ namespace X.Homylogic.Models
 
                 public DevicesCategory(HomylogicPrivilegeList privilegeList) { _privilegeList = privilegeList; }
             }
+            public sealed class VariablesCategory
+            {
+                readonly HomylogicPrivilegeList _privilegeList;
+                /// <summary>
+                /// Permission for variable list.
+                /// </summary>
+                [Permission("variable-list", "Allow variable list")]
+                public bool VariableList { get; set; } = false;
+
+                public VariablesCategory(HomylogicPrivilegeList privilegeList) { _privilegeList = privilegeList; }
+            }
             public sealed class TriggersCategory
             {
                 readonly HomylogicPrivilegeList _privilegeList;
@@ -102,19 +113,12 @@ namespace X.Homylogic.Models
 
                 public TriggersCategory(HomylogicPrivilegeList privilegeList) { _privilegeList = privilegeList; }
             }
-            /// <summary>
-            /// Settings category.
-            /// </summary>
             [Category("Settings")]
             public SettingsCategory Settings { get; private set; }
-            /// <summary>
-            /// Devices category.
-            /// </summary>
             [Category("Devices")]
             public DevicesCategory Devices { get; private set; }
-            /// <summary>
-            /// Devices category.
-            /// </summary>
+            [Category("Variables")]
+            public VariablesCategory Variables { get; private set; }
             [Category("Triggers")]
             public TriggersCategory Triggers { get; private set; }
 
@@ -122,6 +126,7 @@ namespace X.Homylogic.Models
             {
                 this.Settings = new SettingsCategory(this);
                 this.Devices = new DevicesCategory(this);
+                this.Variables = new VariablesCategory(this);
                 this.Triggers = new TriggersCategory(this);
             }
         }
